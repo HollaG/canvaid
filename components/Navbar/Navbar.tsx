@@ -1,14 +1,19 @@
 "use client";
 
+import { useAuthContainer } from "@/app/providers";
+import { signInWithGoogle, signOutWithGoogle } from "@/firebase/google";
 import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import {
     Box,
     Button,
+    Center,
     Container,
     Flex,
     Link,
     Menu,
     MenuButton,
+    MenuDivider,
+    MenuItem,
     MenuList,
     Stack,
     Text,
@@ -16,9 +21,14 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "lucide-react";
+import UserAvatar from "../Display/Avatar";
 
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
+
+    const authCtx = useAuthContainer();
+
+    const user = authCtx?.user;
 
     return (
         // <Container size={PAGE_CONTAINER_SIZE} height={NAVBAR_HEIGHT}>
@@ -61,7 +71,7 @@ const Navbar = () => {
                             {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
                         </Button>
 
-                        <Menu isLazy>
+                        <Menu>
                             <MenuButton
                                 as={Button}
                                 rounded={"full"}
@@ -80,9 +90,11 @@ const Navbar = () => {
                                             name={user?.first_name}
                                         /> */}
                                 {/* <UserAvatar user={user} /> */}
+                                {/* <Button> Menu </Button> */}
+                                <Text> Menu </Text>
                             </MenuButton>
                             <MenuList alignItems={"center"}>
-                                {/* {user ? (
+                                {user ? (
                                     <>
                                         <br />
                                         <Center>
@@ -93,24 +105,25 @@ const Navbar = () => {
                                         </Center>
                                         <br />
                                         <Center>
-                                            <p>{user.first_name}</p>
+                                            <p>{user.displayName}</p>
                                         </Center>
                                         <Center>
-                                            <p>@{user.username}</p>
+                                            <p>{user.email}</p>
                                         </Center>
                                         <br />
                                         <MenuDivider />
-                                        <MenuItem
-                                            onClick={() => logoutHandler()}
-                                        >
+                                        <MenuItem onClick={signOutWithGoogle}>
                                             Logout
                                         </MenuItem>
                                     </>
                                 ) : (
                                     <Center>
-                                        <LoginButton />
+                                        <Button onClick={signInWithGoogle}>
+                                            {" "}
+                                            Login{" "}
+                                        </Button>
                                     </Center>
-                                )} */}
+                                )}
                             </MenuList>
                         </Menu>
                     </Stack>

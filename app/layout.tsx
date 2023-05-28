@@ -1,5 +1,7 @@
+import Body from "@/components/Body";
+import { Stack } from "@chakra-ui/react";
 import { Inter } from "next/font/google";
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "../components/Navbar/Navbar";
 //import { chakra } from '@chakra-ui/react'
 const inter = Inter({ subsets: ["latin"] });
 import { Providers } from "./providers";
@@ -19,7 +21,7 @@ export default function RootLayout({
             <body>
                 <Providers>
                     <Navbar />
-                    {children}
+                    <Body>{children}</Body>
                 </Providers>
             </body>
         </html>
