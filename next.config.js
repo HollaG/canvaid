@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+    publicRuntimeConfig: {
+        "page-container-size": "xl",
+    },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
