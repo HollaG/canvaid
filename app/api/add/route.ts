@@ -1,3 +1,4 @@
+import { create } from "@/firebase/database/repositories/uploads";
 import {
     QuestionResponse,
     QuizAttempt,
@@ -20,9 +21,11 @@ export async function GET() {
     //   return NextResponse.json({ data });
 }
 
-interface IAddBody {
+export interface IAddBody {
     html: string;
-    name: string;
+    quizName: string;
+    course: string;
+    uid: string;
 }
 
 // https://github.com/vercel/next.js/discussions/39957
@@ -32,10 +35,11 @@ export async function POST(request: Request) {
         console.log("POST REQUEST MADE");
 
         try {
-            const { html, name }: IAddBody = await request.json();
+            const { html, quizName, course, uid }: IAddBody =
+                await request.json();
             // console.log({ data });
 
-            if (!html || !name) {
+            if (!html || !quizName) {
                 return console.log("error: no data");
             }
 
@@ -62,7 +66,8 @@ export async function POST(request: Request) {
                 };
                 if (
                     question.classList.contains("multiple_answers_question") ||
-                    question.classList.contains("multiple_choice_question")
+                    question.classList.contains("multiple_choice_question") ||
+                    question.classList.contains("true_false_question")
                 ) {
                     for (const answer of answers) {
                         const answerId = answer.id.split("_")[1];
@@ -175,10 +180,19 @@ export async function POST(request: Request) {
             )["quiz_submission_questions"] as QuizSubmissionQuestion[];
 
             const quizAttempt: QuizAttempt = {
-                questions: quizSubmissionQuestions,
+                questions: quizSubmissionQuestions.sort(
+                    (a, b) => a.position - b.position
+                ),
                 selectedOptions: obj,
                 submission: quizData[0], // TODO: change this to the attempt number
+                quizName,
+                course,
+                userUid: uid,
             };
+
+            await create(quizAttempt);
+
+            return NextResponse.json(quizAttempt);
         } catch (e) {
             console.log("ERROR!");
             console.log(e);

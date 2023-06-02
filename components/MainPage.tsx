@@ -9,7 +9,7 @@ import {
     Stack,
 } from "@chakra-ui/react";
 import SignOutButton from "./SignOutButton";
-import Course from "./Module";
+import Courses from "./Module";
 import { useAuthContainer } from "../app/providers";
 import { signInWithGoogle } from "@/firebase/google";
 
@@ -39,7 +39,7 @@ const MainPage = () => {
 
             {authCtx ? <Heading> HELLO USER</Heading> : <Text> :( </Text>}
 
-            <Course />
+            <Courses />
         </Stack>
     );
     //const { signOut } = useAuth(); // Replace with the sign-out function from firebase

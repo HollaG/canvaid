@@ -99,6 +99,11 @@ export type QuizAttempt = {
     submission: QuizSubmission;
     questions: QuizSubmissionQuestion[];
     selectedOptions: QuizResponse;
+
+    // TODO: change this later
+    quizName: string;
+    course: string;
+    userUid: string;
 };
 
 export type QuizResponse = {

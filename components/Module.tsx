@@ -1,23 +1,40 @@
 "use client";
+import { QuizAttempt } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
 
-const Course = () => {
-    const modules = [
-        {
-            id: 1,
-            name: "Module 1",
-            quizzes: [
-                { id: 1, name: "Quiz 1" },
-                { id: 2, name: "Quiz 2" },
-                { id: 3, name: "Quiz 3" },
-                { id: 4, name: "Quiz 4" },
-                { id: 5, name: "Quiz 5" },
-                // Add more quizzes as needed
-            ],
-            maxQuizzesToShow: 3,
-        },
-        // Add more modules as needed
-    ];
+const Courses = ({ quizAttempts }: { quizAttempts: QuizAttempt[] }) => {
+    console.log(quizAttempts);
+    const modules = quizAttempts.map((attempt, index) => ({
+        name: attempt.course,
+        quizzes: [{ id: attempt.submission.id, name: attempt.quizName }],
+        id: index,
+    }));
+
+    // const modules = [
+    //     {
+    //         id: 1,
+    //         name: "CS2040s",
+    //         quizzes: [
+    //             { id: 1, name: "Quiz 1" },
+    //             { id: 2, name: "Quiz 2" },
+    //             { id: 3, name: "Quiz 3" },
+    //             { id: 4, name: "Quiz 4" },
+    //             { id: 5, name: "Quiz 5" },
+    //             // Add more quizzes as needed
+    //         ],
+    //         maxQuizzesToShow: 3,
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "GEA1000",
+    //         quizzes: [
+    //             { id: 1, name: "Quiz 1" },
+    //             { id: 2, name: "Quiz 2" },
+    //             { id: 3, name: "Quiz 3" },
+    //         ],
+    //     },
+    //     // Add more modules as needed
+    // ];
 
     const showAllQuizzes = (moduleIndex: number) => {
         // Implement logic to handle "See All Quizzes" button click
@@ -27,12 +44,12 @@ const Course = () => {
 
     return (
         <Box p={4}>
-            <Flex align="center" justify="space-between" mb={4}>
+            {/* <Flex align="center" justify="space-between" mb={4}>
                 <Button colorScheme="blue">Upload a Quiz</Button>
-            </Flex>
+            </Flex> */}
 
             <Text fontSize="xl" fontWeight="bold" mb={2} align={"center"}>
-                Modules
+                Courses
             </Text>
 
             <Grid templateColumns="repeat(3, 1fr)" gap={4}>
@@ -64,4 +81,4 @@ const Course = () => {
     );
 };
 
-export default Course;
+export default Courses;
