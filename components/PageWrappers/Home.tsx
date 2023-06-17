@@ -10,7 +10,7 @@ import {
     useColorModeValue,
     createIcon,
 } from "@chakra-ui/react";
-import { signInWithGoogle } from "@/firebase/google";
+import { signInWithGoogle } from "@/firebase/auth/google";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import NextLink from "next/link";
 
