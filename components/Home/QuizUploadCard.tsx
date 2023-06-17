@@ -99,7 +99,7 @@ export default function QuizUploadCard({
                         cursor={"pointer"}
                         w="full"
                         as={NextLink}
-                        href={`/quiz/${quiz.id}`}
+                        href={`/uploads/${quiz.id}`}
                     >
                         <Text fontSize={"md"} fontWeight={"semibold"}>
                             View quiz

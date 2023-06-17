@@ -119,6 +119,22 @@ export const getAttempts = async (
     return data as Array<QuizAttempt & { id: string }>;
 };
 
+export const getQuizUpload = async (
+    uploadId: string
+): Promise<Quiz & { id: string }> => {
+    const uploadRef = doc(db, COLLECTION_NAME, uploadId);
+    const docSnap = await getDoc(uploadRef);
+
+    if (docSnap.exists()) {
+        return {
+            id: docSnap.id,
+            ...docSnap.data(),
+        } as Quiz & { id: string };
+    } else {
+        throw new Error("No such document!");
+    }
+};
+
 function recursivelyReplaceNullToZero(j: any) {
     for (var i in j) {
         if (typeof j[i] === "object") {
