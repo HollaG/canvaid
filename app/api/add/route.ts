@@ -27,6 +27,15 @@ export interface IAddBody {
     course: string;
     uid: string;
 }
+export interface IAddMultiBody {
+    html: string;
+    quizName: string;
+    course: string;
+    uid: string;
+    selectedOptions: QuizResponse;
+    submission: QuizSubmission;
+}
+
 
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {
@@ -35,7 +44,7 @@ export async function POST(request: Request) {
         console.log("POST REQUEST MADE");
 
         try {
-            const { html, quizName, course, uid }: IAddBody =
+            const { html, quizName, course, uid }: IAddMultiBody =
                 await request.json();
             // console.log({ data });
 
@@ -145,7 +154,7 @@ export async function POST(request: Request) {
             const [courseId, quizId] = URL.match(/\d+/g) || [];
 
             // console.log(API_TOKEN);
-            const fetchQuizDataUrl = `https://canvas.nus.edu.sg/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
+            const fetchQuizDataUrl = `https://canvas.instructure.com/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
             // console.log({ fetchUrl: fetchQuizDataUrl });
 
             const CANVAS_HTTP_OPTIONS = {
@@ -166,10 +175,10 @@ export async function POST(request: Request) {
             const quizData = (await quizDataResponse.json())[
                 "quiz_submissions"
             ] as QuizSubmission[];
-            console.log({ quizData });
+            //console.log({ quizData });
             const quizSubmissionID = quizData[0].id;
 
-            const fetchQuizQuestionsUrl = `https://canvas.nus.edu.sg/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
+            const fetchQuizQuestionsUrl = `https://canvas.instructure.com/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
             const quizSubmissionQuestionsResponse = await fetch(
                 fetchQuizQuestionsUrl,
                 CANVAS_HTTP_OPTIONS
@@ -189,6 +198,14 @@ export async function POST(request: Request) {
                 course,
                 userUid: uid,
             };
+            // in case the question takes in text input, we need to manually set the score to 0 as it's not in the response
+            for (let all in quizAttempt.selectedOptions) {
+                if( quizAttempt.selectedOptions[all].total_score == undefined) {
+                    quizAttempt.selectedOptions[all].total_score = 0;
+
+                }
+            }
+            //console.log( quizAttempt.selectedOptions[170137162] );
 
             await create(quizAttempt);
 

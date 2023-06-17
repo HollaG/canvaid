@@ -1,14 +1,18 @@
 "use client";
-import { QuizAttempt } from "@/types/canvas";
+import { MultipleQuizAttempt } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
+import Link from 'next/link'
 
-const Courses = ({ quizAttempts }: { quizAttempts: QuizAttempt[] }) => {
-    console.log(quizAttempts);
-    const modules = quizAttempts.map((attempt, index) => ({
+const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizAttempt[] }) => {
+    console.log(multipleQuizAttempts);
+    const modules = multipleQuizAttempts.map((attempt, index) =>{ 
+        const len = attempt.submission.length; // returns attempt at the end of the array
+        return {
         name: attempt.course,
-        quizzes: [{ id: attempt.submission.id, name: attempt.quizName }],
+        quizzes: [{ id: attempt.submission[len - 1].id, name: attempt.quizName }],
         id: index,
-    }));
+        }}
+    );
 
     // const modules = [
     //     {
@@ -61,10 +65,24 @@ const Courses = ({ quizAttempts }: { quizAttempts: QuizAttempt[] }) => {
                         borderRadius="md"
                     >
                         <Text fontSize="lg" fontWeight="bold" mb={2}>
+                        <Link
+                            href={{
+                                pathname: '/course',
+                                query: { name: module.name },
+                            }}
+                            >
                             {module.name}
+                        </Link>
                         </Text>
                         {module.quizzes.map((quiz) => (
-                            <Text key={quiz.id}>{quiz.name}</Text>
+                            <li key =  {quiz.id}>
+                                <Link href = {{
+                                    pathname: '/quiz',
+                                    query: { id: quiz.id },
+                                }}>
+                                    <Text key={quiz.id}>{quiz.name}</Text>
+                                </Link>
+                            </li>
                         ))}
                         <Flex justify="flex-end">
                             <Button

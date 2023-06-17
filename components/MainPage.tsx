@@ -9,7 +9,7 @@ import {
     Stack,
 } from "@chakra-ui/react";
 import SignOutButton from "./SignOutButton";
-import Courses from "./Module";
+import Courses from "./Courses";
 import { useAuthContainer } from "../app/providers";
 import { signInWithGoogle } from "@/firebase/google";
 

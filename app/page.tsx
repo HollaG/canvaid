@@ -1,5 +1,5 @@
 "use client";
-import Courses from "@/components/Module";
+import Courses from "@/components/Courses";
 import SignOutButton from "@/components/SignOutButton";
 import { signInWithGoogle } from "@/firebase/google";
 import {
@@ -19,7 +19,7 @@ import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { QuizAttempt } from "@/types/canvas";
+import { MultipleQuizAttempt } from "@/types/canvas";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -27,7 +27,7 @@ export default function Page() {
 
     const user = authCtx?.user;
 
-    const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
+    const [quizAttempts, setQuizAttempts] = useState<MultipleQuizAttempt[]>([]);
     useEffect(() => {
         if (user?.uid) {
             fetch(`/api/?uid=${user.uid}`)
@@ -54,7 +54,7 @@ export default function Page() {
                     Add a new quiz
                 </Link>
                 <Input placeholder="Search for a quiz..." />
-                <Courses quizAttempts={quizAttempts} />
+                <Courses multipleQuizAttempts={quizAttempts} />
             </Stack>
         </Container>
     );
