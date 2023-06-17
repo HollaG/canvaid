@@ -93,12 +93,24 @@ export interface QuizSubmission {
         | "preview";
     // Indicates whether the quiz submission is overdue and needs submission
     overdue_and_needs_submission: boolean;
+
+    quiz_points_possible: number;
 }
 
+// A singular quiz attempt
 export type QuizAttempt = {
-    submission: QuizSubmission[];
+    submission: QuizSubmission;
     questions: QuizSubmissionQuestion[];
     selectedOptions: QuizResponse;
+    quizName: string;
+    course: string;
+    userUid: string;
+};
+
+export type Quiz = {
+    submissions: QuizSubmission[];
+    questions: QuizSubmissionQuestion[];
+    selectedOptions: QuizResponse[];
 
     // TODO: change this later
     quizName: string;

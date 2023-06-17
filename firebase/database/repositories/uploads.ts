@@ -1,94 +1,106 @@
-import { QuizAttempt, MultipleQuizAttempt } from "@/types/canvas";
-import { addDoc, collection, getDocs, query, where, doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { Quiz, QuizAttempt } from "@/types/canvas";
+import {
+    addDoc,
+    collection,
+    getDocs,
+    query,
+    where,
+    doc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+} from "firebase/firestore";
 import { db } from "..";
 
 const COLLECTION_NAME = "uploads";
 
-export const create = async (
-    quizAttempt: QuizAttempt
-): Promise<MultipleQuizAttempt> => {
-    
-
+export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
     const dbRef = collection(db, COLLECTION_NAME);
+    // delete all null fields
+    recursivelyReplaceNullToZero(quizAttempt);
     try {
-        const existingQuizQuery =  query(dbRef, where("quizName", "==", quizAttempt.quizName));
-        
+        const existingQuizQuery = query(
+            dbRef,
+            where("quizName", "==", quizAttempt.quizName)
+        );
+
         const existingSnapshot = await getDocs(existingQuizQuery);
-        console.log("existingSnap :"+ existingSnapshot);
-        if ((existingSnapshot.size === 0)) {  
+        console.log("existingSnap :" + existingSnapshot);
+        if (existingSnapshot.size === 0) {
             console.log("Creating new!");
-            const multipleQuizAttempt: MultipleQuizAttempt = { // maybe use inheritance for types instead for mutliple quiz attempt
-                submission: [quizAttempt.submission],
+            const newQuiz: Quiz = {
+                // maybe use inheritance for types instead for mutliple quiz attempt
+                submissions: [quizAttempt.submission],
                 questions: quizAttempt.questions,
                 selectedOptions: [quizAttempt.selectedOptions],
                 quizName: quizAttempt.quizName,
                 course: quizAttempt.course,
                 userUid: quizAttempt.userUid,
             };
-        const docRef = await addDoc(dbRef, multipleQuizAttempt );
+            // recursivelyReplaceNullToZero(newQuiz);
+            console.log(JSON.stringify(newQuiz, null, 2));
+            const docRef = await addDoc(dbRef, newQuiz);
 
-        return {
-            id: docRef.id,
-            ...multipleQuizAttempt,
-        } as MultipleQuizAttempt;
-    } else {
-        console.log("Updating with new attempt!");
-        const latestDoc = existingSnapshot.docs[0];
-        const existingData = latestDoc.data()
-        console.log("Existing Data:", existingData)
-        const fieldDataSubmission = existingData.submission
-        const fieldDataSelectedOptions = existingData.selectedOptions
-        
-      //console.log("Existing Submission:", fieldDataSubmission);
+            return {
+                id: docRef.id,
+                ...newQuiz,
+            } as Quiz;
+        } else {
+            console.log("Updating with new attempt!");
+            const latestDoc = existingSnapshot.docs[0];
+            const existingData = latestDoc.data() as Quiz;
+            console.log("Existing Data:", existingData);
+            const fieldDataSubmissions = existingData.submissions;
 
-        fieldDataSubmission.push(quizAttempt.submission);
-        fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
+            const fieldDataSelectedOptions = existingData.selectedOptions || [];
 
-        await updateDoc(latestDoc.ref, {
-            "submission": fieldDataSubmission,
-            "selectedOptions": fieldDataSelectedOptions,
-          });
+            console.log("New Submission:", quizAttempt);
 
-    return {
-        id: latestDoc.id,
-        ...existingData,
-    } as unknown as MultipleQuizAttempt;
+            fieldDataSubmissions.push(quizAttempt.submission);
+            fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
 
+            await updateDoc(latestDoc.ref, {
+                submissions: fieldDataSubmissions,
+                selectedOptions: fieldDataSelectedOptions,
+            });
+
+            return {
+                id: latestDoc.id,
+                ...existingData,
+            } as Quiz;
+        }
+    } catch (e) {
+        console.log(e);
+        throw e;
     }
-} catch (e) {
-    console.log(e);
-    throw e;
-}
 };
-            // const quizId = existingSnapshot.docs[0].id;
-            
-            // const quizRef = doc(dbRef, quizId);
-            
-            // console.log("quizRef:", quizRef.path);
-            // const existingQuizAttempts = (await getDoc(quizRef)).data() as MultipleQuizAttempt;
-            // console.log("existingQuizDoc:", existingQuizAttempts);
-            // console.log("existingQuizAttempts.qns: ");
-            // console.log(JSON.stringify(existingQuizAttempts.submission, null, 2))
-            // existingQuizAttempts.submission = existingQuizAttempts.submission || [];
-            // existingQuizAttempts.selectedOptions = existingQuizAttempts.selectedOptions || [];
-            // console.log("quizAttempt.submission:", quizAttempt.submission);
+// const quizId = existingSnapshot.docs[0].id;
 
-             //console.log("existingQuizAttempts.submission before update: ", existingQuizAttempts.submission);
-            // console.log("existingQuizAttempts.selectedOptions before update: ", existingQuizAttempts.selectedOptions);
+// const quizRef = doc(dbRef, quizId);
 
+// console.log("quizRef:", quizRef.path);
+// const existingQuizAttempts = (await getDoc(quizRef)).data() as MultipleQuizAttempt;
+// console.log("existingQuizDoc:", existingQuizAttempts);
+// console.log("existingQuizAttempts.qns: ");
+// console.log(JSON.stringify(existingQuizAttempts.submission, null, 2))
+// existingQuizAttempts.submission = existingQuizAttempts.submission || [];
+// existingQuizAttempts.selectedOptions = existingQuizAttempts.selectedOptions || [];
+// console.log("quizAttempt.submission:", quizAttempt.submission);
 
-            // console.log("existingQuizAttempts.submission after update: ", existingQuizAttempts.submission);
-            // console.log("existingQuizAttempts.selectedOptions after update: ", existingQuizAttempts.selectedOptions);
+//console.log("existingQuizAttempts.submission before update: ", existingQuizAttempts.submission);
+// console.log("existingQuizAttempts.selectedOptions before update: ", existingQuizAttempts.selectedOptions);
 
-            // // ...
+// console.log("existingQuizAttempts.submission after update: ", existingQuizAttempts.submission);
+// console.log("existingQuizAttempts.selectedOptions after update: ", existingQuizAttempts.selectedOptions);
 
-            // console.log("existingQuizAttempts after update: ", existingQuizAttempts);
+// // ...
 
-
-
+// console.log("existingQuizAttempts after update: ", existingQuizAttempts);
 
 // retrieve all uploads by the user
-export const getAttempts = async (uid: string): Promise<Array<QuizAttempt>> => {
+export const getAttempts = async (
+    uid: string
+): Promise<Array<QuizAttempt & { id: string }>> => {
     const attemptsRef = collection(db, COLLECTION_NAME);
     const q = query(attemptsRef, where("userUid", "==", uid));
     const data: Array<any> = [];
@@ -103,6 +115,17 @@ export const getAttempts = async (uid: string): Promise<Array<QuizAttempt>> => {
         });
     });
 
-    // return and convert back it array of todo
-    return data as Array<QuizAttempt>;
+    // return and convert back it array
+    return data as Array<QuizAttempt & { id: string }>;
 };
+
+function recursivelyReplaceNullToZero(j: any) {
+    for (var i in j) {
+        if (typeof j[i] === "object") {
+            recursivelyReplaceNullToZero(j[i]);
+        }
+        if (j[i] === null || j[i] === undefined) {
+            delete j[i];
+        }
+    }
+}

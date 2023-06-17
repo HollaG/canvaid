@@ -27,15 +27,6 @@ export interface IAddBody {
     course: string;
     uid: string;
 }
-export interface IAddMultiBody {
-    html: string;
-    quizName: string;
-    course: string;
-    uid: string;
-    selectedOptions: QuizResponse;
-    submission: QuizSubmission;
-}
-
 
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {
@@ -44,7 +35,7 @@ export async function POST(request: Request) {
         console.log("POST REQUEST MADE");
 
         try {
-            const { html, quizName, course, uid }: IAddMultiBody =
+            const { html, quizName, course, uid }: IAddBody =
                 await request.json();
             // console.log({ data });
 
@@ -117,10 +108,11 @@ export async function POST(request: Request) {
                 }
                 qnObj.your_score = yourScore;
                 qnObj.total_score = totalScore;
+
                 obj[Number(questionId)] = qnObj;
             }
 
-            // console.log(JSON.stringify(obj, null, 2));
+            console.log(JSON.stringify(obj, null, 2));
 
             // query Canvas API to get the quiz questions + quiz attempt;
             // TODO: put the API token in the database
@@ -140,20 +132,23 @@ export async function POST(request: Request) {
                 ".quiz_version.selected"
             );
             let attemptNumber = -1;
+            // arrays start at 0
             if (attemptNumberElement) {
                 attemptNumber =
                     Number(
                         attemptNumberElement.innerText
                             .split(":")[0]
                             .replace(/\D/g, "")
-                    ) || -1;
+                    ) - 1 ?? -1;
             }
 
             // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
             // courseId is the first number, quizId is the second number
+            console.log(URL);
             const [courseId, quizId] = URL.match(/\d+/g) || [];
 
             // console.log(API_TOKEN);
+            // const fetchQuizDataUrl = `https://canvas.nus.edu.sg/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
             const fetchQuizDataUrl = `https://canvas.instructure.com/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
             // console.log({ fetchUrl: fetchQuizDataUrl });
 
@@ -165,19 +160,25 @@ export async function POST(request: Request) {
                 }),
             };
 
+            console.log({ API_TOKEN });
             const quizDataResponse = await fetch(
                 fetchQuizDataUrl,
                 CANVAS_HTTP_OPTIONS
             );
 
-            // console.log(await quizDataResponse.json());
+            // console.log({
+            //     quizDataResponse: (await quizDataResponse.json())[
+            //         "quiz_submissions"
+            //     ],
+            // });
 
-            const quizData = (await quizDataResponse.json())[
-                "quiz_submissions"
-            ] as QuizSubmission[];
-            //console.log({ quizData });
+            const res = await quizDataResponse.json();
+            const quizData = res["quiz_submissions"] as QuizSubmission[];
+            console.log(quizData);
+            console.log("------------------------------------");
             const quizSubmissionID = quizData[0].id;
 
+            // const fetchQuizQuestionsUrl = `https://canvas.nus.edu.sg/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
             const fetchQuizQuestionsUrl = `https://canvas.instructure.com/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
             const quizSubmissionQuestionsResponse = await fetch(
                 fetchQuizQuestionsUrl,
@@ -193,19 +194,15 @@ export async function POST(request: Request) {
                     (a, b) => a.position - b.position
                 ),
                 selectedOptions: obj,
-                submission: quizData[0], // TODO: change this to the attempt number
+                submission:
+                    quizData[attemptNumber] || quizData.at(-1) || quizData[0], // note: take the latest attempt. todo: get the attempt number instead
                 quizName,
                 course,
                 userUid: uid,
             };
-            // in case the question takes in text input, we need to manually set the score to 0 as it's not in the response
-            for (let all in quizAttempt.selectedOptions) {
-                if( quizAttempt.selectedOptions[all].total_score == undefined) {
-                    quizAttempt.selectedOptions[all].total_score = 0;
-
-                }
-            }
-            //console.log( quizAttempt.selectedOptions[170137162] );
+            console.log("------------------------------------");
+            console.log(quizData, attemptNumber);
+            // return;
 
             await create(quizAttempt);
 

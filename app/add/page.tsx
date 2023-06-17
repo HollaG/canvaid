@@ -52,11 +52,15 @@ export default function Page() {
                     method: "POST",
                     body: JSON.stringify(body),
                 })
-                    .then((res) => res.json())
+                    .then((res) => {
+                        console.log(res);
+                        return res.json();
+                    })
                     .then((data) => {
                         console.log("Submitted!");
                         router.push("/");
-                    });
+                    })
+                    .catch(console.error);
             });
         }
         // form.append("file", file);

@@ -1,24 +1,20 @@
 "use client";
-import { QuizAttempt } from "@/types/canvas";
+import { Quiz } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
 import Link from "next/link";
+import QuizUploadCard from "./Home/QuizUploadCard";
 
-const Courses = ({
-    multipleQuizAttempts,
-}: {
-    multipleQuizAttempts: QuizAttempt[];
-}) => {
-    console.log(multipleQuizAttempts);
-    const modules = multipleQuizAttempts.map((attempt, index) => {
-        const len = attempt.submission.length; // returns attempt at the end of the array
-        return {
-            name: attempt.course,
-            quizzes: [
-                { id: attempt.submission[len - 1].id, name: attempt.quizName },
-            ],
-            id: index,
-        };
-    });
+export type QuizUploadProps = {
+    name: string;
+    quizzes: {
+        id: number;
+        name: string;
+    }[];
+    id: number;
+};
+
+const Courses = ({ quizzes }: { quizzes: (Quiz & { id: string })[] }) => {
+    console.log(quizzes);
 
     // const modules = [
     //     {
@@ -59,11 +55,11 @@ const Courses = ({
             </Flex> */}
 
             <Text fontSize="xl" fontWeight="bold" mb={2} align={"center"}>
-                Courses
+                Your recent uploads
             </Text>
 
-            <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                {modules.map((module, moduleIndex) => (
+            <Grid templateColumns="repeat(3, 1fr)" alignItems={"start"}>
+                {/* {modules.map((module, moduleIndex) => (
                     <Box
                         key={module.id}
                         p={4}
@@ -101,6 +97,9 @@ const Courses = ({
                             </Button>
                         </Flex>
                     </Box>
+                ))} */}
+                {quizzes.map((quiz, key) => (
+                    <QuizUploadCard key={key} quiz={quiz} />
                 ))}
             </Grid>
         </Box>
