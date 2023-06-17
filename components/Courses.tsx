@@ -1,18 +1,24 @@
 "use client";
-import { MultipleQuizAttempt } from "@/types/canvas";
+import { QuizAttempt } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
-import Link from 'next/link'
+import Link from "next/link";
 
-const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizAttempt[] }) => {
+const Courses = ({
+    multipleQuizAttempts,
+}: {
+    multipleQuizAttempts: QuizAttempt[];
+}) => {
     console.log(multipleQuizAttempts);
-    const modules = multipleQuizAttempts.map((attempt, index) =>{ 
+    const modules = multipleQuizAttempts.map((attempt, index) => {
         const len = attempt.submission.length; // returns attempt at the end of the array
         return {
-        name: attempt.course,
-        quizzes: [{ id: attempt.submission[len - 1].id, name: attempt.quizName }],
-        id: index,
-        }}
-    );
+            name: attempt.course,
+            quizzes: [
+                { id: attempt.submission[len - 1].id, name: attempt.quizName },
+            ],
+            id: index,
+        };
+    });
 
     // const modules = [
     //     {
@@ -65,21 +71,23 @@ const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizA
                         borderRadius="md"
                     >
                         <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        <Link
-                            href={{
-                                pathname: '/course',
-                                query: { name: module.name },
-                            }}
+                            <Link
+                                href={{
+                                    pathname: "/course",
+                                    query: { name: module.name },
+                                }}
                             >
-                            {module.name}
-                        </Link>
+                                {module.name}
+                            </Link>
                         </Text>
                         {module.quizzes.map((quiz) => (
-                            <li key =  {quiz.id}>
-                                <Link href = {{
-                                    pathname: '/quiz',
-                                    query: { id: quiz.id },
-                                }}>
+                            <li key={quiz.id}>
+                                <Link
+                                    href={{
+                                        pathname: "/quiz",
+                                        query: { id: quiz.id },
+                                    }}
+                                >
                                     <Text key={quiz.id}>{quiz.name}</Text>
                                 </Link>
                             </li>

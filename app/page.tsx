@@ -1,7 +1,7 @@
 "use client";
 import Courses from "@/components/Courses";
 import SignOutButton from "@/components/SignOutButton";
-import { signInWithGoogle } from "@/firebase/google";
+import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
@@ -19,7 +19,7 @@ import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { MultipleQuizAttempt } from "@/types/canvas";
+import { QuizAttempt } from "@/types/canvas";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -27,7 +27,7 @@ export default function Page() {
 
     const user = authCtx?.user;
 
-    const [quizAttempts, setQuizAttempts] = useState<MultipleQuizAttempt[]>([]);
+    const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
     useEffect(() => {
         if (user?.uid) {
             fetch(`/api/?uid=${user.uid}`)
