@@ -11,7 +11,7 @@ import {
 import SignOutButton from "./SignOutButton";
 import Courses from "./Courses";
 import { useAuthContainer } from "../app/providers";
-import { signInWithGoogle } from "@/firebase/google";
+import { signInWithGoogle } from "@/firebase/auth/google";
 
 const MainPage = () => {
     const authCtx = useAuthContainer();
@@ -39,7 +39,7 @@ const MainPage = () => {
 
             {authCtx ? <Heading> HELLO USER</Heading> : <Text> :( </Text>}
 
-            <Courses />
+            <Courses multipleQuizAttempts={[]} />
         </Stack>
     );
     //const { signOut } = useAuth(); // Replace with the sign-out function from firebase

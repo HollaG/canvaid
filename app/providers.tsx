@@ -1,12 +1,13 @@
 "use client";
 
 import { createUserIfNotExists } from "@/firebase/database/repositories/users";
-import googleAuth from "@/firebase/google";
+
 import { AppUser } from "@/types/user";
 import { CacheProvider } from "@chakra-ui/next-js";
 import { ChakraProvider } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { auth } from "@/firebase/config";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -23,7 +24,9 @@ interface IAuthContext {
     user?: AppUser;
 }
 
-const UserContext = createContext<IAuthContext | null>(null);
+const UserContext = createContext<IAuthContext>({
+    user: undefined,
+});
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<AppUser>();
@@ -34,7 +37,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Set up a listener to check when the auth state changes
     useEffect(() => {
-        const unsubscribe = googleAuth.onAuthStateChanged(async (user) => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             const appUser: AppUser = {
                 displayName: user?.displayName || "",
                 email: user?.email || "",
@@ -44,6 +47,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 canvasApiToken: "",
             };
             if (user) setUser(appUser);
+            else setUser(undefined);
 
             if (user) {
                 // add to db if not exist

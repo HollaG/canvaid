@@ -96,7 +96,7 @@ export interface QuizSubmission {
 }
 
 export type QuizAttempt = {
-    submission: QuizSubmission;
+    submission: QuizSubmission[];
     questions: QuizSubmissionQuestion[];
     selectedOptions: QuizResponse;
 
