@@ -4,18 +4,21 @@ import { getQuizUpload } from "@/firebase/database/repositories/uploads";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { Answer, QuestionResponse, Quiz, QuizResponse } from "@/types/canvas";
 import {
+    Badge,
     Box,
     Button,
     Checkbox,
     CheckboxGroup,
     Container,
     Divider,
+    Flex,
     Grid,
     GridItem,
     Heading,
     Radio,
     RadioGroup,
     Stack,
+    Tag,
     Text,
 } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
@@ -29,7 +32,6 @@ export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
     const [quiz, setQuiz] = useState<Quiz & { id: string }>();
-    console.log(quiz);
     useEffect(() => {
         if (dataId)
             getQuizUpload(dataId)
@@ -40,6 +42,7 @@ export default function Page() {
     }, [dataId]);
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
+    console.log(quiz);
 
     if (!quiz)
         return <Container maxW={PAGE_CONTAINER_SIZE}>Loading...</Container>;
@@ -104,21 +107,22 @@ export default function Page() {
                                             }}
                                         />
                                         <Divider />
-
-                                        <AnswerList
-                                            questionType={
-                                                question.question_type
-                                            }
-                                            answers={question.answers}
-                                            selectedOptions={
-                                                quiz.selectedOptions[
-                                                    selectedAttemptIndex
-                                                ] &&
-                                                quiz.selectedOptions[
-                                                    selectedAttemptIndex
-                                                ][question.id]
-                                            }
-                                        />
+                                        <Box mt={3}>
+                                            <AnswerList
+                                                questionType={
+                                                    question.question_type
+                                                }
+                                                answers={question.answers}
+                                                selectedOptions={
+                                                    quiz.selectedOptions[
+                                                        selectedAttemptIndex
+                                                    ] &&
+                                                    quiz.selectedOptions[
+                                                        selectedAttemptIndex
+                                                    ][question.id]
+                                                }
+                                            />
+                                        </Box>
                                     </Box>
                                 ))}
                             </Stack>
@@ -144,26 +148,60 @@ const AnswerList = ({
     answers: Answer[];
     selectedOptions: QuestionResponse;
 }) => {
-    console.log(answers, "---------------");
+    console.log("reredner");
     switch (questionType) {
         case "multiple_choice_question":
             return (
                 <RadioGroup
-                    defaultValue={
+                    value={
                         selectedOptions.selected_answer_ids?.[0].toString() ??
                         "0"
                     }
                 >
                     <Stack>
                         {answers.map((answer, i) => (
-                            <Radio
-                                key={i}
-                                value={answer.id.toString()}
-                                isReadOnly
-                            >
-                                {" "}
-                                {answer.text ?? answer.html}{" "}
-                            </Radio>
+                            <Flex alignItems={"center"}>
+                                <Box width="100px" textAlign={"end"} mr={3}>
+                                    {selectedOptions.correct_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        !selectedOptions.selected_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="yellow">
+                                                Correct!{" "}
+                                            </Badge>
+                                        )}
+                                    {selectedOptions.correct_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        selectedOptions.selected_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="green">
+                                                Correct!{" "}
+                                            </Badge>
+                                        )}
+                                    {selectedOptions.selected_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        !selectedOptions.correct_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="red">
+                                                Incorrect!{" "}
+                                            </Badge>
+                                        )}
+                                </Box>
+                                <Radio
+                                    key={i}
+                                    value={answer.id.toString()}
+                                    isReadOnly
+                                >
+                                    {" "}
+                                    {answer.text ?? answer.html}{" "}
+                                </Radio>
+                            </Flex>
                         ))}
                     </Stack>
                 </RadioGroup>
@@ -175,17 +213,51 @@ const AnswerList = ({
             ) || [""];
             console.log({ userSelected });
             return (
-                <CheckboxGroup defaultValue={userSelected}>
-                    <Stack>
+                <CheckboxGroup value={userSelected}>
+                    <Stack spacing={4}>
                         {answers.map((answer, i) => (
-                            <Checkbox
-                                key={i}
-                                value={answer.id.toString()}
-                                isReadOnly
-                            >
-                                {" "}
-                                {answer.text ?? answer.html}{" "}
-                            </Checkbox>
+                            <Flex alignItems={"center"}>
+                                <Box width="100px" textAlign={"end"} mr={3}>
+                                    {selectedOptions.correct_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        !selectedOptions.selected_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="yellow">
+                                                Correct!{" "}
+                                            </Badge>
+                                        )}
+                                    {selectedOptions.correct_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        selectedOptions.selected_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="green">
+                                                Correct!{" "}
+                                            </Badge>
+                                        )}
+                                    {selectedOptions.selected_answer_ids?.includes(
+                                        answer.id
+                                    ) &&
+                                        !selectedOptions.correct_answer_ids?.includes(
+                                            answer.id
+                                        ) && (
+                                            <Badge colorScheme="red">
+                                                Incorrect!{" "}
+                                            </Badge>
+                                        )}
+                                </Box>
+                                <Checkbox
+                                    key={i}
+                                    value={answer.id.toString()}
+                                    isReadOnly
+                                >
+                                    {" "}
+                                    {answer.text ?? answer.html}{" "}
+                                </Checkbox>
+                            </Flex>
                         ))}
                     </Stack>
                 </CheckboxGroup>
