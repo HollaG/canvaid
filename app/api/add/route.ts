@@ -83,7 +83,12 @@ export async function POST(request: Request) {
                     }
                 }
 
-                if (question.classList.contains("short_answer_question")) {
+                // This is different from fill_in_multiple_blanks_question as there is no `.selected_answer` div
+                if (
+                    question.classList.contains("short_answer_question") ||
+                    question.classList.contains("essay_question") ||
+                    question.classList.contains("numerical_question")
+                ) {
                     // TODO: check this
                     const answerInput = (
                         question.querySelector(
@@ -92,19 +97,67 @@ export async function POST(request: Request) {
                     ).getAttribute("value");
 
                     // console.log(answerInput);
-                    qnObj.answer_text = answerInput || "";
+                    qnObj.answer_text = [answerInput || ""];
+
+                    // const isCorrect =
+                    //     answer.classList.contains("correct_answer");
+                    // get the answers, if there are any
+                    const correctAnswers =
+                        question.querySelectorAll(".correct_answer");
+                    let correctAnswerArray = [];
+                    for (const correctAnswer of correctAnswers) {
+                        correctAnswerArray.push(correctAnswer.innerText);
+                    }
+                    qnObj.correct_answer_text = correctAnswerArray;
                 }
 
+                // TODO: support this in futures
+                // if (
+                //     question.classList.contains(
+                //         "fill_in_multiple_blanks_question"
+                //     )
+                // ) {
+                //     const inputtedAnswers =
+                //         question.querySelectorAll(".selected_answer");
+
+                //     const answerTextArray = [];
+                //     // https://stackoverflow.com/questions/6520192/how-to-get-the-text-node-of-an-element
+                //     for (const inputtedAnswer of inputtedAnswers) {
+                //         if (inputtedAnswer.childNodes.length < 2) continue;
+                //         answerTextArray.push(
+                //             inputtedAnswer.childNodes[1].textContent
+                //                 .replaceAll("\n", "")
+                //                 .trim()
+                //         );
+                //     }
+                //     qnObj.answer_text = answerTextArray;
+
+                //     const correctAnswers =
+                //         question.querySelectorAll(".correct_answer");
+                //     let correctAnswerArray = [];
+                //     for (const correctAnswer of correctAnswers) {
+                //         if (correctAnswer.childNodes.length < 2) continue;
+                //         correctAnswerArray.push(
+                //             correctAnswer.childNodes[1].textContent
+                //                 .replaceAll("\n", "")
+                //                 .trim()
+                //         );
+                //     }
+                //     qnObj.correct_answer_text = correctAnswerArray;
+                // }
                 const pointElement = question.querySelector(".user_points");
 
                 if (!pointElement) return console.log("NO POINT ELEMENT");
                 const [yourScore, totalScore] = pointElement.innerText
-                    .split(" ")
-                    .filter(Number)
+                    .replace("pts", "")
+                    .split(" / ")
+                    .map((s) => s.trim())
+
                     .map(Number);
 
                 if (yourScore === totalScore) {
                     qnObj.correct_answer_ids = qnObj.selected_answer_ids;
+                    qnObj.correct_answer_text = qnObj.answer_text;
                 }
                 qnObj.your_score = yourScore;
                 qnObj.total_score = totalScore;

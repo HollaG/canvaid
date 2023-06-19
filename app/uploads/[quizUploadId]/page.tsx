@@ -148,9 +148,10 @@ const AnswerList = ({
     answers: Answer[];
     selectedOptions: QuestionResponse;
 }) => {
-    console.log("reredner");
+    // console.log("reredner");
     switch (questionType) {
         case "multiple_choice_question":
+        case "true_false_question":
             return (
                 <RadioGroup
                     value={
@@ -264,6 +265,7 @@ const AnswerList = ({
             );
 
         case "essay_question":
+        case "short_answer_question":
             return <>--- UNSUPPORTED QUESTION TYPE ---</>;
 
         default:

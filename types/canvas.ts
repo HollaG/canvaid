@@ -124,8 +124,8 @@ export type QuizResponse = {
 
 export type QuestionResponse = {
     selected_answer_ids?: number[]; // for multiple answer / mcq
-    answer_text?: string; // for text input questions
-    correct_answer_text?: string; // for text input
+    answer_text?: string[]; // for text input questions
+    correct_answer_text?: string[]; // for text input
     correct_answer_ids?: number[]; // for multiple answer / mcq
     total_score?: number;
     your_score?: number;

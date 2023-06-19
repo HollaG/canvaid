@@ -54,6 +54,21 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
 
             const fieldDataSelectedOptions = existingData.selectedOptions || [];
 
+            const existingQuestions = existingData.questions;
+
+            // merge the existing questions with the new ones. two questions are the same if they have the same ID
+            const newAttemptQuestions = quizAttempt.questions;
+            const mergedQuestions = [
+                ...existingQuestions,
+                ...newAttemptQuestions.filter(
+                    (newQuestion) =>
+                        !existingQuestions.some(
+                            (existingQuestion) =>
+                                existingQuestion.id === newQuestion.id
+                        )
+                ),
+            ];
+
             console.log("New Submission:", quizAttempt);
 
             fieldDataSubmissions.push(quizAttempt.submission);
@@ -62,6 +77,7 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
             await updateDoc(latestDoc.ref, {
                 submissions: fieldDataSubmissions,
                 selectedOptions: fieldDataSelectedOptions,
+                questions: mergedQuestions,
             });
 
             return {
