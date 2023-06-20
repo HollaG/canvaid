@@ -1,6 +1,6 @@
 "use client";
 import Courses from "@/components/Courses";
-import SignOutButton from "@/components/SignOutButton";
+import SignOutButton from "@/components/DeleteButton";
 import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
@@ -41,7 +41,10 @@ export default function Page() {
     }, [user]);
 
     if (!user) return <NotAuthedHomePage />;
-
+    const handleDeleteItem = (itemid: string) => {
+        const newState = quizzes.filter(item => item.id != itemid);
+        setQuizzes(newState);
+      };
     console.log({ quizzes });
     return (
         <Container maxW={PAGE_CONTAINER_SIZE}>
@@ -55,7 +58,7 @@ export default function Page() {
                     Add a new quiz
                 </Link>
                 <Input placeholder="Search for a quiz..." />
-                <Courses quizzes={quizzes} />
+                <Courses quizzes={quizzes} deletion ={handleDeleteItem} />
             </Stack>
         </Container>
     );

@@ -3,6 +3,9 @@ import { Quiz } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
+import { useState } from "react";
+import DeleteButton from "./DeleteButton";
+import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
 
 export type QuizUploadProps = {
     name: string;
@@ -12,9 +15,13 @@ export type QuizUploadProps = {
     }[];
     id: number;
 };
-
-const Courses = ({ quizzes }: { quizzes: (Quiz & { id: string })[] }) => {
+type courseProps = {
+    quizzes: (Quiz & { id: string })[];
+    deletion: (itemid: string) => void;
+};
+const Courses = ({ quizzes, deletion }: courseProps) => {
     console.log(quizzes);
+    
 
     // const modules = [
     //     {
@@ -47,6 +54,7 @@ const Courses = ({ quizzes }: { quizzes: (Quiz & { id: string })[] }) => {
         // Set state or perform an action to show all quizzes for the module
         console.log("Showing all quizzes for module", moduleIndex + 1);
     };
+    
 
     return (
         <Box p={4}>
@@ -98,8 +106,8 @@ const Courses = ({ quizzes }: { quizzes: (Quiz & { id: string })[] }) => {
                         </Flex>
                     </Box>
                 ))} */}
-                {quizzes.map((quiz, key) => (
-                    <QuizUploadCard key={key} quiz={quiz} />
+                {quizzes.map((item, key) => (
+                    <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
                 ))}
             </Grid>
         </Box>

@@ -14,18 +14,23 @@ import { BsArrowUpRight, BsHeartFill, BsHeart } from "react-icons/bs";
 import { QuizUploadProps } from "../Courses";
 import { Quiz } from "@/types/canvas";
 import { Timestamp } from "firebase/firestore";
+import DeleteButton from "../DeleteButton"
 
 import NextLink from "next/link";
 
 export default function QuizUploadCard({
-    quiz,
+    quiz, onDelete
 }: {
-    quiz: Quiz & { id: string };
+    quiz: Quiz & { id: string },  onDelete : (itemid: string) => void;
 }) {
     const [liked, setLiked] = useState(false);
-
+    const handleDelete = () => {
+        onDelete(quiz.id);
+    }
     return (
         <Box py={6} height="100%">
+        
+
             <Box
                 // height="100%"
                 w="xs"
@@ -65,10 +70,12 @@ export default function QuizUploadCard({
                         <Text fontSize={"xs"} fontWeight="medium">
                             {quiz.course}
                         </Text>
+                        
                     </Box>
                     <Heading color={"black"} fontSize={"2xl"} noOfLines={1}>
                         {quiz.quizName}
                     </Heading>
+                    
                     {quiz.submissions.map((submission, index) => (
                         <Stack key={index} spacing={1}>
                             <Text>
@@ -89,7 +96,9 @@ export default function QuizUploadCard({
                         In this post, we will give an overview of what is new in
                         React 18, and what it means for the future.
                     </Text> */}
+                    
                 </Box>
+                <DeleteButton ID = {quiz.id} onDelete = {handleDelete}/>
                 <HStack borderTop={"1px"} color="black">
                     <Flex
                         p={4}
