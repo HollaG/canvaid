@@ -57,6 +57,104 @@ export async function POST(request: Request) {
             if (!root) {
                 return console.log("NO ROOT");
             }
+
+            /** ---- API ---- */
+            // TODO: put the API token in the database
+            const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
+
+            const URL =
+                root
+                    .getElementById("skip_navigation_link")
+                    ?.getAttribute("href") || "";
+
+            // From the page, try to find which attempt number this quiz is.
+            // if we can't find the attempt number, just assume it's the latest attempt
+
+            const attemptNumberElement = root.querySelector(
+                ".quiz_version.selected"
+            );
+            let attemptNumber = -1;
+            // arrays start at 0
+            if (attemptNumberElement) {
+                attemptNumber =
+                    Number(
+                        attemptNumberElement.innerText
+                            .split(":")[0]
+                            .replace(/\D/g, "")
+                    ) - 1 ?? -1;
+            }
+
+            // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
+            // courseId is the first number, quizId is the second number
+
+            const [courseId, quizId] = URL.match(/\d+/g) || [];
+
+            const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
+
+            const CANVAS_HTTP_OPTIONS = {
+                method: "GET",
+                headers: new Headers({
+                    Authorization: `Bearer ${API_TOKEN}`,
+                    Accept: "application/json",
+                }),
+            };
+
+            /**
+             * Query 1: Get all submissions of this quiz.
+             */
+            const quizDataResponse = await fetch(
+                fetchQuizDataUrl,
+                CANVAS_HTTP_OPTIONS
+            );
+
+            const res = await quizDataResponse.json();
+            const quizData = res["quiz_submissions"] as QuizSubmission[];
+            const quizSubmissionID = quizData[0].id;
+
+            /**
+             * Query 2: Get the information about the quiz questions
+             */
+            const fetchQuizQuestionsUrl = `${CANVAS_URL}quiz_submissions/${quizSubmissionID}/questions`;
+            const quizSubmissionQuestionsResponse = await fetch(
+                fetchQuizQuestionsUrl,
+                CANVAS_HTTP_OPTIONS
+            );
+
+            const quizSubmissionQuestions = (
+                await quizSubmissionQuestionsResponse.json()
+            )["quiz_submission_questions"] as QuizSubmissionQuestion[];
+
+            /**
+             * Query 3: Get the information about this quiz
+             */
+            const quizInformation = (await (
+                await fetch(
+                    `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}`,
+                    CANVAS_HTTP_OPTIONS
+                )
+            ).json()) as CanvasQuiz;
+
+            const quizName = _quizName || quizInformation.title;
+
+            let course = _courseName;
+            if (!_courseName.trim()) {
+                /**
+                 * Query 4: Get the course name
+                 * Only if user did not specify their own course name
+                 *
+                 */
+                const courseInformation = (await (
+                    await fetch(
+                        `${CANVAS_URL}courses/${courseId}`,
+                        CANVAS_HTTP_OPTIONS
+                    )
+                ).json()) as Course;
+
+                course = courseInformation.name.trim();
+            }
+
+            /** HTML Parsing to get user answers */
+
             const questions = root.querySelectorAll(".question");
 
             if (!questions) return console.log("NO QUESTIONS");
@@ -98,14 +196,17 @@ export async function POST(request: Request) {
                     question.classList.contains("numerical_question")
                 ) {
                     // TODO: check this
-                    const answerInput = (
-                        question.querySelector(
-                            "input"
-                        ) as unknown as HTMLInputElement
-                    ).getAttribute("value");
-
+                    const answerInputElement = question.querySelector("input");
+                    let answerText = "";
+                    if (answerInputElement)
+                        answerText =
+                            answerInputElement.getAttribute("value") || "";
+                    else
+                        answerText =
+                            question.querySelector(".quiz_response_text")
+                                ?.innerText || "";
                     // console.log(answerInput);
-                    qnObj.answer_text = [answerInput || ""];
+                    qnObj.answer_text = [answerText || ""];
 
                     // const isCorrect =
                     //     answer.classList.contains("correct_answer");
@@ -210,110 +311,13 @@ export async function POST(request: Request) {
                     qnObj.correct_answer_ids = qnObj.selected_answer_ids;
                     qnObj.correct_answer_text = qnObj.answer_text;
                 }
-                qnObj.your_score = yourScore;
+                qnObj.your_score = Number.isNaN(yourScore) ? -1 : yourScore;
                 qnObj.total_score = totalScore;
 
                 obj[Number(questionId)] = qnObj;
             }
 
             // console.log(JSON.stringify(obj, null, 2));
-
-            // query Canvas API to get the quiz questions + quiz attempt;
-            // TODO: put the API token in the database
-            const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
-
-            const URL =
-                root
-                    .getElementById("skip_navigation_link")
-                    ?.getAttribute("href") || "";
-
-            // console.log(URL);
-
-            // From the page, try to find which attempt number this quiz is.
-            // if we can't find the attempt number, just assume it's the latest attempt
-
-            const attemptNumberElement = root.querySelector(
-                ".quiz_version.selected"
-            );
-            let attemptNumber = -1;
-            // arrays start at 0
-            if (attemptNumberElement) {
-                attemptNumber =
-                    Number(
-                        attemptNumberElement.innerText
-                            .split(":")[0]
-                            .replace(/\D/g, "")
-                    ) - 1 ?? -1;
-            }
-
-            // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
-            // courseId is the first number, quizId is the second number
-
-            const [courseId, quizId] = URL.match(/\d+/g) || [];
-
-            const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
-
-            const CANVAS_HTTP_OPTIONS = {
-                method: "GET",
-                headers: new Headers({
-                    Authorization: `Bearer ${API_TOKEN}`,
-                    Accept: "application/json",
-                }),
-            };
-
-            /**
-             * Query 1: Get all submissions of this quiz.
-             */
-            const quizDataResponse = await fetch(
-                fetchQuizDataUrl,
-                CANVAS_HTTP_OPTIONS
-            );
-
-            const res = await quizDataResponse.json();
-            const quizData = res["quiz_submissions"] as QuizSubmission[];
-            const quizSubmissionID = quizData[0].id;
-
-            /**
-             * Query 2: Get the information about the quiz questions
-             */
-            const fetchQuizQuestionsUrl = `${CANVAS_URL}quiz_submissions/${quizSubmissionID}/questions`;
-            const quizSubmissionQuestionsResponse = await fetch(
-                fetchQuizQuestionsUrl,
-                CANVAS_HTTP_OPTIONS
-            );
-
-            const quizSubmissionQuestions = (
-                await quizSubmissionQuestionsResponse.json()
-            )["quiz_submission_questions"] as QuizSubmissionQuestion[];
-
-            /**
-             * Query 3: Get the information about this quiz
-             */
-            const quizInformation = (await (
-                await fetch(
-                    `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}`,
-                    CANVAS_HTTP_OPTIONS
-                )
-            ).json()) as CanvasQuiz;
-
-            const quizName = _quizName || quizInformation.title;
-
-            let course = _courseName;
-            if (!_courseName.trim()) {
-                /**
-                 * Query 4: Get the course name
-                 * Only if user did not specify their own course name
-                 *
-                 */
-                const courseInformation = (await (
-                    await fetch(
-                        `${CANVAS_URL}courses/${courseId}`,
-                        CANVAS_HTTP_OPTIONS
-                    )
-                ).json()) as Course;
-
-                course = courseInformation.name.trim();
-            }
 
             const quizAttempt: QuizAttempt = {
                 questions: quizSubmissionQuestions.sort(
