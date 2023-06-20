@@ -2,7 +2,13 @@
 
 import { getQuizUpload } from "@/firebase/database/repositories/uploads";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
-import { Answer, QuestionResponse, Quiz, QuizResponse } from "@/types/canvas";
+import {
+    Answer,
+    QuestionResponse,
+    Quiz,
+    QuizResponse,
+    QuizSubmissionQuestion,
+} from "@/types/canvas";
 import {
     Badge,
     Box,
@@ -21,7 +27,11 @@ import {
     Tag,
     Text,
 } from "@chakra-ui/react";
-import { useParams, useRouter } from "next/navigation";
+import {
+    useParams,
+    useRouter,
+    useSelectedLayoutSegment,
+} from "next/navigation";
 import { useEffect, useState } from "react";
 
 /**
@@ -53,7 +63,28 @@ export default function Page() {
                     {" "}
                     {quiz.course}: {quiz.quizName}{" "}
                 </Heading>
+                <Flex flexDir={"row"} flexWrap="wrap">
+                    {quiz.quizInfo.show_correct_answers ? (
+                        <Tag colorScheme={"green"} mr={2}>
+                            Correct answers are shown
+                        </Tag>
+                    ) : (
+                        <Tag colorScheme={"red"} mr={2}>
+                            Correct answers are hidden
+                        </Tag>
+                    )}
+                    <Tag colorScheme={"green"}>
+                        {" "}
+                        Total questions: {quiz.quizInfo.question_count}
+                    </Tag>
+                </Flex>
+                <Box
+                    dangerouslySetInnerHTML={{
+                        __html: quiz.quizInfo.description,
+                    }}
+                />
                 <Divider />
+
                 <Grid gridTemplateColumns={{ base: "1fr", md: "200px 1fr" }}>
                     <GridItem p={5}>
                         {" "}
@@ -95,9 +126,19 @@ export default function Page() {
                             <Stack spacing="10">
                                 {quiz.questions.map((question, i) => (
                                     <Box key={i}>
-                                        <Heading fontSize="lg">
+                                        <Heading
+                                            fontSize="lg"
+                                            alignItems={"center"}
+                                        >
                                             {" "}
-                                            Question {question.position}
+                                            Question {question.position}{" "}
+                                            <QuestionResultTag
+                                                question={question}
+                                                quiz={quiz}
+                                                selectedAttemptIndex={
+                                                    selectedAttemptIndex
+                                                }
+                                            />
                                         </Heading>
                                         {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
                                         <div
@@ -121,6 +162,10 @@ export default function Page() {
                                                         selectedAttemptIndex
                                                     ][question.id]
                                                 }
+                                                show_correct_answers={
+                                                    quiz.quizInfo
+                                                        .show_correct_answers
+                                                }
                                             />
                                         </Box>
                                     </Box>
@@ -134,6 +179,96 @@ export default function Page() {
     );
 }
 
+const QuestionResultTag = ({
+    quiz,
+    selectedAttemptIndex,
+    question,
+}: {
+    quiz: Quiz;
+    selectedAttemptIndex: number;
+    question: QuizSubmissionQuestion;
+}) => {
+    const showCorrectAnswers = quiz.quizInfo.show_correct_answers;
+
+    // if the question is correct
+    if (
+        quiz.selectedOptions[selectedAttemptIndex][question.id].your_score ===
+        quiz.selectedOptions[selectedAttemptIndex][question.id].total_score
+    ) {
+        return (
+            <Tag colorScheme="green">
+                Correct! (
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .your_score
+                }{" "}
+                /{" "}
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .total_score
+                }
+                )
+            </Tag>
+        );
+        // return <Tag colorScheme="green"> Correct! </Tag>;
+    }
+
+    // if the question is incorrect
+    if (
+        quiz.selectedOptions[selectedAttemptIndex][question.id].your_score === 0
+    ) {
+        // return <Tag colorScheme="red"> Incorrect! </Tag>;
+        return (
+            <Tag colorScheme="red">
+                Incorrect! (
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .your_score
+                }{" "}
+                /{" "}
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .total_score
+                }
+                ){" "}
+            </Tag>
+        );
+    }
+
+    // if the question is not yet graded (score = -1)
+    if (
+        quiz.selectedOptions[selectedAttemptIndex][question.id].your_score ===
+        -1
+    ) {
+        return <Tag colorScheme="gray"> Not yet graded! </Tag>;
+    }
+
+    // if the question is partially answered
+    if (
+        quiz.selectedOptions[selectedAttemptIndex][question.id].your_score !==
+        quiz.selectedOptions[selectedAttemptIndex][question.id].total_score
+    ) {
+        return (
+            <Tag colorScheme="yellow">
+                Partial! (
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .your_score
+                }{" "}
+                /{" "}
+                {
+                    quiz.selectedOptions[selectedAttemptIndex][question.id]
+                        .total_score
+                }
+                ){" "}
+            </Tag>
+        );
+        // return <Tag colorScheme="yellow"> Partial! </Tag>;
+    }
+
+    return <Tag> Could not parse result! </Tag>;
+};
+
 /**
  *
  * @param param0 Per-question answer list
@@ -143,10 +278,12 @@ const AnswerList = ({
     questionType,
     answers,
     selectedOptions,
+    show_correct_answers,
 }: {
     questionType: string;
     answers: Answer[];
     selectedOptions: QuestionResponse;
+    show_correct_answers: boolean;
 }) => {
     // console.log("reredner");
     switch (questionType) {
@@ -161,38 +298,15 @@ const AnswerList = ({
                 >
                     <Stack>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"}>
+                            <Flex alignItems={"center"} key={i}>
                                 <Box width="100px" textAlign={"end"} mr={3}>
-                                    {selectedOptions.correct_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        !selectedOptions.selected_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="yellow">
-                                                Correct!{" "}
-                                            </Badge>
-                                        )}
-                                    {selectedOptions.correct_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        selectedOptions.selected_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="green">
-                                                Correct!{" "}
-                                            </Badge>
-                                        )}
-                                    {selectedOptions.selected_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        !selectedOptions.correct_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="red">
-                                                Incorrect!{" "}
-                                            </Badge>
-                                        )}
+                                    <AnswerResultTag
+                                        answer={answer}
+                                        selectedOptions={selectedOptions}
+                                        show_correct_answers={
+                                            show_correct_answers
+                                        }
+                                    />
                                 </Box>
                                 <Radio
                                     key={i}
@@ -212,43 +326,19 @@ const AnswerList = ({
             const userSelected = selectedOptions.selected_answer_ids?.map((s) =>
                 s.toString()
             ) || [""];
-            console.log({ userSelected });
             return (
                 <CheckboxGroup value={userSelected}>
                     <Stack spacing={4}>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"}>
+                            <Flex alignItems={"center"} key={i}>
                                 <Box width="100px" textAlign={"end"} mr={3}>
-                                    {selectedOptions.correct_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        !selectedOptions.selected_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="yellow">
-                                                Correct!{" "}
-                                            </Badge>
-                                        )}
-                                    {selectedOptions.correct_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        selectedOptions.selected_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="green">
-                                                Correct!{" "}
-                                            </Badge>
-                                        )}
-                                    {selectedOptions.selected_answer_ids?.includes(
-                                        answer.id
-                                    ) &&
-                                        !selectedOptions.correct_answer_ids?.includes(
-                                            answer.id
-                                        ) && (
-                                            <Badge colorScheme="red">
-                                                Incorrect!{" "}
-                                            </Badge>
-                                        )}
+                                    <AnswerResultTag
+                                        answer={answer}
+                                        selectedOptions={selectedOptions}
+                                        show_correct_answers={
+                                            show_correct_answers
+                                        }
+                                    />
                                 </Box>
                                 <Checkbox
                                     key={i}
@@ -272,12 +362,10 @@ const AnswerList = ({
                     <Flex alignItems={"center"}>
                         {" "}
                         <Box width="100px" textAlign="end" mr={3}>
-                            {selectedOptions.total_score ===
-                            selectedOptions.your_score ? (
-                                <Badge colorScheme="green">Correct! </Badge>
-                            ) : (
-                                <Badge colorScheme="red">Incorrect! </Badge>
-                            )}
+                            <AnswerResultTag
+                                selectedOptions={selectedOptions}
+                                show_correct_answers={show_correct_answers}
+                            />
                         </Box>{" "}
                         <Box>
                             <Stack spacing={1}>
@@ -324,4 +412,51 @@ const AnswerList = ({
         default:
             return <>--- UNSUPPORTED QUESTION TYPE ---</>;
     }
+};
+
+const AnswerResultTag = ({
+    selectedOptions,
+    show_correct_answers,
+    answer,
+}: {
+    selectedOptions: QuestionResponse;
+    show_correct_answers: boolean;
+    answer?: Answer;
+}) => {
+    // for qns that aren't graded yet
+    if (selectedOptions.your_score === -1) {
+        return <></>;
+    }
+
+    // for qns that aren't multiple choice
+    if (!answer) {
+        if (selectedOptions.total_score === selectedOptions.your_score) {
+            return <Badge colorScheme="green"> Correct! </Badge>;
+        } else {
+            return <Badge colorScheme="red"> Incorrect! </Badge>;
+        }
+    }
+    // if this option is correct but not selected
+    if (
+        selectedOptions.correct_answer_ids?.includes(answer.id) &&
+        !selectedOptions.selected_answer_ids?.includes(answer.id)
+    ) {
+        return <Badge colorScheme="yellow"> Correct! </Badge>;
+    }
+
+    // if this option is correct
+    if (selectedOptions.correct_answer_ids?.includes(answer.id)) {
+        return <Badge colorScheme="green"> Correct! </Badge>;
+    }
+
+    // if this option is incorrect and we selected it and we know for sure because show_correct_answers is true
+    if (
+        show_correct_answers &&
+        !selectedOptions.correct_answer_ids?.includes(answer.id) &&
+        selectedOptions.selected_answer_ids?.includes(answer.id)
+    ) {
+        return <Badge colorScheme="red"> Incorrect! </Badge>;
+    }
+
+    return <></>;
 };
