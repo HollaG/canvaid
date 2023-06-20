@@ -102,13 +102,56 @@ export async function POST(request: Request) {
                     // const isCorrect =
                     //     answer.classList.contains("correct_answer");
                     // get the answers, if there are any
-                    const correctAnswers =
-                        question.querySelectorAll(".correct_answer");
-                    let correctAnswerArray = [];
-                    for (const correctAnswer of correctAnswers) {
-                        correctAnswerArray.push(correctAnswer.innerText);
+
+                    if (question.classList.contains("short_answer_question")) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".answer_text"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
+                    } else if (question.classList.contains("essay_question")) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".answer_text"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
+                    } else if (
+                        question.classList.contains("numerical_question")
+                    ) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            // todo: we only deal with numerical exact answers for now
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".numerical_exact_answer"
+                                )?.innerText ||
+                                correctAnswer.querySelector(
+                                    ".numerical_precision_answer"
+                                )?.innerText ||
+                                correctAnswer.querySelector(
+                                    ".numerical_range_answer"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
                     }
-                    qnObj.correct_answer_text = correctAnswerArray;
                 }
 
                 // TODO: support this in futures

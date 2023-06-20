@@ -116,6 +116,7 @@ export type Quiz = {
     quizName: string;
     course: string;
     userUid: string;
+    lastUpdated: Date;
 };
 
 export type QuizResponse = {

@@ -266,7 +266,60 @@ const AnswerList = ({
 
         case "essay_question":
         case "short_answer_question":
-            return <>--- UNSUPPORTED QUESTION TYPE ---</>;
+        case "numerical_question":
+            return (
+                <Stack spacing={4}>
+                    <Flex alignItems={"center"}>
+                        {" "}
+                        <Box width="100px" textAlign="end" mr={3}>
+                            {selectedOptions.total_score ===
+                            selectedOptions.your_score ? (
+                                <Badge colorScheme="green">Correct! </Badge>
+                            ) : (
+                                <Badge colorScheme="red">Incorrect! </Badge>
+                            )}
+                        </Box>{" "}
+                        <Box>
+                            <Stack spacing={1}>
+                                <Text
+                                    fontWeight="semibold"
+                                    textDecoration={"underline"}
+                                >
+                                    Your answer
+                                </Text>{" "}
+                                <Text>{selectedOptions.answer_text}</Text>
+                            </Stack>
+                        </Box>
+                    </Flex>
+                    {selectedOptions?.correct_answer_text && (
+                        <Flex alignItems={"center"}>
+                            {" "}
+                            <Box width="100px" textAlign="end" mr={3}>
+                                {/* <Badge colorScheme="green">Correct!</Badge> */}
+                            </Box>{" "}
+                            <Box>
+                                <Stack spacing={1}>
+                                    <Text
+                                        fontWeight="semibold"
+                                        textDecoration={"underline"}
+                                    >
+                                        Correct answer
+                                        {selectedOptions?.correct_answer_text
+                                            ?.length > 1
+                                            ? "s"
+                                            : ""}
+                                    </Text>{" "}
+                                    {selectedOptions.correct_answer_text?.map(
+                                        (ans) => (
+                                            <Text>{ans}</Text>
+                                        )
+                                    )}
+                                </Stack>
+                            </Box>
+                        </Flex>
+                    )}
+                </Stack>
+            );
 
         default:
             return <>--- UNSUPPORTED QUESTION TYPE ---</>;

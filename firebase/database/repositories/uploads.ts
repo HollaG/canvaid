@@ -9,6 +9,7 @@ import {
     getDoc,
     updateDoc,
     arrayUnion,
+    orderBy,
 } from "firebase/firestore";
 import { db } from "..";
 
@@ -36,6 +37,7 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
                 quizName: quizAttempt.quizName,
                 course: quizAttempt.course,
                 userUid: quizAttempt.userUid,
+                lastUpdated: new Date(),
             };
             // recursivelyReplaceNullToZero(newQuiz);
             console.log(JSON.stringify(newQuiz, null, 2));
@@ -78,6 +80,7 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
                 submissions: fieldDataSubmissions,
                 selectedOptions: fieldDataSelectedOptions,
                 questions: mergedQuestions,
+                lastUpdated: new Date(),
             });
 
             return {
@@ -118,7 +121,11 @@ export const getAttempts = async (
     uid: string
 ): Promise<Array<QuizAttempt & { id: string }>> => {
     const attemptsRef = collection(db, COLLECTION_NAME);
-    const q = query(attemptsRef, where("userUid", "==", uid));
+    const q = query(
+        attemptsRef,
+        where("userUid", "==", uid),
+        orderBy("lastUpdated", "desc")
+    );
     const data: Array<any> = [];
 
     const querySnapshot = await getDocs(q);
