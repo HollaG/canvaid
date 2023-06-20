@@ -1,4 +1,4 @@
-import { Quiz, QuizAttempt } from "@/types/canvas";
+import { CanvasQuiz, Quiz, QuizAttempt } from "@/types/canvas";
 import {
     addDoc,
     collection,
@@ -14,8 +14,18 @@ import {
 import { db } from "..";
 
 const COLLECTION_NAME = "uploads";
+const CANVAS_HTTP_OPTIONS = {
+    method: "GET",
+    headers: new Headers({
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN}`,
+        Accept: "application/json",
+    }),
+};
 
-export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
+export const create = async (
+    quizAttempt: QuizAttempt,
+    quizInformation: CanvasQuiz
+): Promise<Quiz> => {
     const dbRef = collection(db, COLLECTION_NAME);
     // delete all null fields
     recursivelyReplaceNullToZero(quizAttempt);
@@ -29,6 +39,10 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
         console.log("existingSnap :" + existingSnapshot);
         if (existingSnapshot.size === 0) {
             console.log("Creating new!");
+
+            // first, get the quiz data from canvas
+            // const res = await fetch(`${CANVAS_URL}courses/${}`)
+
             const newQuiz: Quiz = {
                 // maybe use inheritance for types instead for mutliple quiz attempt
                 submissions: [quizAttempt.submission],
@@ -38,6 +52,7 @@ export const create = async (quizAttempt: QuizAttempt): Promise<Quiz> => {
                 course: quizAttempt.course,
                 userUid: quizAttempt.userUid,
                 lastUpdated: new Date(),
+                quizInfo: quizInformation,
             };
             // recursivelyReplaceNullToZero(newQuiz);
             console.log(JSON.stringify(newQuiz, null, 2));

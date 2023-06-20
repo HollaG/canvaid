@@ -1,5 +1,7 @@
 import { create } from "@/firebase/database/repositories/uploads";
 import {
+    CanvasQuiz,
+    Course,
     QuestionResponse,
     QuizAttempt,
     QuizResponse,
@@ -28,6 +30,8 @@ export interface IAddBody {
     uid: string;
 }
 
+const CANVAS_URL = `https://canvas.instructure.com/api/v1/`;
+
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {
     // todo: error handling
@@ -35,11 +39,15 @@ export async function POST(request: Request) {
         console.log("POST REQUEST MADE");
 
         try {
-            const { html, quizName, course, uid }: IAddBody =
-                await request.json();
+            const {
+                html,
+                quizName: _quizName,
+                course: _courseName,
+                uid,
+            }: IAddBody = await request.json();
             // console.log({ data });
 
-            if (!html || !quizName) {
+            if (!html) {
                 return console.log("error: no data");
             }
 
@@ -52,7 +60,7 @@ export async function POST(request: Request) {
             const questions = root.querySelectorAll(".question");
 
             if (!questions) return console.log("NO QUESTIONS");
-            // console.log(questions);
+
             for (const question of questions) {
                 // console.log(questionWrapper);
 
@@ -208,7 +216,7 @@ export async function POST(request: Request) {
                 obj[Number(questionId)] = qnObj;
             }
 
-            console.log(JSON.stringify(obj, null, 2));
+            // console.log(JSON.stringify(obj, null, 2));
 
             // query Canvas API to get the quiz questions + quiz attempt;
             // TODO: put the API token in the database
@@ -223,7 +231,7 @@ export async function POST(request: Request) {
 
             // From the page, try to find which attempt number this quiz is.
             // if we can't find the attempt number, just assume it's the latest attempt
-            // TODO: this doesn't matter FOR NOW!
+
             const attemptNumberElement = root.querySelector(
                 ".quiz_version.selected"
             );
@@ -240,13 +248,10 @@ export async function POST(request: Request) {
 
             // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
             // courseId is the first number, quizId is the second number
-            console.log(URL);
+
             const [courseId, quizId] = URL.match(/\d+/g) || [];
 
-            // console.log(API_TOKEN);
-            // const fetchQuizDataUrl = `https://canvas.nus.edu.sg/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
-            const fetchQuizDataUrl = `https://canvas.instructure.com/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
-            // console.log({ fetchUrl: fetchQuizDataUrl });
+            const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
 
             const CANVAS_HTTP_OPTIONS = {
                 method: "GET",
@@ -256,26 +261,22 @@ export async function POST(request: Request) {
                 }),
             };
 
-            console.log({ API_TOKEN });
+            /**
+             * Query 1: Get all submissions of this quiz.
+             */
             const quizDataResponse = await fetch(
                 fetchQuizDataUrl,
                 CANVAS_HTTP_OPTIONS
             );
 
-            // console.log({
-            //     quizDataResponse: (await quizDataResponse.json())[
-            //         "quiz_submissions"
-            //     ],
-            // });
-
             const res = await quizDataResponse.json();
             const quizData = res["quiz_submissions"] as QuizSubmission[];
-            console.log(quizData);
-            console.log("------------------------------------");
             const quizSubmissionID = quizData[0].id;
 
-            // const fetchQuizQuestionsUrl = `https://canvas.nus.edu.sg/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
-            const fetchQuizQuestionsUrl = `https://canvas.instructure.com/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
+            /**
+             * Query 2: Get the information about the quiz questions
+             */
+            const fetchQuizQuestionsUrl = `${CANVAS_URL}quiz_submissions/${quizSubmissionID}/questions`;
             const quizSubmissionQuestionsResponse = await fetch(
                 fetchQuizQuestionsUrl,
                 CANVAS_HTTP_OPTIONS
@@ -284,6 +285,35 @@ export async function POST(request: Request) {
             const quizSubmissionQuestions = (
                 await quizSubmissionQuestionsResponse.json()
             )["quiz_submission_questions"] as QuizSubmissionQuestion[];
+
+            /**
+             * Query 3: Get the information about this quiz
+             */
+            const quizInformation = (await (
+                await fetch(
+                    `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}`,
+                    CANVAS_HTTP_OPTIONS
+                )
+            ).json()) as CanvasQuiz;
+
+            const quizName = _quizName || quizInformation.title;
+
+            let course = _courseName;
+            if (!_courseName.trim()) {
+                /**
+                 * Query 4: Get the course name
+                 * Only if user did not specify their own course name
+                 *
+                 */
+                const courseInformation = (await (
+                    await fetch(
+                        `${CANVAS_URL}courses/${courseId}`,
+                        CANVAS_HTTP_OPTIONS
+                    )
+                ).json()) as Course;
+
+                course = courseInformation.name.trim();
+            }
 
             const quizAttempt: QuizAttempt = {
                 questions: quizSubmissionQuestions.sort(
@@ -296,11 +326,8 @@ export async function POST(request: Request) {
                 course,
                 userUid: uid,
             };
-            console.log("------------------------------------");
-            console.log(quizData, attemptNumber);
-            // return;
 
-            await create(quizAttempt);
+            await create(quizAttempt, quizInformation);
 
             return NextResponse.json(quizAttempt);
         } catch (e) {
