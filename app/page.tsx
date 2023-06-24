@@ -34,7 +34,7 @@ export default function Page() {
             fetch(`/api/?uid=${user.uid}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data.data);
+                    //console.log(data.data);
                     setQuizzes(data.data || []);
                 });
         }
@@ -45,7 +45,7 @@ export default function Page() {
         const newState = quizzes.filter(item => item.id != itemid);
         setQuizzes(newState);
       };
-    console.log({ quizzes });
+    //console.log({ quizzes });
     return (
         <Container maxW={PAGE_CONTAINER_SIZE}>
             <Stack>

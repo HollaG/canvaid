@@ -8,8 +8,8 @@ import {
     doc,
     getDoc,
     updateDoc,
-    arrayUnion,
     orderBy,
+    deleteDoc,
 } from "firebase/firestore";
 import { db } from "..";
 
@@ -36,9 +36,10 @@ export const create = async (
         );
 
         const existingSnapshot = await getDocs(existingQuizQuery);
-        console.log("existingSnap :" + existingSnapshot);
+        //console.log("existingSnap :" + existingSnapshot);
         if (existingSnapshot.size === 0) {
             console.log("Creating new!");
+            console.log(quizAttempt.questions)
 
             // first, get the quiz data from canvas
             // const res = await fetch(`${CANVAS_URL}courses/${}`)

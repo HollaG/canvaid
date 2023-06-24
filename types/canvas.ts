@@ -35,8 +35,13 @@ export type QuizSubmissionQuestion = {
     // neutral_comments: string;
     // An array of available answers to display to the student.
     answers: Answer[];
+    //isFlagged: boolean;// actuall flagging
+    //annotations : string[];
 };
-
+export type QuizSubmissionQuestionNewFeatures = QuizSubmissionQuestion & {
+    annotations: string[],
+    isFlagged: boolean,
+}
 export type Answer = {
     id: number;
     text: string;
@@ -100,7 +105,7 @@ export interface QuizSubmission {
 // A singular quiz attempt
 export type QuizAttempt = {
     submission: QuizSubmission;
-    questions: QuizSubmissionQuestion[];
+    questions: QuizSubmissionQuestionNewFeatures[];
     selectedOptions: QuizResponse;
     quizName: string;
     course: string;
@@ -109,7 +114,7 @@ export type QuizAttempt = {
 
 export type Quiz = {
     submissions: QuizSubmission[];
-    questions: QuizSubmissionQuestion[];
+    questions: QuizSubmissionQuestionNewFeatures[];
     selectedOptions: QuizResponse[];
 
     // TODO: change this later

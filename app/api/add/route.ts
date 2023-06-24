@@ -7,6 +7,7 @@ import {
     QuizResponse,
     QuizSubmission,
     QuizSubmissionQuestion,
+    QuizSubmissionQuestionNewFeatures
 } from "@/types/canvas";
 import { readFile } from "fs";
 import { NextResponse } from "next/server";
@@ -123,6 +124,13 @@ export async function POST(request: Request) {
             const quizSubmissionQuestions = (
                 await quizSubmissionQuestionsResponse.json()
             )["quiz_submission_questions"] as QuizSubmissionQuestion[];
+
+            const quizSubmissionQuestionsNewFeatures = quizSubmissionQuestions.map((question) => { return {
+                ...question,
+                annotations: [],
+                isFlagged: false
+            } }) as QuizSubmissionQuestionNewFeatures[];
+            //console.log(quizSubmissionQuestionsNewFeatures);
 
             /**
              * Query 3: Get the information about this quiz
@@ -304,9 +312,7 @@ export async function POST(request: Request) {
                     .replace("pts", "")
                     .split(" / ")
                     .map((s) => s.trim())
-
                     .map(Number);
-
                 if (yourScore === totalScore) {
                     qnObj.correct_answer_ids = qnObj.selected_answer_ids;
                     qnObj.correct_answer_text = qnObj.answer_text;
@@ -320,7 +326,7 @@ export async function POST(request: Request) {
             // console.log(JSON.stringify(obj, null, 2));
 
             const quizAttempt: QuizAttempt = {
-                questions: quizSubmissionQuestions.sort(
+                questions: quizSubmissionQuestionsNewFeatures.sort(
                     (a, b) => a.position - b.position
                 ),
                 selectedOptions: obj,
@@ -330,6 +336,7 @@ export async function POST(request: Request) {
                 course,
                 userUid: uid,
             };
+            console.log(quizAttempt.questions[0])
 
             await create(quizAttempt, quizInformation);
 
