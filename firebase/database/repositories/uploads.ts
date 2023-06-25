@@ -33,7 +33,7 @@ export const create = async (
         
         const existingQuizQuery = query(
             dbRef,
-            where("quizName", "==", quizAttempt.quizName), where("userUid", "==", auth.currentUser?.uid)
+            where("quizName", "==", quizAttempt.quizName),where("userUid", "==", auth.currentUser?.uid)
         );
 
         const existingSnapshot = await getDocs(existingQuizQuery);
