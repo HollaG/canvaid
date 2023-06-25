@@ -345,9 +345,10 @@ export async function POST(request: Request) {
             };
             console.log(quizAttempt.questions[0]);
 
-            await create(quizAttempt, quizInformation);
+            const quiz = await create(quizAttempt, quizInformation);
 
-            return NextResponse.json(quizAttempt);
+            const data = { quizAttempt, quiz };
+            return NextResponse.json(data);
         } catch (e) {
             console.log("ERROR!");
             console.log(e);

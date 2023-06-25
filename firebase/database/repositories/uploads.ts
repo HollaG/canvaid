@@ -25,7 +25,7 @@ const CANVAS_HTTP_OPTIONS = {
 export const create = async (
     quizAttempt: QuizAttempt,
     quizInformation: CanvasQuiz
-): Promise<Quiz> => {
+): Promise<Quiz & { id: string }> => {
     const dbRef = collection(db, COLLECTION_NAME);
     // delete all null fields
     recursivelyReplaceNullToZero(quizAttempt);
@@ -62,7 +62,7 @@ export const create = async (
             return {
                 id: docRef.id,
                 ...newQuiz,
-            } as Quiz;
+            } as Quiz & { id: string };
         } else {
             console.log("Updating with new attempt!");
             const latestDoc = existingSnapshot.docs[0];
@@ -102,7 +102,7 @@ export const create = async (
             return {
                 id: latestDoc.id,
                 ...existingData,
-            } as Quiz;
+            } as Quiz & { id: string };
         }
     } catch (e) {
         console.log(e);
