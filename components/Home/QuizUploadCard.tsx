@@ -10,27 +10,27 @@ import {
     HStack,
     Stack,
 } from "@chakra-ui/react";
-import { BsArrowUpRight, BsHeartFill, BsHeart } from "react-icons/bs";
+import { BsArrowUpRight, BsHeartFill, BsHeart, BsTrash } from "react-icons/bs";
 import { QuizUploadProps } from "../Courses";
 import { Quiz } from "@/types/canvas";
 import { Timestamp } from "firebase/firestore";
-import DeleteButton from "../DeleteButton"
+import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
 
 export default function QuizUploadCard({
-    quiz, onDelete
+    quiz,
+    onDelete,
 }: {
-    quiz: Quiz & { id: string },  onDelete : (itemid: string) => void;
+    quiz: Quiz & { id: string };
+    onDelete: (itemid: string) => void;
 }) {
     const [liked, setLiked] = useState(false);
     const handleDelete = () => {
         onDelete(quiz.id);
-    }
+    };
     return (
         <Box py={6} height="100%">
-        
-
             <Box
                 // height="100%"
                 w="xs"
@@ -70,12 +70,11 @@ export default function QuizUploadCard({
                         <Text fontSize={"xs"} fontWeight="medium">
                             {quiz.course}
                         </Text>
-                        
                     </Box>
                     <Heading color={"black"} fontSize={"2xl"} noOfLines={1}>
                         {quiz.quizName}
                     </Heading>
-                    
+
                     {quiz.submissions.map((submission, index) => (
                         <Stack key={index} spacing={1}>
                             <Text>
@@ -96,10 +95,9 @@ export default function QuizUploadCard({
                         In this post, we will give an overview of what is new in
                         React 18, and what it means for the future.
                     </Text> */}
-                    
                 </Box>
-                <DeleteButton ID = {quiz.id} onDelete = {handleDelete}/>
-                <HStack borderTop={"1px"} color="black">
+
+                <HStack borderTop={"1px"} color="black" spacing={0}>
                     <Flex
                         p={4}
                         alignItems="center"
@@ -115,12 +113,13 @@ export default function QuizUploadCard({
                         </Text>
                         <BsArrowUpRight />
                     </Flex>
-                    <Flex
+                    {/* <Flex
                         p={4}
                         alignItems="center"
-                        justifyContent={"space-between"}
-                        roundedBottom={"sm"}
+                        justifyContent={"center"}
+                        // roundedBottom={"sm"}
                         borderLeft={"1px"}
+                        borderRight="1px"
                         cursor="pointer"
                         onClick={() => setLiked(!liked)}
                     >
@@ -129,6 +128,16 @@ export default function QuizUploadCard({
                         ) : (
                             <BsHeart fontSize={"24px"} />
                         )}
+                    </Flex> */}
+                    <Flex
+                        p={4}
+                        alignItems="center"
+                        justifyContent={"center"}
+                        // roundedBottom={"sm"}
+                        cursor="pointer"
+                        borderLeft="1px"
+                    >
+                        <DeleteButton ID={quiz.id} onDelete={handleDelete} />
                     </Flex>
                 </HStack>
             </Box>

@@ -371,7 +371,6 @@ const QuestionExtras = ({
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
-    const COLLECTION_NAME = "uploads";
     const [quizAnnotations, setQuizAnnotations] = useState(
         quiz.questions.map((qn) => ({
             stateid: qn.id,

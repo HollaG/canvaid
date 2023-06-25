@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "..";
 
-const COLLECTION_NAME = "uploads";
+const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
 const CANVAS_HTTP_OPTIONS = {
     method: "GET",
     headers: new Headers({
