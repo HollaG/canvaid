@@ -369,7 +369,7 @@ const QuestionExtras = ({
         >
     >;
 }) => {
-    const [isChatboxOpen, setIsChatboxOpen] = useState(false);
+    // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
     const COLLECTION_NAME = "uploads";
     const [quizAnnotations, setQuizAnnotations] = useState(
@@ -380,31 +380,6 @@ const QuestionExtras = ({
     );
     const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
         event.preventDefault();
-        //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
-
-        // update db by adding new annotation to the question in the array
-        // console.log("annotation number" + i);
-        // const dbRef = collection(db, COLLECTION_NAME);
-        // const existingQuizQuery = query(
-        //     dbRef,
-        //     where("quizName", "==", quiz?.quizName)
-        // );
-        // const existingSnapshot = await getDocs(existingQuizQuery);
-        // const latestDoc = existingSnapshot.docs[0];
-        // const existingData = latestDoc.data() as Quiz;
-
-        // let prevQuestions = existingData.questions;
-        // //@ts-ignore
-        // const newQuestion = prevQuestions.map((question) => {
-        //     console.log("question id:" + question.id);
-        //     if (question.id == i) {
-        //         question.annotations.push(newAnnotation);
-        //         console.log(question);
-        //     }
-        //     return question;
-        // });
-        // existingData.questions = newQuestion;
-        // await updateDoc(latestDoc.ref, existingData);
 
         try {
             const updatedQuizData = await updateQuizQuestionAnnotation(
@@ -414,7 +389,7 @@ const QuestionExtras = ({
             );
             setQuiz(updatedQuizData);
             // Close the chatbox
-            setIsChatboxOpen(false);
+            // setIsChatboxOpen(false);
 
             setNewAnnotation("");
         } catch (e) {
@@ -422,67 +397,38 @@ const QuestionExtras = ({
         }
     };
     return (
-        <>
-            <Box mt={3}>
-                {/* {question.annotations.length != 0 &&
-                    quizAnnotations?.map((annotations) => {
-                        if (annotations.stateid === question.id) {
-                            return (
-                                <Stack spacing={4}>
-                                    {annotations.stateAnnotation.map(
-                                        (annotation, i) => (
-                                            <Flex alignItems={"center"} key={i}>
-                                                <Box
-                                                    width="100px"
-                                                    textAlign={"end"}
-                                                    mr={3}
-                                                >
-                                                    <Tag colorScheme="green">
-                                                        {" "}
-                                                        {annotation}{" "}
-                                                    </Tag>
-                                                </Box>
-                                            </Flex>
-                                        )
-                                    )}
-                                </Stack>
-                            );
-                        }
-                    })} */}
-                <Stack>
-                    {question.annotations.length &&
-                        question.annotations.map((annotation, i) => (
-                            <Text key={i}> {annotation}</Text>
-                        ))}
-                </Stack>
-            </Box>
-            <Box mt={3}>
-                <IconButton
-                    icon={<ChatIcon />}
-                    aria-label="Open chat"
-                    onClick={() => setIsChatboxOpen(true)}
-                />
-            </Box>
-            {isChatboxOpen && (
-                <Box mt={3}>
-                    <form
-                        onSubmit={(event) =>
-                            handleSubmitAnnotation(event, question.id)
-                        }
+        <Stack mt={4}>
+            <form
+                onSubmit={(event) => handleSubmitAnnotation(event, question.id)}
+            >
+                <Flex>
+                    <Input
+                        placeholder="Add a comment..."
+                        type="text"
+                        value={newAnnotation}
+                        onChange={(e) => setNewAnnotation(e.target.value)}
+                        size="sm"
+                        //onBlur={() => setIsChatboxOpen(false)}
+                        variant="flushed"
+                    />
+                    <Button
+                        type="submit"
+                        colorScheme={"green"}
+                        size="sm"
+                        variant="ghost"
                     >
-                        <Input
-                            placeholder="Enter your annotation here"
-                            type="text"
-                            value={newAnnotation}
-                            onChange={(e) => setNewAnnotation(e.target.value)}
+                        Submit
+                    </Button>
+                </Flex>
+            </form>
 
-                            //onBlur={() => setIsChatboxOpen(false)}
-                        />
-                        <Button type="submit">Submit</Button>
-                    </form>
-                </Box>
-            )}
-        </>
+            <Stack>
+                {question.annotations.length &&
+                    question.annotations.map((annotation, i) => (
+                        <Text key={i}> {annotation}</Text>
+                    ))}
+            </Stack>
+        </Stack>
     );
 };
 
@@ -838,11 +784,6 @@ const CombinedQuestionList = ({
                             __html: question.question_text,
                         }}
                     />
-                    <QuestionExtras
-                        question={question}
-                        quiz={quiz}
-                        setQuiz={setQuiz}
-                    />
 
                     <Divider />
                     <Tabs>
@@ -909,7 +850,11 @@ const CombinedQuestionList = ({
                                 .map((d) => d.v)}
                         </TabPanels>
                     </Tabs>
-                    <Box mt={3}></Box>
+                    <QuestionExtras
+                        question={question}
+                        quiz={quiz}
+                        setQuiz={setQuiz}
+                    />
                 </Box>
             ))}
         </Stack>
