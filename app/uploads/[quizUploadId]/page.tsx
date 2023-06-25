@@ -1,5 +1,8 @@
 "use client";
-import { getQuizUpload } from "@/firebase/database/repositories/uploads";
+import {
+    getQuizUpload,
+    updateQuizQuestionAnnotation,
+} from "@/firebase/database/repositories/uploads";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import {
     Answer,
@@ -49,7 +52,13 @@ import {
     useRouter,
     useSelectedLayoutSegment,
 } from "next/navigation";
-import { useEffect, useState, FormEvent } from "react";
+import {
+    useEffect,
+    useState,
+    FormEvent,
+    Dispatch,
+    SetStateAction,
+} from "react";
 
 /**
  *
@@ -212,7 +221,10 @@ export default function Page() {
                     <GridItem p={5}>
                         {" "}
                         {selectedAttemptIndex === -1 ? (
-                            <CombinedQuestionList quiz={quiz} />
+                            <CombinedQuestionList
+                                quiz={quiz}
+                                setQuiz={setQuiz}
+                            />
                         ) : (
                             <Stack>
                                 <Heading fontSize="xl">
@@ -277,6 +289,7 @@ export default function Page() {
                                             <QuestionExtras
                                                 question={question}
                                                 quiz={quiz}
+                                                setQuiz={setQuiz}
                                             />
                                             {/* <Box mt={3}>
                                             {question.annotations.length != 0 && quizAnnotations?.map((annotations) => {
@@ -343,9 +356,18 @@ export default function Page() {
 const QuestionExtras = ({
     question,
     quiz,
+    setQuiz,
 }: {
     question: QuizSubmissionQuestion;
-    quiz: Quiz;
+    quiz: Quiz & { id: string };
+    setQuiz: Dispatch<
+        SetStateAction<
+            | (Quiz & {
+                  id: string;
+              })
+            | undefined
+        >
+    >;
 }) => {
     const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
@@ -361,48 +383,48 @@ const QuestionExtras = ({
         //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
 
         // update db by adding new annotation to the question in the array
-        console.log("annotation number" + i);
-        const dbRef = collection(db, COLLECTION_NAME);
-        const existingQuizQuery = query(
-            dbRef,
-            where("quizName", "==", quiz?.quizName)
-        );
-        const existingSnapshot = await getDocs(existingQuizQuery);
-        const latestDoc = existingSnapshot.docs[0];
-        const existingData = latestDoc.data() as Quiz;
+        // console.log("annotation number" + i);
+        // const dbRef = collection(db, COLLECTION_NAME);
+        // const existingQuizQuery = query(
+        //     dbRef,
+        //     where("quizName", "==", quiz?.quizName)
+        // );
+        // const existingSnapshot = await getDocs(existingQuizQuery);
+        // const latestDoc = existingSnapshot.docs[0];
+        // const existingData = latestDoc.data() as Quiz;
 
-        let prevQuestions = existingData.questions;
-        //@ts-ignore
-        const newQuestion = prevQuestions.map((question) => {
-            console.log("question id:" + question.id);
-            if (question.id == i) {
-                question.annotations.push(newAnnotation);
-                console.log(question);
-            }
-            return question;
-        });
-        existingData.questions = newQuestion;
-        await updateDoc(latestDoc.ref, existingData);
-        // Close the chatbox
-        setIsChatboxOpen(false);
-        // Reset the input value
-        // const updatedAnnotations = [...annotations]
-        // updatedAnnotations[i] = [...annotations[i]||[], newAnnotation];
-        // setAnnotations(updatedAnnotations)
-        setNewAnnotation("");
-        setQuizAnnotations(
-            newQuestion.map((qn) => ({
-                stateid: qn.id,
-                stateAnnotation: qn.annotations,
-            }))
-        );
+        // let prevQuestions = existingData.questions;
+        // //@ts-ignore
+        // const newQuestion = prevQuestions.map((question) => {
+        //     console.log("question id:" + question.id);
+        //     if (question.id == i) {
+        //         question.annotations.push(newAnnotation);
+        //         console.log(question);
+        //     }
+        //     return question;
+        // });
+        // existingData.questions = newQuestion;
+        // await updateDoc(latestDoc.ref, existingData);
 
-        return newQuestion;
+        try {
+            const updatedQuizData = await updateQuizQuestionAnnotation(
+                quiz,
+                i,
+                newAnnotation
+            );
+            setQuiz(updatedQuizData);
+            // Close the chatbox
+            setIsChatboxOpen(false);
+
+            setNewAnnotation("");
+        } catch (e) {
+            console.log(e);
+        }
     };
     return (
         <>
             <Box mt={3}>
-                {question.annotations.length != 0 &&
+                {/* {question.annotations.length != 0 &&
                     quizAnnotations?.map((annotations) => {
                         if (annotations.stateid === question.id) {
                             return (
@@ -426,7 +448,13 @@ const QuestionExtras = ({
                                 </Stack>
                             );
                         }
-                    })}
+                    })} */}
+                <Stack>
+                    {question.annotations.length &&
+                        question.annotations.map((annotation, i) => (
+                            <Text key={i}> {annotation}</Text>
+                        ))}
+                </Stack>
             </Box>
             <Box mt={3}>
                 <IconButton
@@ -724,7 +752,20 @@ type CombinedQuestion = {
     best_attempt_number: number;
 } & QuizSubmissionQuestion;
 
-const CombinedQuestionList = ({ quiz }: { quiz: Quiz }) => {
+const CombinedQuestionList = ({
+    quiz,
+    setQuiz,
+}: {
+    quiz: Quiz & { id: string };
+    setQuiz: Dispatch<
+        SetStateAction<
+            | (Quiz & {
+                  id: string;
+              })
+            | undefined
+        >
+    >;
+}) => {
     const qns = quiz.questions;
 
     // for each question,
@@ -797,7 +838,11 @@ const CombinedQuestionList = ({ quiz }: { quiz: Quiz }) => {
                             __html: question.question_text,
                         }}
                     />
-                    <QuestionExtras question={question} quiz={quiz} />
+                    <QuestionExtras
+                        question={question}
+                        quiz={quiz}
+                        setQuiz={setQuiz}
+                    />
 
                     <Divider />
                     <Tabs>

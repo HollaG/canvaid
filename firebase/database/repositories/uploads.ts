@@ -39,7 +39,7 @@ export const create = async (
         //console.log("existingSnap :" + existingSnapshot);
         if (existingSnapshot.size === 0) {
             console.log("Creating new!");
-            console.log(quizAttempt.questions)
+            console.log(quizAttempt.questions);
 
             // first, get the quiz data from canvas
             // const res = await fetch(`${CANVAS_URL}courses/${}`)
@@ -171,6 +171,39 @@ export const getQuizUpload = async (
         } as Quiz & { id: string };
     } else {
         throw new Error("No such document!");
+    }
+};
+
+export const updateQuizQuestionAnnotation = async (
+    quiz: Quiz & { id: string },
+    questionId: number,
+    newAnnotation: string
+) => {
+    try {
+        console.log("annotation number" + questionId);
+        const existingQuiz = doc(db, COLLECTION_NAME, quiz.id);
+        const existingQuizData = (await getDoc(existingQuiz)).data() as Quiz;
+        const existingQuestions = existingQuizData.questions;
+
+        // update the annotations
+        const newQuestions = existingQuestions.map((question) => {
+            if (question.id === questionId) {
+                question.annotations = [...question.annotations, newAnnotation];
+            }
+            return question;
+        });
+
+        // update the quiz
+        existingQuizData.questions = newQuestions;
+        await updateDoc(existingQuiz, existingQuizData);
+
+        return {
+            ...existingQuizData,
+            id: quiz.id,
+        };
+    } catch (e) {
+        console.log("ERROR:", e);
+        throw e;
     }
 };
 
