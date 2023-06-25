@@ -57,8 +57,6 @@ These files are for demonstration only. You may open them in the browser to see 
 
 When new users head to the site, they will see a landing page that will explain to them the purpose of the website. In future versions, the landing page will be made prettier with the inclusion of illustrations, features and an explainer video.
 
-<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image1.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image1.png "image_tooltip")
 
 The “Get Started” button will prompt users to sign in, with either an email account, or with their Google accounts.
@@ -69,8 +67,6 @@ Our app uses Firebase Authentication to register accounts. New users have two me
 
 #### New Users
 
-<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image2.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image2.png "image_tooltip")
 
 New users will click on the tab, and be presented with a form for them to fill in. Helpful tips below each input field hint to them what they must enter in the fields.
@@ -79,8 +75,6 @@ Due to Firebase limitations, the password must be at least 6 characters long. We
 
 The signup form also has error states - when input is invalid, the field will be highlighted in red and the Sign up button will be disabled.
 
-<p id="gdcalert3" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image3.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert4">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image3.png "image_tooltip")
 
 There will be another round of field validation on the server side, to ensure that there is no invalid input.
@@ -88,8 +82,6 @@ There will be another round of field validation on the server side, to ensure th
 The Sign up with Google button is also present on this tab. This button will automatically create an account for the user if it does not exist yet. Furthermore, there is no need for a password.
 
 #### Existing users
-
-<p id="gdcalert4" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image4.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert5">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image4.png "image_tooltip")
 
@@ -100,11 +92,7 @@ Upon an error, the errored field(s) will be highlighted in red. There are 2 poss
 1. No registered account with this email
 2. Incorrect password
 
-<p id="gdcalert5" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image5.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert6">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image5.png "image_tooltip")
-
-<p id="gdcalert6" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image6.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert7">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image6.png "image_tooltip")
 
@@ -128,23 +116,17 @@ On this page, there are a few features.
     - The user can view the specific quiz by clicking on “View quiz”.
 4. Upload a new quiz attempt page
 
-<p id="gdcalert7" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image7.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert8">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image7.png "image_tooltip")
 
 We have streamlined the quiz-adding process. Now, our app is able to automatically determine the course code and quiz name from the uploaded file. Therefore, all the user has to do is to go to the Canvas page that displays the quiz results for the quiz they want to upload, press ctrl + s to save the page as an HTML file, and drag and drop the HTML file in the zone.
 
 Once the user has dropped the file in the zone, uploading will begin automatically. The text in the drag-and-drop box will change to indicate so.
 
-<p id="gdcalert8" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image8.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert9">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image8.png "image_tooltip")
 \
 Once the quiz has been successfully added and parsed, the user will be redirected to the quiz-specific page for the quiz they just uploaded.
 
 1. Specific quiz page
-
-<p id="gdcalert9" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image9.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert10">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image9.png "image_tooltip")
 
@@ -170,8 +152,6 @@ If the quiz has no correct answers, the app will try to obtain the correct answe
 
 As the user uploads more attempts, they will appear on the left side. The user can upload more attempts by going to the add page and then simply dragging the file over. The quiz attempt will automatically be added under this quiz.
 
-<p id="gdcalert10" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image10.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert11">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image10.png "image_tooltip")
 
 This is the user’s second attempt.
@@ -183,8 +163,6 @@ For each question, the best attempt will be shown.
 This function works with quizzes that take questions from a common pool. \
 For example, if a quiz has a pool of 8 questions, with 3 questions chosen randomly per quiz, and attempt #1 has questions 1,4,5, and attempt #2 has questions 2,5,9, the Combined button will display all 5 seen questions, with the best attempt of question 5 shown.
 
-<p id="gdcalert11" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image11.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert12">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image11.png "image_tooltip")
 
 In this example, the best attempt for question 1 was Attempt #2, so Attempt #2 is shown, while the best attempt for question 2 was Attempt #1, so Attempt #1 is shown. In the case of multiple attempts with the same score, the first such attempt is taken.
@@ -194,8 +172,6 @@ In this example, the best attempt for question 1 was Attempt #2, so Attempt #2 i
 ### 1 Dark Mode
 
 Dark mode is important for today’s users, and we fully support dark mode as of Milestone 2, and intend to continue doing so.
-
-<p id="gdcalert12" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image12.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert13">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image12.png "image_tooltip")
 
@@ -224,8 +200,6 @@ We check our Firestore database to see if any quizzes with the same quiz ID and 
 
 An example of the data object stored in Firestore is shown below.
 
-<p id="gdcalert13" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image13.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert14">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image13.png "image_tooltip")
 
 For this, there are two attempts, represented by the length 2 arrays of `selectedOptions` and `submissions`.
@@ -241,8 +215,6 @@ The frontend then takes the result of this and displays it.
 ### 5 Annotation of each question
 
 We support adding comments to each question. This allows users to remember why they got a question wrong, or how they arrived at the answer.
-
-<p id="gdcalert14" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image14.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert15">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image14.png "image_tooltip")
 
@@ -295,13 +267,9 @@ In order to thoroughly test our support for the different type of canvas quiz
 
 ### Frontend Flow
 
-<p id="gdcalert15" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image15.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert16">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
 ![alt_text](images/image15.png "image_tooltip")
 
 ### Architecture Diagram
-
-<p id="gdcalert16" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image16.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert17">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
 
 ![alt_text](images/image16.png "image_tooltip")
 
