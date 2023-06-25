@@ -7,7 +7,7 @@ import {
     QuizResponse,
     QuizSubmission,
     QuizSubmissionQuestion,
-    QuizSubmissionQuestionNewFeatures
+    QuizSubmissionQuestionNewFeatures,
 } from "@/types/canvas";
 import { readFile } from "fs";
 import { NextResponse } from "next/server";
@@ -31,7 +31,9 @@ export interface IAddBody {
     uid: string;
 }
 
-const CANVAS_URL = `https://canvas.instructure.com/api/v1/`;
+const CANVAS_URL =
+    process.env.NEXT_PUBLIC_CANVAS_URL ||
+    `https://canvas.instructure.com/api/v1/`;
 
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {
@@ -76,7 +78,9 @@ export async function POST(request: Request) {
             );
             let attemptNumber = -1;
             // arrays start at 0
+
             if (attemptNumberElement) {
+                console.log(attemptNumberElement.innerText);
                 attemptNumber =
                     Number(
                         attemptNumberElement.innerText
@@ -125,11 +129,14 @@ export async function POST(request: Request) {
                 await quizSubmissionQuestionsResponse.json()
             )["quiz_submission_questions"] as QuizSubmissionQuestion[];
 
-            const quizSubmissionQuestionsNewFeatures = quizSubmissionQuestions.map((question) => { return {
-                ...question,
-                annotations: [],
-                isFlagged: false
-            } }) as QuizSubmissionQuestionNewFeatures[];
+            const quizSubmissionQuestionsNewFeatures =
+                quizSubmissionQuestions.map((question) => {
+                    return {
+                        ...question,
+                        annotations: [],
+                        isFlagged: false,
+                    };
+                }) as QuizSubmissionQuestionNewFeatures[];
             //console.log(quizSubmissionQuestionsNewFeatures);
 
             /**
@@ -336,7 +343,7 @@ export async function POST(request: Request) {
                 course,
                 userUid: uid,
             };
-            console.log(quizAttempt.questions[0])
+            console.log(quizAttempt.questions[0]);
 
             await create(quizAttempt, quizInformation);
 
