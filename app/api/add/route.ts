@@ -64,7 +64,6 @@ export async function POST(request: Request) {
             /** ---- API ---- */
             // TODO: put the API token in the database
             const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
-
             const URL =
                 root
                     .getElementById("skip_navigation_link")
@@ -79,7 +78,7 @@ export async function POST(request: Request) {
             let attemptNumber = -1;
             // arrays start at 0
 
-            if (attemptNumberElement) {
+            if (attemptNumberElement && attemptNumberElement.innerText) {
                 console.log(attemptNumberElement.innerText);
                 attemptNumber =
                     Number(

@@ -12,7 +12,7 @@ import {
     deleteDoc,
 } from "firebase/firestore";
 import { db } from "..";
-
+import{auth} from "../../config"
 const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
 const CANVAS_HTTP_OPTIONS = {
     method: "GET",
@@ -30,9 +30,10 @@ export const create = async (
     // delete all null fields
     recursivelyReplaceNullToZero(quizAttempt);
     try {
+        
         const existingQuizQuery = query(
             dbRef,
-            where("quizName", "==", quizAttempt.quizName)
+            where("quizName", "==", quizAttempt.quizName),where("userUid", "==", auth.currentUser?.uid)
         );
 
         const existingSnapshot = await getDocs(existingQuizQuery);
