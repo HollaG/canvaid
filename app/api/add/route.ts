@@ -5,9 +5,9 @@ import {
     QuestionResponse,
     QuizAttempt,
     QuizResponse,
-    QuizSubmission,
+    CanvasQuizSubmission,
+    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
-    QuizSubmissionQuestionNewFeatures,
 } from "@/types/canvas";
 import { readFile } from "fs";
 import { NextResponse } from "next/server";
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
             );
 
             const res = await quizDataResponse.json();
-            const quizData = res["quiz_submissions"] as QuizSubmission[];
+            const quizData = res["quiz_submissions"] as CanvasQuizSubmission[];
             const quizSubmissionID = quizData[0].id;
 
             /**
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
 
             const quizSubmissionQuestions = (
                 await quizSubmissionQuestionsResponse.json()
-            )["quiz_submission_questions"] as QuizSubmissionQuestion[];
+            )["quiz_submission_questions"] as CanvasQuizSubmissionQuestion[];
 
             const quizSubmissionQuestionsNewFeatures =
                 quizSubmissionQuestions.map((question) => {
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
                         annotations: [],
                         isFlagged: false,
                     };
-                }) as QuizSubmissionQuestionNewFeatures[];
+                }) as QuizSubmissionQuestion[];
             //console.log(quizSubmissionQuestionsNewFeatures);
 
             /**

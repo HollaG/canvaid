@@ -6,8 +6,8 @@ import {
     QuestionResponse,
     Quiz,
     QuizResponse,
+    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
-    QuizSubmissionQuestionNewFeatures,
 } from "@/types/canvas";
 import {
     Input,
@@ -35,9 +35,15 @@ import {
     Text,
     FormErrorMessageProps,
 } from "@chakra-ui/react";
-import {ChatIcon} from "@chakra-ui/icons"
+import { ChatIcon } from "@chakra-ui/icons";
 import { db } from "@/firebase/database";
-import { collection,getDocs, updateDoc, query, where } from "firebase/firestore";
+import {
+    collection,
+    getDocs,
+    updateDoc,
+    query,
+    where,
+} from "firebase/firestore";
 import {
     useParams,
     useRouter,
@@ -52,14 +58,14 @@ import { useEffect, useState, FormEvent } from "react";
 export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
-    
+
     const [questionInputs, setQuestionInputs] = useState<string>("");
     const [quiz, setQuiz] = useState<Quiz & { id: string }>();
     // const [quizAnnotations, setQuizAnnotations] = useState(
     //     quiz?.questions.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
     // );
     const [updatedQuiz, setUpdatedQuiz] = useState<Quiz | undefined>(undefined);
-    
+
     useEffect(() => {
         if (dataId)
             getQuizUpload(dataId)
@@ -68,7 +74,6 @@ export default function Page() {
                     console.log(e);
                 });
     }, [dataId]);
-    
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
     //console.log(quiz);
@@ -80,7 +85,7 @@ export default function Page() {
         );
         const qns = quiz?.questions.filter((qn) =>
             qnIds.includes(qn.id.toString())
-        )
+        );
         // const nestedArrayOfAnnotations = qns?.map((qn) => qn.annotations) || []
         // setAnnotations(nestedArrayOfAnnotations)
 
@@ -93,14 +98,13 @@ export default function Page() {
     //     setAnnotations(nestedArrayOfAnnotations);
     //   }, [selectedAttemptIndex]);
 
-    
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     // const [newAnnotation, setNewAnnotation] = useState("");
     // const COLLECTION_NAME = "uploads";
     // const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
     //     event.preventDefault();
     //     //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
-    
+
     //     // update db by adding new annotation to the question in the array
     //     console.log("annotation number" + i)
     //     const dbRef = collection(db, COLLECTION_NAME)
@@ -111,7 +115,7 @@ export default function Page() {
     //     const existingSnapshot = await getDocs(existingQuizQuery);
     //     const latestDoc = existingSnapshot.docs[0];
     //     const existingData = latestDoc.data() as Quiz;
-        
+
     //     let prevQuestions = existingData.questions
     //     //@ts-ignore
     //     const newQuestion = prevQuestions.map((question) => {
@@ -129,14 +133,14 @@ export default function Page() {
     //     // Reset the input value
     //     // const updatedAnnotations = [...annotations]
     //     // updatedAnnotations[i] = [...annotations[i]||[], newAnnotation];
-    //     // setAnnotations(updatedAnnotations) 
+    //     // setAnnotations(updatedAnnotations)
     //     setNewAnnotation('');
     //     setQuizAnnotations(
     //         newQuestion.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
     //       );
-          
+
     //     return newQuestion
-    // }   
+    // }
     if (!quiz)
         return <Container maxW={PAGE_CONTAINER_SIZE}>Loading...</Container>;
     return (
@@ -225,55 +229,56 @@ export default function Page() {
 
                                     {getQuestionsForAttempt(
                                         selectedAttemptIndex
-                                    ).map((question, i) => 
-                                       (<Box key={i}>
-            
-                                        <Heading
-                                            fontSize="lg"
-                                            alignItems={"center"}
-                                        >
-                                            {" "}
-                                            Question {i + 1}{" "}
-                                            <QuestionResultTag
+                                    ).map((question, i) => (
+                                        <Box key={i}>
+                                            <Heading
+                                                fontSize="lg"
+                                                alignItems={"center"}
+                                            >
+                                                {" "}
+                                                Question {i + 1}{" "}
+                                                <QuestionResultTag
+                                                    quiz={quiz}
+                                                    questionResponse={
+                                                        quiz.selectedOptions[
+                                                            selectedAttemptIndex
+                                                        ][question.id]
+                                                    }
+                                                />
+                                            </Heading>
+                                            {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
+                                            <div
+                                                className="question-text"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: question.question_text,
+                                                }}
+                                            />
+                                            <Divider />
+                                            <Box mt={3}>
+                                                <AnswerList
+                                                    questionType={
+                                                        question.question_type
+                                                    }
+                                                    answers={question.answers}
+                                                    selectedOptions={
+                                                        quiz.selectedOptions[
+                                                            selectedAttemptIndex
+                                                        ] &&
+                                                        quiz.selectedOptions[
+                                                            selectedAttemptIndex
+                                                        ][question.id]
+                                                    }
+                                                    show_correct_answers={
+                                                        quiz.quizInfo
+                                                            .show_correct_answers
+                                                    }
+                                                />
+                                            </Box>
+                                            <QuestionExtras
+                                                question={question}
                                                 quiz={quiz}
-                                                questionResponse={
-                                                    quiz.selectedOptions[
-                                                        selectedAttemptIndex
-                                                    ][question.id]
-                                                }
                                             />
-                                            
-                                        </Heading>
-                                        {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
-                                        <div
-                                            className="question-text"
-                                            dangerouslySetInnerHTML={{
-                                                __html: question.question_text,
-                                            }}
-                                        />
-                                        <Divider />
-                                        <Box mt={3}>
-                                            <AnswerList
-                                                questionType={
-                                                    question.question_type
-                                                }
-                                                answers={question.answers}
-                                                selectedOptions={
-                                                    quiz.selectedOptions[
-                                                        selectedAttemptIndex
-                                                    ] &&
-                                                    quiz.selectedOptions[
-                                                        selectedAttemptIndex
-                                                    ][question.id]
-                                                }
-                                                show_correct_answers={
-                                                    quiz.quizInfo
-                                                        .show_correct_answers
-                                                }
-                                            />
-                                        </Box>
-                                        <QuestionNewFeatures question = {question} quiz = {quiz}/>
-                                        {/* <Box mt={3}>
+                                            {/* <Box mt={3}>
                                             {question.annotations.length != 0 && quizAnnotations?.map((annotations) => {
                                                 if (annotations.stateid === question.id) {
                                                     return (
@@ -324,9 +329,8 @@ export default function Page() {
                                         
                                         )
                                         } */}
-                                    </Box>)
-                                    
-                                    )}
+                                        </Box>
+                                    ))}
                                 </Stack>
                             </Stack>
                         )}
@@ -336,111 +340,123 @@ export default function Page() {
         </Container>
     );
 }
-const QuestionNewFeatures = ({question, quiz,
-    } : {
-        question: QuizSubmissionQuestionNewFeatures; 
-        quiz : Quiz;
-    }) => {
-        const [isChatboxOpen, setIsChatboxOpen] = useState(false);
-        const [newAnnotation, setNewAnnotation] = useState("");
-        const COLLECTION_NAME = "uploads";
-        const [quizAnnotations, setQuizAnnotations] = useState(
-            quiz?.questions.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
+const QuestionExtras = ({
+    question,
+    quiz,
+}: {
+    question: QuizSubmissionQuestion;
+    quiz: Quiz;
+}) => {
+    const [isChatboxOpen, setIsChatboxOpen] = useState(false);
+    const [newAnnotation, setNewAnnotation] = useState("");
+    const COLLECTION_NAME = "uploads";
+    const [quizAnnotations, setQuizAnnotations] = useState(
+        quiz.questions.map((qn) => ({
+            stateid: qn.id,
+            stateAnnotation: qn.annotations,
+        }))
+    );
+    const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
+        event.preventDefault();
+        //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
+
+        // update db by adding new annotation to the question in the array
+        console.log("annotation number" + i);
+        const dbRef = collection(db, COLLECTION_NAME);
+        const existingQuizQuery = query(
+            dbRef,
+            where("quizName", "==", quiz?.quizName)
         );
-        const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
-            event.preventDefault();
-            //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
-        
-            // update db by adding new annotation to the question in the array
-            console.log("annotation number" + i)
-            const dbRef = collection(db, COLLECTION_NAME)
-            const existingQuizQuery = query(
-                dbRef,
-                where("quizName", "==", quiz?.quizName)
-            );
-            const existingSnapshot = await getDocs(existingQuizQuery);
-            const latestDoc = existingSnapshot.docs[0];
-            const existingData = latestDoc.data() as Quiz;
-            
-            let prevQuestions = existingData.questions
-            //@ts-ignore
-            const newQuestion = prevQuestions.map((question) => {
-                console.log("question id:" + question.id)
-                if (question.id == i) {
-                    question.annotations.push(newAnnotation)
-                    console.log(question)
-                }
-                return question
-            })
-            existingData.questions = newQuestion
-            await updateDoc(latestDoc.ref, existingData);
-            // Close the chatbox
-            setIsChatboxOpen(false);
-            // Reset the input value
-            // const updatedAnnotations = [...annotations]
-            // updatedAnnotations[i] = [...annotations[i]||[], newAnnotation];
-            // setAnnotations(updatedAnnotations) 
-            setNewAnnotation('');
-            setQuizAnnotations(
-                newQuestion.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
-              );
-              
-            return newQuestion
-        }   
-        return (
-            <>
-        <Box mt={3}>
-            {question.annotations.length != 0 && quizAnnotations?.map((annotations) => {
-                if (annotations.stateid === question.id) {
-                    return (
-                        <Stack spacing={4}>
-                            {annotations.stateAnnotation.map((annotation, i) => (
-                                <Flex alignItems={"center"} key={i}>
-                                    <Box width="100px" textAlign={"end"} mr={3}>
-                                        <Tag colorScheme="green"> {annotation} </Tag>
-                                    </Box>
-                                </Flex>
-                            ))}
-                        </Stack>
-                    )
-                }
+        const existingSnapshot = await getDocs(existingQuizQuery);
+        const latestDoc = existingSnapshot.docs[0];
+        const existingData = latestDoc.data() as Quiz;
+
+        let prevQuestions = existingData.questions;
+        //@ts-ignore
+        const newQuestion = prevQuestions.map((question) => {
+            console.log("question id:" + question.id);
+            if (question.id == i) {
+                question.annotations.push(newAnnotation);
+                console.log(question);
             }
+            return question;
+        });
+        existingData.questions = newQuestion;
+        await updateDoc(latestDoc.ref, existingData);
+        // Close the chatbox
+        setIsChatboxOpen(false);
+        // Reset the input value
+        // const updatedAnnotations = [...annotations]
+        // updatedAnnotations[i] = [...annotations[i]||[], newAnnotation];
+        // setAnnotations(updatedAnnotations)
+        setNewAnnotation("");
+        setQuizAnnotations(
+            newQuestion.map((qn) => ({
+                stateid: qn.id,
+                stateAnnotation: qn.annotations,
+            }))
+        );
+
+        return newQuestion;
+    };
+    return (
+        <>
+            <Box mt={3}>
+                {question.annotations.length != 0 &&
+                    quizAnnotations?.map((annotations) => {
+                        if (annotations.stateid === question.id) {
+                            return (
+                                <Stack spacing={4}>
+                                    {annotations.stateAnnotation.map(
+                                        (annotation, i) => (
+                                            <Flex alignItems={"center"} key={i}>
+                                                <Box
+                                                    width="100px"
+                                                    textAlign={"end"}
+                                                    mr={3}
+                                                >
+                                                    <Tag colorScheme="green">
+                                                        {" "}
+                                                        {annotation}{" "}
+                                                    </Tag>
+                                                </Box>
+                                            </Flex>
+                                        )
+                                    )}
+                                </Stack>
+                            );
+                        }
+                    })}
+            </Box>
+            <Box mt={3}>
+                <IconButton
+                    icon={<ChatIcon />}
+                    aria-label="Open chat"
+                    onClick={() => setIsChatboxOpen(true)}
+                />
+            </Box>
+            {isChatboxOpen && (
+                <Box mt={3}>
+                    <form
+                        onSubmit={(event) =>
+                            handleSubmitAnnotation(event, question.id)
+                        }
+                    >
+                        <Input
+                            placeholder="Enter your annotation here"
+                            type="text"
+                            value={newAnnotation}
+                            onChange={(e) => setNewAnnotation(e.target.value)}
+
+                            //onBlur={() => setIsChatboxOpen(false)}
+                        />
+                        <Button type="submit">Submit</Button>
+                    </form>
+                </Box>
             )}
-        </Box>
-        <Box mt={3}>
-            <IconButton
-                icon={<ChatIcon />}
-                aria-label="Open chat"
-                onClick={() => setIsChatboxOpen(true)}
-            />
-        </Box>
-        {
-            isChatboxOpen && 
-            (<Box mt={3}>
-                <form onSubmit = {(event) => handleSubmitAnnotation(event, question.id)}>
-            <Input
-                placeholder="Enter your annotation here"
-                type = "text"
-                value = {newAnnotation}
-                onChange={(e) =>
-                        setNewAnnotation(
-                            e.target.value
-                        )
-                    
-                    }
-                    
-                //onBlur={() => setIsChatboxOpen(false)}
-            />
-            <Button type = "submit"
-            >
-                Submit
-            </Button>
-            </form>
-        </Box>
-        )
-        }
-        </>)
-}
+        </>
+    );
+};
 
 const QuestionResultTag = ({
     quiz,
@@ -706,7 +722,7 @@ type CombinedQuestion = {
     best_attempt: QuestionResponse;
     attempts: QuestionResponse[];
     best_attempt_number: number;
-} & QuizSubmissionQuestionNewFeatures;
+} & QuizSubmissionQuestion;
 
 const CombinedQuestionList = ({ quiz }: { quiz: Quiz }) => {
     const qns = quiz.questions;
@@ -781,8 +797,8 @@ const CombinedQuestionList = ({ quiz }: { quiz: Quiz }) => {
                             __html: question.question_text,
                         }}
                     />
-                    <QuestionNewFeatures question = {question} quiz = {quiz}/>
-                    
+                    <QuestionExtras question={question} quiz={quiz} />
+
                     <Divider />
                     <Tabs>
                         <TabList>

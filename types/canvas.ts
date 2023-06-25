@@ -1,4 +1,4 @@
-export type QuizSubmissionQuestion = {
+export type CanvasQuizSubmissionQuestion = {
     // The ID of the quiz question.
     id: number; // NOTE: WE USE THIS ID
     // The ID of the Quiz the question belongs to.
@@ -38,17 +38,17 @@ export type QuizSubmissionQuestion = {
     //isFlagged: boolean;// actuall flagging
     //annotations : string[];
 };
-export type QuizSubmissionQuestionNewFeatures = QuizSubmissionQuestion & {
-    annotations: string[],
-    isFlagged: boolean,
-}
+export type QuizSubmissionQuestion = CanvasQuizSubmissionQuestion & {
+    annotations: string[];
+    isFlagged: boolean;
+};
 export type Answer = {
     id: number;
     text: string;
     html: string;
 };
 
-export interface QuizSubmission {
+export interface CanvasQuizSubmission {
     // The ID of the quiz submission.
     id: number;
     // The ID of the Quiz the quiz submission belongs to.
@@ -104,8 +104,8 @@ export interface QuizSubmission {
 
 // A singular quiz attempt
 export type QuizAttempt = {
-    submission: QuizSubmission;
-    questions: QuizSubmissionQuestionNewFeatures[];
+    submission: CanvasQuizSubmission;
+    questions: QuizSubmissionQuestion[];
     selectedOptions: QuizResponse;
     quizName: string;
     course: string;
@@ -113,8 +113,8 @@ export type QuizAttempt = {
 };
 
 export type Quiz = {
-    submissions: QuizSubmission[];
-    questions: QuizSubmissionQuestionNewFeatures[];
+    submissions: CanvasQuizSubmission[];
+    questions: QuizSubmissionQuestion[];
     selectedOptions: QuizResponse[];
 
     // TODO: change this later
