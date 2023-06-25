@@ -59,12 +59,9 @@ const Navbar = () => {
                             aria-label="Go back"
                         />
                     )} */}
-
-                        {/* <NextLink passHref href={"/"}>
-                        
-                        <Link></Link>
-                    </NextLink> */}
-                        <Text>Canvaid</Text>
+                        <Link as={NextLink} href="/">
+                            Canvaid
+                        </Link>
                     </Flex>
 
                     <Flex alignItems={"center"}>
