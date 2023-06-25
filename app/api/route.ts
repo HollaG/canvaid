@@ -1,7 +1,7 @@
 import firebase_app from "@/firebase/config";
 import { getAttempts } from "@/firebase/database/repositories/uploads";
 import { getUser } from "@/firebase/database/repositories/users";
-import googleAuth from "@/firebase/google";
+
 import { getAuth } from "firebase/auth";
 import { NextRequest, NextResponse } from "next/server";
 

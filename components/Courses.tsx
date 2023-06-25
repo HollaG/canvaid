@@ -1,18 +1,27 @@
 "use client";
-import { MultipleQuizAttempt } from "@/types/canvas";
+import { Quiz } from "@/types/canvas";
 import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
-import Link from 'next/link'
+import Link from "next/link";
+import QuizUploadCard from "./Home/QuizUploadCard";
+import { useState } from "react";
+import DeleteButton from "./DeleteButton";
+import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
 
-const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizAttempt[] }) => {
-    console.log(multipleQuizAttempts);
-    const modules = multipleQuizAttempts.map((attempt, index) =>{ 
-        const len = attempt.submission.length; // returns attempt at the end of the array
-        return {
-        name: attempt.course,
-        quizzes: [{ id: attempt.submission[len - 1].id, name: attempt.quizName }],
-        id: index,
-        }}
-    );
+export type QuizUploadProps = {
+    name: string;
+    quizzes: {
+        id: number;
+        name: string;
+    }[];
+    id: number;
+};
+type courseProps = {
+    quizzes: (Quiz & { id: string })[];
+    deletion: (itemid: string) => void;
+};
+const Courses = ({ quizzes, deletion }: courseProps) => {
+    console.log(quizzes);
+    
 
     // const modules = [
     //     {
@@ -45,6 +54,7 @@ const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizA
         // Set state or perform an action to show all quizzes for the module
         console.log("Showing all quizzes for module", moduleIndex + 1);
     };
+    
 
     return (
         <Box p={4}>
@@ -53,11 +63,11 @@ const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizA
             </Flex> */}
 
             <Text fontSize="xl" fontWeight="bold" mb={2} align={"center"}>
-                Courses
+                Your recent uploads
             </Text>
 
-            <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-                {modules.map((module, moduleIndex) => (
+            <Grid templateColumns="repeat(3, 1fr)" alignItems={"start"}>
+                {/* {modules.map((module, moduleIndex) => (
                     <Box
                         key={module.id}
                         p={4}
@@ -65,21 +75,23 @@ const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizA
                         borderRadius="md"
                     >
                         <Text fontSize="lg" fontWeight="bold" mb={2}>
-                        <Link
-                            href={{
-                                pathname: '/course',
-                                query: { name: module.name },
-                            }}
+                            <Link
+                                href={{
+                                    pathname: "/course",
+                                    query: { name: module.name },
+                                }}
                             >
-                            {module.name}
-                        </Link>
+                                {module.name}
+                            </Link>
                         </Text>
                         {module.quizzes.map((quiz) => (
-                            <li key =  {quiz.id}>
-                                <Link href = {{
-                                    pathname: '/quiz',
-                                    query: { id: quiz.id },
-                                }}>
+                            <li key={quiz.id}>
+                                <Link
+                                    href={{
+                                        pathname: "/quiz",
+                                        query: { id: quiz.id },
+                                    }}
+                                >
                                     <Text key={quiz.id}>{quiz.name}</Text>
                                 </Link>
                             </li>
@@ -93,6 +105,9 @@ const Courses = ({ multipleQuizAttempts }: { multipleQuizAttempts: MultipleQuizA
                             </Button>
                         </Flex>
                     </Box>
+                ))} */}
+                {quizzes.map((item, key) => (
+                    <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
                 ))}
             </Grid>
         </Box>

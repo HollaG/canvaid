@@ -1,7 +1,7 @@
 "use client";
 import Courses from "@/components/Courses";
-import SignOutButton from "@/components/SignOutButton";
-import { signInWithGoogle } from "@/firebase/google";
+import SignOutButton from "@/components/DeleteButton";
+import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
@@ -19,29 +19,33 @@ import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { MultipleQuizAttempt } from "@/types/canvas";
+import { Quiz } from "@/types/canvas";
 
+import "./globals.css";
 export default function Page() {
     const authCtx = useAuthContainer();
     console.log(authCtx);
 
     const user = authCtx?.user;
 
-    const [quizAttempts, setQuizAttempts] = useState<MultipleQuizAttempt[]>([]);
+    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
     useEffect(() => {
         if (user?.uid) {
             fetch(`/api/?uid=${user.uid}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data.data);
-                    setQuizAttempts(data.data || []);
+                    //console.log(data.data);
+                    setQuizzes(data.data || []);
                 });
         }
     }, [user]);
 
     if (!user) return <NotAuthedHomePage />;
-
-    console.log(user);
+    const handleDeleteItem = (itemid: string) => {
+        const newState = quizzes.filter(item => item.id != itemid);
+        setQuizzes(newState);
+      };
+    //console.log({ quizzes });
     return (
         <Container maxW={PAGE_CONTAINER_SIZE}>
             <Stack>
@@ -54,7 +58,7 @@ export default function Page() {
                     Add a new quiz
                 </Link>
                 <Input placeholder="Search for a quiz..." />
-                <Courses multipleQuizAttempts={quizAttempts} />
+                <Courses quizzes={quizzes} deletion ={handleDeleteItem} />
             </Stack>
         </Container>
     );

@@ -10,8 +10,9 @@ import {
     useColorModeValue,
     createIcon,
 } from "@chakra-ui/react";
-import { signInWithGoogle } from "@/firebase/google";
+import { signInWithGoogle } from "@/firebase/auth/google";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import NextLink from "next/link";
 
 export default function NotAuthedHomePage() {
     return (
@@ -62,7 +63,9 @@ export default function NotAuthedHomePage() {
                             _hover={{
                                 bg: "green.500",
                             }}
-                            onClick={signInWithGoogle}
+                            // onClick={signInWithGoogle}
+                            as={NextLink}
+                            href="/auth"
                         >
                             Get Started
                         </Button>

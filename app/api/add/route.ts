@@ -1,9 +1,12 @@
 import { create } from "@/firebase/database/repositories/uploads";
 import {
+    CanvasQuiz,
+    Course,
     QuestionResponse,
     QuizAttempt,
     QuizResponse,
-    QuizSubmission,
+    CanvasQuizSubmission,
+    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
 } from "@/types/canvas";
 import { readFile } from "fs";
@@ -27,15 +30,10 @@ export interface IAddBody {
     course: string;
     uid: string;
 }
-export interface IAddMultiBody {
-    html: string;
-    quizName: string;
-    course: string;
-    uid: string;
-    selectedOptions: QuizResponse;
-    submission: QuizSubmission;
-}
 
+const CANVAS_URL =
+    process.env.NEXT_PUBLIC_CANVAS_URL ||
+    `https://canvas.instructure.com/api/v1/`;
 
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {
@@ -44,11 +42,15 @@ export async function POST(request: Request) {
         console.log("POST REQUEST MADE");
 
         try {
-            const { html, quizName, course, uid }: IAddMultiBody =
-                await request.json();
+            const {
+                html,
+                quizName: _quizName,
+                course: _courseName,
+                uid,
+            }: IAddBody = await request.json();
             // console.log({ data });
 
-            if (!html || !quizName) {
+            if (!html) {
                 return console.log("error: no data");
             }
 
@@ -58,10 +60,120 @@ export async function POST(request: Request) {
             if (!root) {
                 return console.log("NO ROOT");
             }
+
+            /** ---- API ---- */
+            // TODO: put the API token in the database
+            const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
+
+            const URL =
+                root
+                    .getElementById("skip_navigation_link")
+                    ?.getAttribute("href") || "";
+
+            // From the page, try to find which attempt number this quiz is.
+            // if we can't find the attempt number, just assume it's the latest attempt
+
+            const attemptNumberElement = root.querySelector(
+                ".quiz_version.selected"
+            );
+            let attemptNumber = -1;
+            // arrays start at 0
+
+            if (attemptNumberElement) {
+                console.log(attemptNumberElement.innerText);
+                attemptNumber =
+                    Number(
+                        attemptNumberElement.innerText
+                            .split(":")[0]
+                            .replace(/\D/g, "")
+                    ) - 1 ?? -1;
+            }
+
+            // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
+            // courseId is the first number, quizId is the second number
+
+            const [courseId, quizId] = URL.match(/\d+/g) || [];
+
+            const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
+
+            const CANVAS_HTTP_OPTIONS = {
+                method: "GET",
+                headers: new Headers({
+                    Authorization: `Bearer ${API_TOKEN}`,
+                    Accept: "application/json",
+                }),
+            };
+
+            /**
+             * Query 1: Get all submissions of this quiz.
+             */
+            const quizDataResponse = await fetch(
+                fetchQuizDataUrl,
+                CANVAS_HTTP_OPTIONS
+            );
+
+            const res = await quizDataResponse.json();
+            const quizData = res["quiz_submissions"] as CanvasQuizSubmission[];
+            const quizSubmissionID = quizData[0].id;
+
+            /**
+             * Query 2: Get the information about the quiz questions
+             */
+            const fetchQuizQuestionsUrl = `${CANVAS_URL}quiz_submissions/${quizSubmissionID}/questions`;
+            const quizSubmissionQuestionsResponse = await fetch(
+                fetchQuizQuestionsUrl,
+                CANVAS_HTTP_OPTIONS
+            );
+
+            const quizSubmissionQuestions = (
+                await quizSubmissionQuestionsResponse.json()
+            )["quiz_submission_questions"] as CanvasQuizSubmissionQuestion[];
+
+            const quizSubmissionQuestionsNewFeatures =
+                quizSubmissionQuestions.map((question) => {
+                    return {
+                        ...question,
+                        annotations: [],
+                        isFlagged: false,
+                    };
+                }) as QuizSubmissionQuestion[];
+            //console.log(quizSubmissionQuestionsNewFeatures);
+
+            /**
+             * Query 3: Get the information about this quiz
+             */
+            const quizInformation = (await (
+                await fetch(
+                    `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}`,
+                    CANVAS_HTTP_OPTIONS
+                )
+            ).json()) as CanvasQuiz;
+
+            const quizName = _quizName || quizInformation.title;
+
+            let course = _courseName;
+            if (!_courseName.trim()) {
+                /**
+                 * Query 4: Get the course name
+                 * Only if user did not specify their own course name
+                 *
+                 */
+                const courseInformation = (await (
+                    await fetch(
+                        `${CANVAS_URL}courses/${courseId}`,
+                        CANVAS_HTTP_OPTIONS
+                    )
+                ).json()) as Course;
+
+                course = courseInformation.name.trim();
+            }
+
+            /** HTML Parsing to get user answers */
+
             const questions = root.querySelectorAll(".question");
 
             if (!questions) return console.log("NO QUESTIONS");
-            // console.log(questions);
+
             for (const question of questions) {
                 // console.log(questionWrapper);
 
@@ -92,124 +204,151 @@ export async function POST(request: Request) {
                     }
                 }
 
-                if (question.classList.contains("short_answer_question")) {
+                // This is different from fill_in_multiple_blanks_question as there is no `.selected_answer` div
+                if (
+                    question.classList.contains("short_answer_question") ||
+                    question.classList.contains("essay_question") ||
+                    question.classList.contains("numerical_question")
+                ) {
                     // TODO: check this
-                    const answerInput = (
-                        question.querySelector(
-                            "input"
-                        ) as unknown as HTMLInputElement
-                    ).getAttribute("value");
-
+                    const answerInputElement = question.querySelector("input");
+                    let answerText = "";
+                    if (answerInputElement)
+                        answerText =
+                            answerInputElement.getAttribute("value") || "";
+                    else
+                        answerText =
+                            question.querySelector(".quiz_response_text")
+                                ?.innerText || "";
                     // console.log(answerInput);
-                    qnObj.answer_text = answerInput || "";
+                    qnObj.answer_text = [answerText || ""];
+
+                    // const isCorrect =
+                    //     answer.classList.contains("correct_answer");
+                    // get the answers, if there are any
+
+                    if (question.classList.contains("short_answer_question")) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".answer_text"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
+                    } else if (question.classList.contains("essay_question")) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".answer_text"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
+                    } else if (
+                        question.classList.contains("numerical_question")
+                    ) {
+                        const correctAnswers =
+                            question.querySelectorAll(".correct_answer");
+                        let correctAnswerArray = [];
+                        for (const correctAnswer of correctAnswers) {
+                            // todo: we only deal with numerical exact answers for now
+                            const correctAnswerText =
+                                correctAnswer.querySelector(
+                                    ".numerical_exact_answer"
+                                )?.innerText ||
+                                correctAnswer.querySelector(
+                                    ".numerical_precision_answer"
+                                )?.innerText ||
+                                correctAnswer.querySelector(
+                                    ".numerical_range_answer"
+                                )?.innerText;
+                            if (correctAnswerText)
+                                correctAnswerArray.push(correctAnswerText);
+                        }
+                        qnObj.correct_answer_text = correctAnswerArray;
+                    }
                 }
 
+                // TODO: support this in futures
+                // if (
+                //     question.classList.contains(
+                //         "fill_in_multiple_blanks_question"
+                //     )
+                // ) {
+                //     const inputtedAnswers =
+                //         question.querySelectorAll(".selected_answer");
+
+                //     const answerTextArray = [];
+                //     // https://stackoverflow.com/questions/6520192/how-to-get-the-text-node-of-an-element
+                //     for (const inputtedAnswer of inputtedAnswers) {
+                //         if (inputtedAnswer.childNodes.length < 2) continue;
+                //         answerTextArray.push(
+                //             inputtedAnswer.childNodes[1].textContent
+                //                 .replaceAll("\n", "")
+                //                 .trim()
+                //         );
+                //     }
+                //     qnObj.answer_text = answerTextArray;
+
+                //     const correctAnswers =
+                //         question.querySelectorAll(".correct_answer");
+                //     let correctAnswerArray = [];
+                //     for (const correctAnswer of correctAnswers) {
+                //         if (correctAnswer.childNodes.length < 2) continue;
+                //         correctAnswerArray.push(
+                //             correctAnswer.childNodes[1].textContent
+                //                 .replaceAll("\n", "")
+                //                 .trim()
+                //         );
+                //     }
+                //     qnObj.correct_answer_text = correctAnswerArray;
+                // }
                 const pointElement = question.querySelector(".user_points");
 
                 if (!pointElement) return console.log("NO POINT ELEMENT");
                 const [yourScore, totalScore] = pointElement.innerText
-                    .split(" ")
-                    .filter(Number)
+                    .replace("pts", "")
+                    .split(" / ")
+                    .map((s) => s.trim())
                     .map(Number);
-
                 if (yourScore === totalScore) {
                     qnObj.correct_answer_ids = qnObj.selected_answer_ids;
+                    qnObj.correct_answer_text = qnObj.answer_text;
                 }
-                qnObj.your_score = yourScore;
+                qnObj.your_score = Number.isNaN(yourScore) ? -1 : yourScore;
                 qnObj.total_score = totalScore;
+
                 obj[Number(questionId)] = qnObj;
             }
 
             // console.log(JSON.stringify(obj, null, 2));
 
-            // query Canvas API to get the quiz questions + quiz attempt;
-            // TODO: put the API token in the database
-            const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
-
-            const URL =
-                root
-                    .getElementById("skip_navigation_link")
-                    ?.getAttribute("href") || "";
-
-            // console.log(URL);
-
-            // From the page, try to find which attempt number this quiz is.
-            // if we can't find the attempt number, just assume it's the latest attempt
-            // TODO: this doesn't matter FOR NOW!
-            const attemptNumberElement = root.querySelector(
-                ".quiz_version.selected"
-            );
-            let attemptNumber = -1;
-            if (attemptNumberElement) {
-                attemptNumber =
-                    Number(
-                        attemptNumberElement.innerText
-                            .split(":")[0]
-                            .replace(/\D/g, "")
-                    ) || -1;
-            }
-
-            // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
-            // courseId is the first number, quizId is the second number
-            const [courseId, quizId] = URL.match(/\d+/g) || [];
-
-            // console.log(API_TOKEN);
-            const fetchQuizDataUrl = `https://canvas.instructure.com/api/v1/courses/${courseId}/quizzes/${quizId}/submissions`;
-            // console.log({ fetchUrl: fetchQuizDataUrl });
-
-            const CANVAS_HTTP_OPTIONS = {
-                method: "GET",
-                headers: new Headers({
-                    Authorization: `Bearer ${API_TOKEN}`,
-                    Accept: "application/json",
-                }),
-            };
-
-            const quizDataResponse = await fetch(
-                fetchQuizDataUrl,
-                CANVAS_HTTP_OPTIONS
-            );
-
-            // console.log(await quizDataResponse.json());
-
-            const quizData = (await quizDataResponse.json())[
-                "quiz_submissions"
-            ] as QuizSubmission[];
-            //console.log({ quizData });
-            const quizSubmissionID = quizData[0].id;
-
-            const fetchQuizQuestionsUrl = `https://canvas.instructure.com/api/v1/quiz_submissions/${quizSubmissionID}/questions`;
-            const quizSubmissionQuestionsResponse = await fetch(
-                fetchQuizQuestionsUrl,
-                CANVAS_HTTP_OPTIONS
-            );
-
-            const quizSubmissionQuestions = (
-                await quizSubmissionQuestionsResponse.json()
-            )["quiz_submission_questions"] as QuizSubmissionQuestion[];
-
             const quizAttempt: QuizAttempt = {
-                questions: quizSubmissionQuestions.sort(
+                questions: quizSubmissionQuestionsNewFeatures.sort(
                     (a, b) => a.position - b.position
                 ),
                 selectedOptions: obj,
-                submission: quizData[0], // TODO: change this to the attempt number
+                submission:
+                    quizData[attemptNumber] || quizData.at(-1) || quizData[0], // note: take the latest attempt. todo: get the attempt number instead
                 quizName,
                 course,
                 userUid: uid,
             };
-            // in case the question takes in text input, we need to manually set the score to 0 as it's not in the response
-            for (let all in quizAttempt.selectedOptions) {
-                if( quizAttempt.selectedOptions[all].total_score == undefined) {
-                    quizAttempt.selectedOptions[all].total_score = 0;
+            console.log(quizAttempt.questions[0]);
 
-                }
-            }
-            //console.log( quizAttempt.selectedOptions[170137162] );
+            const quiz = await create(quizAttempt, quizInformation);
 
-            await create(quizAttempt);
-
-            return NextResponse.json(quizAttempt);
+            const data = { quizAttempt, quiz };
+            return NextResponse.json(data);
         } catch (e) {
             console.log("ERROR!");
             console.log(e);

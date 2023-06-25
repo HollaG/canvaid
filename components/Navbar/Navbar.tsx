@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthContainer } from "@/app/providers";
-import { signInWithGoogle, signOutWithGoogle } from "@/firebase/google";
+import { signInWithGoogle, signOutWithGoogle } from "@/firebase/auth/google";
 import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import {
     Box,
@@ -23,6 +23,9 @@ import {
 
 import UserAvatar from "../Display/Avatar";
 import { ChevronLeftIcon, MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
+import { signOutAll } from "@/firebase/auth";
+
+import NextLink from "next/link";
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
 
@@ -56,12 +59,9 @@ const Navbar = () => {
                             aria-label="Go back"
                         />
                     )} */}
-
-                        {/* <NextLink passHref href={"/"}>
-                        
-                        <Link></Link>
-                    </NextLink> */}
-                        <Text>Canvaid</Text>
+                        <Link as={NextLink} href="/">
+                            Canvaid
+                        </Link>
                     </Flex>
 
                     <Flex alignItems={"center"}>
@@ -116,15 +116,13 @@ const Navbar = () => {
                                             </Center>
                                             <br />
                                             <MenuDivider />
-                                            <MenuItem
-                                                onClick={signOutWithGoogle}
-                                            >
+                                            <MenuItem onClick={signOutAll}>
                                                 Logout
                                             </MenuItem>
                                         </>
                                     ) : (
                                         <Center>
-                                            <Button onClick={signInWithGoogle}>
+                                            <Button as={NextLink} href="/auth">
                                                 {" "}
                                                 Login{" "}
                                             </Button>
