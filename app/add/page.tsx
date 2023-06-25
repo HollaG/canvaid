@@ -79,46 +79,49 @@ export default function Page() {
     // 3: error
     const [isUploading, setIsUploading] = useState(0);
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        // Do something with the files
-        console.log("ONDROP called");
-        if (!user) return;
-        if (acceptedFiles.length && acceptedFiles[0] instanceof File) {
-            setIsUploading(1);
-            const file = acceptedFiles[0];
-            console.log("received file", file);
-            file.text().then((txt: string) => {
-                const body: IAddBody = {
-                    html: txt,
-                    quizName: name,
-                    course,
-                    uid: user.uid,
-                };
-                fetch("/api/add", {
-                    method: "POST",
-                    body: JSON.stringify(body),
-                })
-                    .then((res) => {
-                        console.log(res);
-                        return res.json();
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            // Do something with the files
+            console.log("ONDROP called");
+            if (!user) return;
+            if (acceptedFiles.length && acceptedFiles[0] instanceof File) {
+                setIsUploading(1);
+                const file = acceptedFiles[0];
+                console.log("received file", file);
+                file.text().then((txt: string) => {
+                    const body: IAddBody = {
+                        html: txt,
+                        quizName: name,
+                        course,
+                        uid: user.uid,
+                    };
+                    fetch("/api/add", {
+                        method: "POST",
+                        body: JSON.stringify(body),
                     })
-                    .then(
-                        (data: {
-                            quizAttempt: QuizAttempt;
-                            quiz: Quiz & {
-                                id: string;
-                            };
-                        }) => {
-                            console.log("Submitted!");
-                            console.log(data);
-                            setIsUploading(2);
-                            router.push(`/uploads/${data.quiz.id}`);
-                        }
-                    )
-                    .catch(console.error);
-            });
-        }
-    }, []);
+                        .then((res) => {
+                            console.log(res);
+                            return res.json();
+                        })
+                        .then(
+                            (data: {
+                                quizAttempt: QuizAttempt;
+                                quiz: Quiz & {
+                                    id: string;
+                                };
+                            }) => {
+                                console.log("Submitted!");
+                                console.log(data);
+                                setIsUploading(2);
+                                router.push(`/uploads/${data.quiz.id}`);
+                            }
+                        )
+                        .catch(console.error);
+                });
+            }
+        },
+        [course, name, router, user]
+    );
     const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
         useDropzone({
             onDrop,
