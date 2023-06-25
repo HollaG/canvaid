@@ -608,8 +608,8 @@ const AnswerList = ({
                                             : ""}
                                     </Text>{" "}
                                     {selectedOptions.correct_answer_text?.map(
-                                        (ans) => (
-                                            <Text>{ans}</Text>
+                                        (ans, i) => (
+                                            <Text key={i}>{ans}</Text>
                                         )
                                     )}
                                 </Stack>
