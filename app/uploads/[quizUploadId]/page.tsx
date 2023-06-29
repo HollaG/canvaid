@@ -194,11 +194,12 @@ export default function Page() {
                                     {getQuestionsForAttempt(
                                         selectedAttemptIndex
                                     ).map((question, i) => (
-                                        <Box key={i}>
+                                        <Box key={i} >
                                             <Heading
                                                 fontSize="lg"
-                                                alignItems={"center"}
+                                                alignItems={"center"} display = "flex" justifyContent={"space-between"}
                                             >
+                                                <div>
                                                 {" "}
                                                 Question {i + 1}{" "}
                                                 <QuestionResultTag
@@ -209,6 +210,7 @@ export default function Page() {
                                                         ][question.id]
                                                     }
                                                 />
+                                                </div>
                                                 <FlaggingButton question = {question} quiz={quiz} setQuiz={setQuiz}/>
                                             </Heading>
                                             {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
@@ -366,6 +368,7 @@ const QuestionExtras = ({
                 {question.annotations.length &&
                     question.annotations.map((annotation, i) => (
                         <Text key={i}> {annotation}</Text>
+
                     ))}
             </Stack>
         </Stack>
