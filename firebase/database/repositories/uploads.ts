@@ -174,7 +174,38 @@ export const getQuizUpload = async (
         throw new Error("No such document!");
     }
 };
+export const updateQuizQuestionFlag = async (
+    quiz: Quiz & { id: string },
+    questionId: number,
+    isFlagged: boolean
+) => {
+    try {
+        console.log("flag number" + questionId);
+        const existingQuiz = doc(db, COLLECTION_NAME, quiz.id);
+        const existingQuizData = (await getDoc(existingQuiz)).data() as Quiz;
+        const existingQuestions = existingQuizData.questions;
 
+        // update the flag
+        const newQuestions = existingQuestions.map((question) => {
+            if (question.id === questionId) {
+                question.isFlagged = isFlagged;
+            }
+            return question;
+        });
+
+        // update the quiz
+        existingQuizData.questions = newQuestions;
+        await updateDoc(existingQuiz, existingQuizData);
+
+        return {
+            ...existingQuizData,
+            id: quiz.id,
+        };
+    } catch (e) {
+        console.log("ERROR:", e);
+        throw e;
+    }
+}
 export const updateQuizQuestionAnnotation = async (
     quiz: Quiz & { id: string },
     questionId: number,

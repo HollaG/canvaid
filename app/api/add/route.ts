@@ -32,8 +32,8 @@ export interface IAddBody {
 }
 
 const CANVAS_URL =
-    process.env.NEXT_PUBLIC_CANVAS_URL ||
-    `https://canvas.instructure.com/api/v1/`;
+    process.env.NEXT_PUBLIC_CANVAS_URL 
+    //`https://canvas.instructure.com/api/v1/`;
 
 // https://github.com/vercel/next.js/discussions/39957
 export async function POST(request: Request) {

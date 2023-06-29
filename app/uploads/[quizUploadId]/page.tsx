@@ -2,6 +2,7 @@
 import {
     getQuizUpload,
     updateQuizQuestionAnnotation,
+    updateQuizQuestionFlag,
 } from "@/firebase/database/repositories/uploads";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import {
@@ -59,6 +60,7 @@ import {
     Dispatch,
     SetStateAction,
 } from "react";
+import { FaFlag } from "react-icons/fa";
 
 /**
  *
@@ -100,56 +102,6 @@ export default function Page() {
 
         return qns || [];
     };
-    // useEffect(() => {
-    //     // Update the annotations state when the selected attempt index changes
-    //     const questionsForAttempt = getQuestionsForAttempt(selectedAttemptIndex);
-    //     const nestedArrayOfAnnotations = questionsForAttempt?.map((qn) => qn.annotations) || [];
-    //     setAnnotations(nestedArrayOfAnnotations);
-    //   }, [selectedAttemptIndex]);
-
-    // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
-    // const [newAnnotation, setNewAnnotation] = useState("");
-    // const COLLECTION_NAME = "uploads";
-    // const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
-    //     event.preventDefault();
-    //     //a single annotation that is part of an annotation array that is part of a question that is part of a qn array
-
-    //     // update db by adding new annotation to the question in the array
-    //     console.log("annotation number" + i)
-    //     const dbRef = collection(db, COLLECTION_NAME)
-    //     const existingQuizQuery = query(
-    //         dbRef,
-    //         where("quizName", "==", quiz?.quizName)
-    //     );
-    //     const existingSnapshot = await getDocs(existingQuizQuery);
-    //     const latestDoc = existingSnapshot.docs[0];
-    //     const existingData = latestDoc.data() as Quiz;
-
-    //     let prevQuestions = existingData.questions
-    //     //@ts-ignore
-    //     const newQuestion = prevQuestions.map((question) => {
-    //         console.log("question id:" + question.id)
-    //         if (question.id == i) {
-    //             question.annotations.push(newAnnotation)
-    //             console.log(question)
-    //         }
-    //         return question
-    //     })
-    //     existingData.questions = newQuestion
-    //     await updateDoc(latestDoc.ref, existingData);
-    //     // Close the chatbox
-    //     setIsChatboxOpen(false);
-    //     // Reset the input value
-    //     // const updatedAnnotations = [...annotations]
-    //     // updatedAnnotations[i] = [...annotations[i]||[], newAnnotation];
-    //     // setAnnotations(updatedAnnotations)
-    //     setNewAnnotation('');
-    //     setQuizAnnotations(
-    //         newQuestion.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
-    //       );
-
-    //     return newQuestion
-    // }
     if (!quiz)
         return <Container maxW={PAGE_CONTAINER_SIZE}>Loading...</Container>;
     return (
@@ -257,6 +209,7 @@ export default function Page() {
                                                         ][question.id]
                                                     }
                                                 />
+                                                <FlaggingButton question = {question} quiz={quiz} setQuiz={setQuiz}/>
                                             </Heading>
                                             {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
                                             <div
@@ -291,57 +244,8 @@ export default function Page() {
                                                 quiz={quiz}
                                                 setQuiz={setQuiz}
                                             />
-                                            {/* <Box mt={3}>
-                                            {question.annotations.length != 0 && quizAnnotations?.map((annotations) => {
-                                                if (annotations.stateid === question.id) {
-                                                    return (
-                                                        <Stack spacing={4}>
-                                                            {annotations.stateAnnotation.map((annotation, i) => (
-                                                                <Flex alignItems={"center"} key={i}>
-                                                                    <Box width="100px" textAlign={"end"} mr={3}>
-                                                                        <Tag colorScheme="green"> {annotation} </Tag>
-                                                                    </Box>
-                                                                </Flex>
-                                                            ))}
-                                                        </Stack>
-                                                    )
-                                                }
-                                            }
-                                            )}
-                                        </Box>
-                                        <Box mt={3}>
-                                            <IconButton
-                                                icon={<ChatIcon />}
-                                                aria-label="Open chat"
-                                                onClick={() => setIsChatboxOpen(true)}
-                                            />
-                                        </Box>
-                                        {
-                                            isChatboxOpen && 
-                                            (<Box mt={3}>
-                                                <form onSubmit = {(event) => handleSubmitAnnotation(event, question.id)}>
-                                            <Input
-                                                placeholder="Enter your annotation here"
-                                                type = "text"
-                                                value = {newAnnotation}
-                                                onChange={(e) =>
-                                                        setNewAnnotation(
-                                                            e.target.value
-                                                        )
-                                                    
-                                                    }
-                                                    
-                                                //onBlur={() => setIsChatboxOpen(false)}
-                                            />
-                                            <Button type = "submit"
-                                            >
-                                                Submit
-                                            </Button>
-                                            </form>
-                                        </Box>
-                                        
-                                        )
-                                        } */}
+                                            
+                                            
                                         </Box>
                                     ))}
                                 </Stack>
@@ -352,6 +256,49 @@ export default function Page() {
             </Stack>
         </Container>
     );
+}
+const FlaggingButton = ({
+    question,
+    quiz,
+    setQuiz,
+}: {
+    question: QuizSubmissionQuestion;
+    quiz: Quiz & { id: string };
+    setQuiz: Dispatch<
+        SetStateAction<
+            | (Quiz & {
+                  id: string;
+              })
+            | undefined
+        >
+    >;
+})  => {
+    const [isFlagged, setIsFlagged] = useState(question.isFlagged);
+    const handleFlagQuestion = async (questionId: number) => {
+        try {
+            const updatedQuizData = await updateQuizQuestionFlag(
+                quiz,
+                questionId,
+                isFlagged
+            );
+            setQuiz(updatedQuizData);
+            setIsFlagged(!isFlagged);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    return (
+        <IconButton
+            aria-label="flag question"
+            icon={<FaFlag />}
+            onClick={() => {
+                handleFlagQuestion(question.id)
+            }}
+            colorScheme={question.isFlagged? "red" : "gray"}
+        />
+    )
+
+
 }
 const QuestionExtras = ({
     question,
@@ -371,12 +318,6 @@ const QuestionExtras = ({
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
-    const [quizAnnotations, setQuizAnnotations] = useState(
-        quiz.questions.map((qn) => ({
-            stateid: qn.id,
-            stateAnnotation: qn.annotations,
-        }))
-    );
     const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
         event.preventDefault();
 
@@ -623,24 +564,7 @@ const AnswerList = ({
             return <>--- UNSUPPORTED QUESTION TYPE ---</>;
     }
 };
-// const AnnotationTag = ({
-//     annotations,
-// }: {
-//     annotations: string[];
-// }) => {
-//     setAnnotations(annotations)
-//     return (
-//         <Stack spacing={4}>
-//             {annotations.map((annotation, i) => (
-//                 <Flex alignItems={"center"} key={i}>
-//                     <Box width="100px" textAlign={"end"} mr={3}>
-//                         <Tag colorScheme="green"> {annotation} </Tag>
-//                     </Box>
-//                 </Flex>
-//             ))}
-//         </Stack>
-//     );
-// }
+
 const AnswerResultTag = ({
     selectedOptions,
     show_correct_answers,
@@ -775,6 +699,7 @@ const CombinedQuestionList = ({
                             quiz={quiz}
                             questionResponse={question.best_attempt}
                         />
+                        <FlaggingButton question = {question} setQuiz = {setQuiz} quiz={quiz}/>
                     </Heading>
                     {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
                     <div
