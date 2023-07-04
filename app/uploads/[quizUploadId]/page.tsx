@@ -60,7 +60,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { FaFlag } from "react-icons/fa";
+import { FaRegFlag, FaFlag } from "react-icons/fa";
 
 /**
  *
@@ -261,7 +261,7 @@ const FlaggingButton = ({
       const updatedQuizData = await updateQuizQuestionFlag(
         quiz,
         questionId,
-        isFlagged
+        !isFlagged
       );
       setQuiz(updatedQuizData);
       setIsFlagged(!isFlagged);
@@ -272,12 +272,16 @@ const FlaggingButton = ({
   return (
     <IconButton
       aria-label="flag question"
-      icon={<FaFlag />}
       onClick={() => {
         handleFlagQuestion(question.id);
       }}
-      colorScheme={question.isFlagged ? "red" : "gray"}
-    />
+      size="sm"
+      variant="ghost"
+    >
+      <Box color={question.isFlagged ? "red" : "gray"}>
+        {question.isFlagged ? <FaFlag /> : <FaRegFlag />}
+      </Box>
+    </IconButton>
   );
 };
 const QuestionExtras = ({
