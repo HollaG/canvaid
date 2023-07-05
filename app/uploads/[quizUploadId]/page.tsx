@@ -1,7 +1,7 @@
 "use client";
 import {
   getQuizUpload,
-  updateQuizQuestionAnnotation,
+  addQuizQuestionAnnotation,
   updateQuizQuestionFlag,
 } from "@/firebase/database/repositories/uploads";
 import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
@@ -39,15 +39,7 @@ import {
   Text,
   FormErrorMessageProps,
 } from "@chakra-ui/react";
-import { ChatIcon } from "@chakra-ui/icons";
-import { db } from "@/firebase/database";
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  query,
-  where,
-} from "firebase/firestore";
+
 import {
   useParams,
   useRouter,
@@ -61,6 +53,7 @@ import {
   SetStateAction,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
+import { DeleteAnnotationButton } from "@/components/DeleteButton";
 
 /**
  *
@@ -306,7 +299,7 @@ const QuestionExtras = ({
     event.preventDefault();
 
     try {
-      const updatedQuizData = await updateQuizQuestionAnnotation(
+      const updatedQuizData = await addQuizQuestionAnnotation(
         quiz,
         i,
         newAnnotation
@@ -341,9 +334,19 @@ const QuestionExtras = ({
 
       <Stack>
         {question.annotations.length &&
-          question.annotations.map((annotation, i) => (
-            <Text key={i}> {annotation}</Text>
-          ))}
+          question.annotations.map((annotation, i) => {
+            return (
+              <>
+                <Text key={i}> {annotation.annotation}</Text>
+                <DeleteAnnotationButton
+                  ID={quiz.id}
+                  annotationID={annotation.annotationID}
+                  setQuiz={setQuiz}
+                  question={question}
+                />
+              </>
+            );
+          })}
       </Stack>
     </Stack>
   );
