@@ -42,9 +42,9 @@ export default function Page() {
 
     if (!user) return <NotAuthedHomePage />;
     const handleDeleteItem = (itemid: string) => {
-        const newState = quizzes.filter(item => item.id != itemid);
+        const newState = quizzes.filter((item) => item.id != itemid);
         setQuizzes(newState);
-      };
+    };
     //console.log({ quizzes });
     return (
         <Container maxW={PAGE_CONTAINER_SIZE}>
@@ -54,11 +54,16 @@ export default function Page() {
                     Welcome back, {user.displayName}!
                 </Heading>
 
-                <Link as={NextLink} href="/add" textAlign="center">
+                <Link
+                    as={NextLink}
+                    href="/add"
+                    textAlign="center"
+                    data-testid="add-new-btn"
+                >
                     Add a new quiz
                 </Link>
                 <Input placeholder="Search for a quiz..." />
-                <Courses quizzes={quizzes} deletion ={handleDeleteItem} />
+                <Courses quizzes={quizzes} deletion={handleDeleteItem} />
             </Stack>
         </Container>
     );

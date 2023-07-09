@@ -66,6 +66,7 @@ export default function NotAuthedHomePage() {
                             // onClick={signInWithGoogle}
                             as={NextLink}
                             href="/auth"
+                            data-testid="cta-btn"
                         >
                             Get Started
                         </Button>
