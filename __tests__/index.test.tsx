@@ -22,6 +22,9 @@ describe("Home page", () => {
         expect(getStartedBtn).toBeInTheDocument();
     });
 
+    // TODO
+    it("should render a input Canvas token page", () => {});
+
     it("should render a logged-in home page", async () => {
         act(() =>
             render(

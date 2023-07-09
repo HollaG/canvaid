@@ -113,7 +113,7 @@ export default function Page() {
                                 console.log("Submitted!");
                                 console.log(data);
                                 setIsUploading(2);
-                                router.push(`/uploads/${data.quiz.id}`);
+                                router.push(`/uploads/${data.quiz?.id}`);
                             }
                         )
                         .catch(console.error);
@@ -150,7 +150,7 @@ export default function Page() {
                             alignItems: "center",
                         }}
                     >
-                        <input {...getInputProps()} />
+                        <input {...getInputProps()} data-testid="drop-input" />
 
                         <Text>
                             {isUploading === 0
