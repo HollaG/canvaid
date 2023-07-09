@@ -18,20 +18,13 @@ jest.mock("next/navigation", () => ({
 }));
 
 jest.mock("../../../firebase/database/repositories/uploads", () => {
-    // ...jest.requireActual(
-    //     "../../../firebase/database/repositories/uploads"
-    // ),
-    // getQuizUpload: jest.fn(() => Promise.resolve(QUIZ)),
-
     const originalModule = jest.requireActual(
         "../../../firebase/database/repositories/uploads"
     );
 
-    console.log({ originalModule });
-    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     return {
-        // __esModule: true,
-        // ...originalModule,
+        __esModule: true,
+        ...originalModule,
         getQuizUpload: jest.fn(() => Promise.resolve(QUIZ)),
     };
 });
