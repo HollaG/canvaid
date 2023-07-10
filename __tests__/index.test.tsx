@@ -22,8 +22,22 @@ describe("Home page", () => {
         expect(getStartedBtn).toBeInTheDocument();
     });
 
-    // TODO
-    it("should render a input Canvas token page", () => {});
+    it("should render a input Canvas token page", async () => {
+        act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: { ...USER, canvasApiToken: "" },
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <HomePage />
+                </UserContext.Provider>
+            )
+        );
+
+        expect(await screen.findByTestId("token-input")).toBeInTheDocument();
+    });
 
     it("should render a logged-in home page", async () => {
         act(() =>
@@ -31,6 +45,7 @@ describe("Home page", () => {
                 <UserContext.Provider
                     value={{
                         user: USER,
+                        setUser: jest.fn(),
                     }}
                 >
                     <HomePage />
@@ -47,6 +62,7 @@ describe("Home page", () => {
                 <UserContext.Provider
                     value={{
                         user: USER,
+                        setUser: jest.fn(),
                     }}
                 >
                     <HomePage />

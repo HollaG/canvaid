@@ -22,10 +22,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 // TODO: Refactor this to it's own file
 interface IAuthContext {
     user?: AppUser;
+    setUser: React.Dispatch<React.SetStateAction<AppUser | undefined>>;
 }
 
 export const UserContext = createContext<IAuthContext>({
     user: undefined,
+    setUser: () => {},
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
@@ -33,27 +35,32 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     const AuthContainer: IAuthContext = {
         user,
+        setUser,
     };
 
     // Set up a listener to check when the auth state changes
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            const appUser: AppUser = {
-                displayName: user?.displayName || "",
-                email: user?.email || "",
-                photoURL: user?.photoURL || "",
-                uid: user?.uid || "",
-                uploadedIds: [],
-                canvasApiToken: "",
-            };
-            if (user) setUser(appUser);
-            else setUser(undefined);
+            // const appUser: AppUser = {
+            //     displayName: user?.displayName || "",
+            //     email: user?.email || "",
+            //     photoURL: user?.photoURL || "",
+            //     uid: user?.uid || "",
+            //     uploadedIds: [],
+            //     canvasApiToken: "",
+            // };
+            // if (user) setUser(appUser);
+            // else setUser(undefined);
 
             if (user) {
                 // add to db if not exist
-                createUserIfNotExists(
-                    JSON.parse(JSON.stringify(appUser))
+                const appUser = await createUserIfNotExists(
+                    JSON.parse(JSON.stringify(user))
                 ).catch(console.log);
+                if (appUser) setUser(appUser);
+                else setUser(undefined);
+            } else {
+                setUser(undefined);
             }
         });
 
