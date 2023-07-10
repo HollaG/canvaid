@@ -24,7 +24,7 @@ interface IAuthContext {
     user?: AppUser;
 }
 
-const UserContext = createContext<IAuthContext>({
+export const UserContext = createContext<IAuthContext>({
     user: undefined,
 });
 

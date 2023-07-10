@@ -26,51 +26,54 @@ export default function NotAuthedHomePage() {
         />
       </Head>
 
-      <Container maxW={"3xl"}>
-        <Stack
-          as={Box}
-          textAlign={"center"}
-          spacing={{ base: 8, md: 14 }}
-          py={{ base: 20, md: 36 }}
-        >
-          <Heading
-            fontWeight={600}
-            fontSize={{ base: "2xl", sm: "4xl", md: "6xl" }}
-            lineHeight={"110%"}
-          >
-            Study better <br />
-            <Text as={"span"} color={"green.400"}>
-              with Canvaid!
-            </Text>
-          </Heading>
-          <Text color={"gray.500"}>
-            Canvaid is a website that helps you revise for your important exams
-            by collating all your quiz questions done on Canvas! You can redo
-            quiz questions for additional practice & also review your previous
-            mistakes!
-          </Text>
-          <Stack
-            direction={"column"}
-            spacing={3}
-            align={"center"}
-            alignSelf={"center"}
-            position={"relative"}
-          >
-            <Button
-              colorScheme={"green"}
-              bg={"green.400"}
-              rounded={"full"}
-              px={6}
-              _hover={{
-                bg: "green.500",
-              }}
-              // onClick={signInWithGoogle}
-              as={NextLink}
-              href="/auth"
-            >
-              Get Started
-            </Button>
-            {/* <Button
+
+            <Container maxW={"3xl"}>
+                <Stack
+                    as={Box}
+                    textAlign={"center"}
+                    spacing={{ base: 8, md: 14 }}
+                    py={{ base: 20, md: 36 }}
+                >
+                    <Heading
+                        fontWeight={600}
+                        fontSize={{ base: "2xl", sm: "4xl", md: "6xl" }}
+                        lineHeight={"110%"}
+                    >
+                        Study better <br />
+                        <Text as={"span"} color={"green.400"}>
+                            with Canvaid!
+                        </Text>
+                    </Heading>
+                    <Text color={"gray.500"}>
+                        Canvaid is a website that helps you revise for your
+                        important exams by collating all your quiz questions
+                        done on Canvas! You can redo quiz questions for
+                        additional practice & also review your previous
+                        mistakes!
+                    </Text>
+                    <Stack
+                        direction={"column"}
+                        spacing={3}
+                        align={"center"}
+                        alignSelf={"center"}
+                        position={"relative"}
+                    >
+                        <Button
+                            colorScheme={"green"}
+                            bg={"green.400"}
+                            rounded={"full"}
+                            px={6}
+                            _hover={{
+                                bg: "green.500",
+                            }}
+                            // onClick={signInWithGoogle}
+                            as={NextLink}
+                            href="/auth"
+                            data-testid="cta-btn"
+                        >
+                            Get Started
+                        </Button>
+                        {/* <Button
                             variant={"link"}
                             colorScheme={"blue"}
                             size={"sm"}

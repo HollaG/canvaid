@@ -77,6 +77,7 @@ export default function Page() {
     // 1: uploading
     // 2: done
     // 3: error
+    // 4: incorrect file type
     const [isUploading, setIsUploading] = useState(0);
 
     const onDrop = useCallback(
@@ -87,7 +88,15 @@ export default function Page() {
             if (acceptedFiles.length && acceptedFiles[0] instanceof File) {
                 setIsUploading(1);
                 const file = acceptedFiles[0];
-                console.log("received file", file);
+                console.log(file.type, " -0--------------");
+                if (file.type !== "text/html") {
+                    setIsUploading(4);
+                    setTimeout(() => {
+                        setIsUploading(0);
+                    }, 2000);
+                    console.log("invalid file type!!");
+                    return;
+                }
                 file.text().then((txt: string) => {
                     const body: IAddBody = {
                         html: txt,
@@ -113,11 +122,22 @@ export default function Page() {
                                 console.log("Submitted!");
                                 console.log(data);
                                 setIsUploading(2);
-                                router.push(`/uploads/${data.quiz.id}`);
+                                router.push(`/uploads/${data.quiz?.id}`);
                             }
                         )
-                        .catch(console.error);
+                        .catch((e) => {
+                            console.error(e);
+                            setIsUploading(3);
+                            setTimeout(() => {
+                                setIsUploading(0);
+                            }, 2000);
+                        });
                 });
+            } else {
+                setIsUploading(4);
+                setTimeout(() => {
+                    setIsUploading(0);
+                }, 2000);
             }
         },
         [course, name, router, user]
@@ -125,6 +145,9 @@ export default function Page() {
     const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
         useDropzone({
             onDrop,
+            accept: {
+                "text/html": [".html", ".htm"],
+            },
         });
 
     return (
@@ -150,13 +173,17 @@ export default function Page() {
                             alignItems: "center",
                         }}
                     >
-                        <input {...getInputProps()} />
+                        <input {...getInputProps()} data-testid="drop-input" />
 
                         <Text>
                             {isUploading === 0
                                 ? isDragActive
                                     ? "Drop your file here!"
                                     : "Drag and drop your file here, or click to select a file"
+                                : isUploading === 4
+                                ? "Invalid file type! Please only upload .html files."
+                                : isUploading === 3
+                                ? "There was an error parsing your file! Please check to see if it's from the correct source (the completed quiz page)."
                                 : "Your file is uploading, please wait..."}
                         </Text>
                     </div>

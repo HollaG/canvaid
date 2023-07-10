@@ -44,6 +44,7 @@ export default function Page() {
         });
     }
 
+
     // if (user?.canvasApiToken) {
     //   setHasToken(true);
     // } else {
@@ -54,6 +55,7 @@ export default function Page() {
   if (!user) return <NotAuthedHomePage />;
   console.log("canvasapi:" + user.canvasApiToken);
   if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
+
 
   const handleDeleteItem = (itemId: string) => {
     const newState = quizzes.filter((item) => item.id !== itemId);
@@ -66,7 +68,7 @@ export default function Page() {
         <Heading textAlign={"center"}>
           Welcome back, {user.displayName}!
         </Heading>
-        <Link as={NextLink} href="/add" textAlign="center">
+        <Link as={NextLink} href="/add" textAlign="center" data-testid="add-new-btn">
           Add a new quiz
         </Link>
         <Input placeholder="Search for a quiz..." />
