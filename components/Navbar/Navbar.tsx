@@ -26,6 +26,12 @@ import { ChevronLeftIcon, MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
 
 import NextLink from "next/link";
+import { useScrollPosition } from "@n8tb1t/use-scroll-position";
+import { useState } from "react";
+
+import MainLogo from "@/public/logos/main.png";
+import Image from "next/image";
+
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
 
@@ -33,21 +39,36 @@ const Navbar = () => {
 
     const user = authCtx?.user;
 
+    // TODO: get a hook for scroll position and remove the shadow when scroll at top
+    const [showShadow, setShowShadow] = useState(false);
+    useScrollPosition(({ prevPos, currPos }) => {
+        setShowShadow(currPos.y < 0);
+    });
     return (
         // <Container size={PAGE_CONTAINER_SIZE} height={NAVBAR_HEIGHT}>
         //     <Text> Hello ! </Text>
         // </Container>
-
-        <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
-            <Container maxWidth={PAGE_CONTAINER_SIZE}>
-                <Flex
-                    h={16}
-                    alignItems={"center"}
-                    justifyContent={"space-between"}
-                    width="100%"
-                >
-                    <Flex alignItems="center">
-                        {/* {router.pathname !== "/" && (
+        <Box position={"relative"}>
+            <Box
+                bg={useColorModeValue("white", "gray.900")}
+                opacity={showShadow ? 0.9 : 1}
+                px={4}
+                position="fixed"
+                w="full"
+                zIndex={10000}
+                // boxShadow={showShadow ? "md" : "unset"}
+                backdropBlur="xl"
+                transition={"opacity 0.2s ease-in-out"}
+            >
+                <Container maxWidth={PAGE_CONTAINER_SIZE}>
+                    <Flex
+                        h={16}
+                        alignItems={"center"}
+                        justifyContent={"space-between"}
+                        width="100%"
+                    >
+                        <Flex alignItems="center">
+                            {/* {router.pathname !== "/" && (
                         <IconButton
                             onClick={goBack}
                             variant="ghost"
@@ -59,31 +80,40 @@ const Navbar = () => {
                             aria-label="Go back"
                         />
                     )} */}
-                        <Link as={NextLink} href="/">
-                            Canvaid
-                        </Link>
-                    </Flex>
+                            <Link as={NextLink} href="/">
+                                <Image
+                                    src={MainLogo}
+                                    height="34"
+                                    alt="Website logo"
+                                />
+                            </Link>
+                        </Flex>
 
-                    <Flex alignItems={"center"}>
-                        <Stack direction={"row"} spacing={2}>
-                            {/* <Timer /> */}
-                            <Button onClick={toggleColorMode}>
-                                {colorMode === "light" ? (
-                                    <MoonIcon />
-                                ) : (
-                                    <SunIcon />
-                                )}
-                            </Button>
-
-                            <Menu>
-                                <MenuButton
-                                    as={Button}
-                                    rounded={"full"}
-                                    variant={"link"}
-                                    cursor={"pointer"}
-                                    minW={0}
+                        <Flex alignItems={"center"}>
+                            <Stack direction={"row"} spacing={2}>
+                                {/* <Timer /> */}
+                                <Button
+                                    onClick={toggleColorMode}
+                                    variant="ghost"
+                                    colorScheme="gray"
                                 >
-                                    {/* <Avatar
+                                    {colorMode === "light" ? (
+                                        <MoonIcon />
+                                    ) : (
+                                        <SunIcon />
+                                    )}
+                                </Button>
+
+                                <Menu>
+                                    <MenuButton
+                                        as={Button}
+                                        rounded={"full"}
+                                        cursor={"pointer"}
+                                        minW={0}
+                                        variant="ghost"
+                                        colorScheme="gray"
+                                    >
+                                        {/* <Avatar
                                             size={"sm"}
                                             src={
                                                 user
@@ -93,47 +123,66 @@ const Navbar = () => {
                                             }
                                             name={user?.first_name}
                                         /> */}
-                                    {/* <UserAvatar user={user} /> */}
-                                    {/* <Button> Menu </Button> */}
-                                    <Text> Menu </Text>
-                                </MenuButton>
-                                <MenuList alignItems={"center"}>
-                                    {user ? (
-                                        <>
-                                            <br />
+                                        {/* <UserAvatar user={user} /> */}
+                                        {/* <Button> Menu </Button> */}
+                                        <Text> Menu </Text>
+                                    </MenuButton>
+                                    <MenuList alignItems={"center"}>
+                                        {user ? (
+                                            <>
+                                                <br />
+                                                <Center>
+                                                    <UserAvatar
+                                                        user={user}
+                                                        size="2xl"
+                                                    />
+                                                </Center>
+                                                <br />
+                                                <Center>
+                                                    <p>{user.displayName}</p>
+                                                </Center>
+                                                <Center>
+                                                    <p>{user.email}</p>
+                                                </Center>
+                                                <br />
+                                                <MenuDivider />
+                                                <MenuItem onClick={signOutAll}>
+                                                    Logout
+                                                </MenuItem>
+                                            </>
+                                        ) : (
                                             <Center>
-                                                <UserAvatar
-                                                    user={user}
-                                                    size="2xl"
-                                                />
+                                                <Button
+                                                    as={NextLink}
+                                                    href="/auth"
+                                                >
+                                                    {" "}
+                                                    Login{" "}
+                                                </Button>
                                             </Center>
-                                            <br />
-                                            <Center>
-                                                <p>{user.displayName}</p>
-                                            </Center>
-                                            <Center>
-                                                <p>{user.email}</p>
-                                            </Center>
-                                            <br />
-                                            <MenuDivider />
-                                            <MenuItem onClick={signOutAll}>
-                                                Logout
-                                            </MenuItem>
-                                        </>
-                                    ) : (
-                                        <Center>
-                                            <Button as={NextLink} href="/auth">
-                                                {" "}
-                                                Login{" "}
-                                            </Button>
-                                        </Center>
-                                    )}
-                                </MenuList>
-                            </Menu>
-                        </Stack>
+                                        )}
+                                    </MenuList>
+                                </Menu>
+                            </Stack>
+                        </Flex>
                     </Flex>
-                </Flex>
-            </Container>
+                </Container>
+            </Box>
+
+            {/* Shadow element */}
+            <Box
+                position="fixed"
+                zIndex={1}
+                top={0}
+                right={0}
+                left={0}
+                height={NAVBAR_HEIGHT}
+                boxShadow={"md"}
+                opacity={showShadow ? 1 : 0}
+                transition={"opacity 200ms ease-in-out"}
+                backdropBlur="xl"
+                backdropFilter={"saturate(180%) blur(5px)"}
+            ></Box>
         </Box>
     );
 };
