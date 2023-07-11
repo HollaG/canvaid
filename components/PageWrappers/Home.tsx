@@ -22,7 +22,7 @@ import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import NextLink from "next/link";
 
 import HomePageImage from "@/public/assets/homepage.svg";
-import HomePageBackground from "@/public/assets/background.svg";
+import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
 import GetStartedImage from "@/public/assets/get_started.svg";
 import Features1 from "@/public/assets/features_1.svg";
 import Features2 from "@/public/assets/features_2.svg";
@@ -46,6 +46,8 @@ import {
 export default function NotAuthedHomePage() {
     const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
     const [showSecondPerson] = useMediaQuery("(min-width: 48em)");
+
+    const darkMode = useColorModeValue(false, true);
     return (
         <>
             <Head>
@@ -57,7 +59,10 @@ export default function NotAuthedHomePage() {
             <Stack spacing={0}>
                 <Center
                     background={useColorModeValue("gray.100", "gray.900")}
-                    backgroundImage={"url(/assets/background.svg)"}
+                    backgroundImage={useColorModeValue(
+                        "url(/assets/background.svg)",
+                        "url(/assets/background-dark.svg)"
+                    )}
                     backgroundAttachment="fixed"
                     minH={`100vh`}
                     position="relative"
@@ -131,7 +136,11 @@ export default function NotAuthedHomePage() {
                                 {showMainPhoto && (
                                     <Box flexGrow={0} maxWidth="400px">
                                         <Image
-                                            src={HomePageImage}
+                                            src={
+                                                darkMode
+                                                    ? HomePageDarkImage
+                                                    : HomePageImage
+                                            }
                                             alt="Home page image"
                                         />
                                     </Box>
@@ -243,7 +252,9 @@ const Feature = ({ title, text, icon }: FeatureProps) => {
                 {icon}
             </Flex>
             <Text fontWeight={600}>{title}</Text>
-            <Text color={"gray.600"}>{text}</Text>
+            <Text color={useColorModeValue("gray.700", "gray.300")}>
+                {text}
+            </Text>
         </Stack>
     );
 };
