@@ -103,14 +103,12 @@ export default function Page() {
                     <DrawerCloseButton />
                     <DrawerHeader
                         fontWeight={"normal"}
-                        bgColor={useColorModeValue("gray.100", "gray.900")}
+                        bgColor={useColorModeValue("white", "gray.900")}
                     >
-                        <Container maxWidth={PAGE_CONTAINER_SIZE}>
-                            Login (Step 1 of 2){" "}
-                        </Container>
+                        <Container maxWidth={PAGE_CONTAINER_SIZE}> </Container>
                     </DrawerHeader>
                     <DrawerBody
-                        bgColor={useColorModeValue("gray.100", "gray.900")}
+                        bgColor={useColorModeValue("white", "gray.900")}
                     >
                         <LoginComponent />
                     </DrawerBody>

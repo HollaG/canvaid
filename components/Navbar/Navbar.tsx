@@ -27,7 +27,7 @@ import { signOutAll } from "@/firebase/auth";
 
 import NextLink from "next/link";
 import { useScrollPosition } from "@n8tb1t/use-scroll-position";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import MainLogo from "@/public/logos/main.png";
 import Image from "next/image";
@@ -44,6 +44,11 @@ const Navbar = () => {
     useScrollPosition(({ prevPos, currPos }) => {
         setShowShadow(currPos.y < 0);
     });
+
+    const [date, setDate] = useState<string>("");
+    useEffect(() => {
+        setDate(new Date().toLocaleDateString());
+    }, []);
     return (
         // <Container size={PAGE_CONTAINER_SIZE} height={NAVBAR_HEIGHT}>
         //     <Text> Hello ! </Text>
@@ -60,7 +65,7 @@ const Navbar = () => {
                 backdropBlur="xl"
                 transition={"opacity 0.2s ease-in-out"}
             >
-                <Container maxWidth={PAGE_CONTAINER_SIZE}>
+                <Box width="full">
                     <Flex
                         h={16}
                         alignItems={"center"}
@@ -68,18 +73,6 @@ const Navbar = () => {
                         width="100%"
                     >
                         <Flex alignItems="center">
-                            {/* {router.pathname !== "/" && (
-                        <IconButton
-                            onClick={goBack}
-                            variant="ghost"
-                            // w={4}
-                            // h={4}
-                            p={0}
-                            minW={8}
-                            icon={<ChevronLeftIcon p={0} />}
-                            aria-label="Go back"
-                        />
-                    )} */}
                             <Link as={NextLink} href="/">
                                 <Image
                                     src={MainLogo}
@@ -88,7 +81,7 @@ const Navbar = () => {
                                 />
                             </Link>
                         </Flex>
-
+                        <Text>Current date: {date}</Text>
                         <Flex alignItems={"center"}>
                             <Stack direction={"row"} spacing={2}>
                                 {/* <Timer /> */}
@@ -113,18 +106,6 @@ const Navbar = () => {
                                         variant="ghost"
                                         colorScheme="gray"
                                     >
-                                        {/* <Avatar
-                                            size={"sm"}
-                                            src={
-                                                user
-                                                    // ? user.photo_url
-                                                    ? undefined
-                                                    : ""
-                                            }
-                                            name={user?.first_name}
-                                        /> */}
-                                        {/* <UserAvatar user={user} /> */}
-                                        {/* <Button> Menu </Button> */}
                                         <Text> Menu </Text>
                                     </MenuButton>
                                     <MenuList alignItems={"center"}>
@@ -166,7 +147,7 @@ const Navbar = () => {
                             </Stack>
                         </Flex>
                     </Flex>
-                </Container>
+                </Box>
             </Box>
 
             {/* Shadow element */}

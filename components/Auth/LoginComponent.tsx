@@ -35,6 +35,8 @@ import {
     Tabs,
     Text,
     useBreakpointValue,
+    useColorModeValue,
+    useMediaQuery,
     useSteps,
     useToast,
 } from "@chakra-ui/react";
@@ -44,6 +46,10 @@ import { FaGithub, FaMicrosoft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useAuthContainer } from "@/app/providers";
 import NotCanvasApiTokenPage from "../Home/NotCanvasApiTokenPage";
+
+import AuthImage from "@/public/assets/auth.svg";
+import Image from "next/image";
+import DarkAuthImage from "@/public/assets/auth-dark.svg";
 
 export default function LoginComponent() {
     const { user } = useAuthContainer();
@@ -172,6 +178,9 @@ export default function LoginComponent() {
         md: "horizontal",
     });
 
+    const [showAuthPerson] = useMediaQuery("(min-width: 1000px)");
+    const isDarkMode = useColorModeValue(false, true);
+
     if (user && user.canvasApiToken) {
         // redirect back to home page
         // close the modal then redirect
@@ -181,6 +190,14 @@ export default function LoginComponent() {
 
     return (
         <Container maxW={PAGE_CONTAINER_SIZE}>
+            {showAuthPerson && (
+                <Box position="fixed" bottom={0} right={-76}>
+                    <Image
+                        src={isDarkMode ? DarkAuthImage : AuthImage}
+                        alt="Image asking for authentication"
+                    />
+                </Box>
+            )}
             <Container maxW="container.md" ml={0}>
                 <Box>
                     <Stepper
