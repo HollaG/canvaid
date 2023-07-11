@@ -8,11 +8,12 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
+import { customTheme } from "@/theme/theme";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <CacheProvider>
-            <ChakraProvider>
+            <ChakraProvider theme={customTheme}>
                 <UserProvider>{children}</UserProvider>
             </ChakraProvider>
         </CacheProvider>

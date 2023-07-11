@@ -1,5 +1,6 @@
 "use client";
 
+import { NAVBAR_HEIGHT } from "@/lib/constants";
 import { Stack } from "@chakra-ui/react";
 
 /**
@@ -9,7 +10,7 @@ import { Stack } from "@chakra-ui/react";
  * @returns
  */
 const Body = ({ children }: { children: React.ReactNode }) => {
-    return <Stack p={4}>{children}</Stack>;
+    return <Stack overflow="hidden">{children}</Stack>;
 };
 
 export default Body;

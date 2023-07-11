@@ -6,19 +6,29 @@ import { db } from "../../firebase/database/index";
 import { AppUser } from "../../types/user";
 import User from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Stack } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Flex,
+    FormControl,
+    FormErrorMessage,
+    FormHelperText,
+    FormLabel,
+    Heading,
+    Input,
+    Link,
+    Stack,
+} from "@chakra-ui/react";
 const NotCanvasApiTokenPage = () => {
     const [token, setToken] = useState("");
     //const history = useHistory();
     const authCtx = useAuthContainer();
     const user = authCtx.user as AppUser;
-    // const router = useRouter();
 
-    // if (user?.canvasApiToken) {
-    //     router.refresh();
-    // }
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleTokenSubmit = async (event: any) => {
         // Update the user's document in Firebase with the Canvas API token
+        setIsSubmitting(true);
         event.preventDefault();
         try {
             const docRef = doc(db, "users", user.uid);
@@ -33,24 +43,62 @@ const NotCanvasApiTokenPage = () => {
             authCtx.setUser(firebaseUser);
         } catch (error) {
             console.log("Error updating token in Firebase:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
     return (
-        <div>
-            <Stack spacing={3} align="center">
-                <h1> Insert tutorial for canvas api token here</h1>
-                <form onSubmit={handleTokenSubmit}>
-                    <input
-                        type="text"
-                        value={token}
-                        onChange={(event) => setToken(event.target.value)}
-                        placeholder="Insert Canvas API Token "
-                        data-testid="token-input"
-                    />
-                    <button type="submit">Submit</button>
-                </form>
-            </Stack>
-        </div>
+        <Flex mt={8} direction="column">
+            <Flex alignItems={"center"}>
+                <Heading fontWeight={"semibold"} fontSize="5xl">
+                    We need your Canvas API token!
+                </Heading>
+            </Flex>
+            <form onSubmit={handleTokenSubmit}>
+                <Stack spacing={8} mt={28}>
+                    <FormControl
+                        id="token"
+                        isRequired
+                        // isInvalid={returningEmailIncorrect}
+                        variant="floating_lg"
+                    >
+                        <Input
+                            value={token}
+                            onChange={(e) => setToken(e.target.value)}
+                            type="text"
+                            // variant="flushed"
+                            placeholder=" "
+                            size={"lg"}
+                            data-testid="token-input"
+                        />
+                        <FormLabel>Canvas API Token</FormLabel>
+
+                        <FormHelperText>
+                            Please click{" "}
+                            <Link
+                                isExternal
+                                href="https://canvas.nus.edu.sg/profile/settings#access_tokens_holder"
+                                textDecor={"underline"}
+                            >
+                                here
+                            </Link>{" "}
+                            to get your Canvas API Access Token.
+                        </FormHelperText>
+                    </FormControl>
+                    <Box></Box>
+                    <Box mt={12}>
+                        <Button
+                            isDisabled={!token.length}
+                            isLoading={isSubmitting}
+                            type="submit"
+                            width="120px"
+                        >
+                            Update token
+                        </Button>
+                    </Box>
+                </Stack>
+            </form>
+        </Flex>
     );
 };
 

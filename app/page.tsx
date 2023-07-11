@@ -10,10 +10,18 @@ import {
     Button,
     Center,
     Container,
+    Drawer,
+    DrawerBody,
+    DrawerCloseButton,
+    DrawerContent,
+    DrawerHeader,
+    DrawerOverlay,
     Heading,
     Input,
     Stack,
     Text,
+    useColorModeValue,
+    useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { Link } from "@chakra-ui/react";
@@ -22,11 +30,13 @@ import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
-import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Quiz } from "@/types/canvas";
 
 import "./globals.css";
+import { useRouter, useSearchParams } from "next/navigation";
+import LoginComponent from "@/components/Auth/LoginComponent";
 export default function Page() {
     const authCtx = useAuthContainer();
     console.log(authCtx);
@@ -56,26 +66,81 @@ export default function Page() {
         setQuizzes(newState);
     };
 
-    if (!user) return <NotAuthedHomePage />;
-    if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
+    // get url query params
+    const router = useRouter();
+    const params = useSearchParams();
+    const showLogIn = params.get("login") === "true";
+    useEffect(() => {
+        // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
+        console.log("useeffect");
+        console.log({ showLogIn, user });
+        if (showLogIn && (!user || !user.canvasApiToken)) {
+            console.log("onopen");
+            onOpen();
+        } else {
+            console.log("Closing modal!");
+            onClose();
+        }
+    }, [showLogIn, user, user?.canvasApiToken]);
+    console.log(showLogIn);
+    // for login modal
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    // if (!user) return <NotAuthedHomePage />;
+    // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
 
     return (
-        <Container maxW={PAGE_CONTAINER_SIZE}>
-            <Stack>
-                <Heading textAlign={"center"}>
-                    Welcome back, {user.displayName}!
-                </Heading>
-                <Link
-                    as={NextLink}
-                    href="/add"
-                    textAlign="center"
-                    data-testid="add-new-btn"
+        <>
+            <Drawer
+                onClose={() => {
+                    router.push("/");
+                }}
+                isOpen={isOpen}
+                size={"full"}
+            >
+                <DrawerOverlay />
+                <DrawerContent mt={NAVBAR_HEIGHT}>
+                    <DrawerCloseButton />
+                    <DrawerHeader
+                        fontWeight={"normal"}
+                        bgColor={useColorModeValue("white", "gray.900")}
+                    >
+                        <Container maxWidth={PAGE_CONTAINER_SIZE}> </Container>
+                    </DrawerHeader>
+                    <DrawerBody
+                        bgColor={useColorModeValue("white", "gray.900")}
+                    >
+                        <LoginComponent />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+            {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
+            {user && user.canvasApiToken && (
+                <Container
+                    maxW={PAGE_CONTAINER_SIZE}
+                    minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
+                    mt={NAVBAR_HEIGHT}
                 >
-                    Add a new quiz
-                </Link>
-                <Input placeholder="Search for a quiz..." />
-                <Courses quizzes={quizzes} deletion={handleDeleteItem} />
-            </Stack>
-        </Container>
+                    <Stack>
+                        <Heading textAlign={"center"}>
+                            Welcome back, {user.displayName}!
+                        </Heading>
+                        <Link
+                            as={NextLink}
+                            href="/add"
+                            textAlign="center"
+                            data-testid="add-new-btn"
+                        >
+                            Add a new quiz
+                        </Link>
+                        <Input placeholder="Search for a quiz..." />
+                        <Courses
+                            quizzes={quizzes}
+                            deletion={handleDeleteItem}
+                        />
+                    </Stack>
+                </Container>
+            )}
+        </>
     );
 }
