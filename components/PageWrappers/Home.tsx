@@ -106,7 +106,7 @@ export default function NotAuthedHomePage() {
                                                 px={6}
                                                 // onClick={signInWithGoogle}
                                                 as={NextLink}
-                                                href="/auth"
+                                                href="/?login=true"
                                                 data-testid="cta-btn"
                                                 rightIcon={<ArrowForwardIcon />}
                                                 size="lg"
