@@ -24,13 +24,11 @@ const NotCanvasApiTokenPage = () => {
     //const history = useHistory();
     const authCtx = useAuthContainer();
     const user = authCtx.user as AppUser;
-    // const router = useRouter();
 
-    // if (user?.canvasApiToken) {
-    //     router.refresh();
-    // }
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleTokenSubmit = async (event: any) => {
         // Update the user's document in Firebase with the Canvas API token
+        setIsSubmitting(true);
         event.preventDefault();
         try {
             const docRef = doc(db, "users", user.uid);
@@ -45,6 +43,8 @@ const NotCanvasApiTokenPage = () => {
             authCtx.setUser(firebaseUser);
         } catch (error) {
             console.log("Error updating token in Firebase:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
     return (
@@ -60,7 +60,7 @@ const NotCanvasApiTokenPage = () => {
                         id="token"
                         isRequired
                         // isInvalid={returningEmailIncorrect}
-                        variant="floating"
+                        variant="floating_lg"
                     >
                         <Input
                             value={token}
@@ -89,7 +89,7 @@ const NotCanvasApiTokenPage = () => {
                     <Box mt={12}>
                         <Button
                             isDisabled={!token.length}
-                            // isLoading={isSubmitting}
+                            isLoading={isSubmitting}
                             type="submit"
                             width="120px"
                         >

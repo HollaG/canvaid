@@ -20,6 +20,7 @@ import {
     Input,
     Stack,
     Text,
+    useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
@@ -100,12 +101,17 @@ export default function Page() {
                 <DrawerOverlay />
                 <DrawerContent mt={NAVBAR_HEIGHT}>
                     <DrawerCloseButton />
-                    <DrawerHeader fontWeight={"normal"}>
+                    <DrawerHeader
+                        fontWeight={"normal"}
+                        bgColor={useColorModeValue("gray.100", "gray.900")}
+                    >
                         <Container maxWidth={PAGE_CONTAINER_SIZE}>
                             Login (Step 1 of 2){" "}
                         </Container>
                     </DrawerHeader>
-                    <DrawerBody>
+                    <DrawerBody
+                        bgColor={useColorModeValue("gray.100", "gray.900")}
+                    >
                         <LoginComponent />
                     </DrawerBody>
                 </DrawerContent>

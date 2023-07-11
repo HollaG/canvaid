@@ -225,7 +225,7 @@ export default function LoginComponent() {
                                             id="email"
                                             isRequired
                                             isInvalid={returningEmailIncorrect}
-                                            variant="floating"
+                                            variant="floating_lg"
                                         >
                                             <Input
                                                 value={returningEmail}
@@ -262,7 +262,7 @@ export default function LoginComponent() {
                                             isInvalid={
                                                 returningPasswordIncorrect
                                             }
-                                            variant="floating"
+                                            variant="floating_lg"
                                         >
                                             <Input
                                                 value={returningPassword}
@@ -304,7 +304,7 @@ export default function LoginComponent() {
                                                     emailIsValid
                                                 )
                                             }
-                                            variant="floating"
+                                            variant="floating_lg"
                                         >
                                             <Input
                                                 value={newEmail}
@@ -312,6 +312,7 @@ export default function LoginComponent() {
                                                     setNewEmail(e.target.value)
                                                 }
                                                 type="email"
+                                                size={"lg"}
                                                 placeholder=" "
                                             />
                                             <FormLabel>Email</FormLabel>
@@ -328,7 +329,7 @@ export default function LoginComponent() {
                                             )}
                                         </FormControl>
                                         <FormControl
-                                            variant="floating"
+                                            variant="floating_lg"
                                             id="new-password"
                                             isRequired
                                             isInvalid={
@@ -346,6 +347,7 @@ export default function LoginComponent() {
                                                     )
                                                 }
                                                 type="password"
+                                                size={"lg"}
                                                 placeholder=" "
                                             />
                                             <FormLabel>Password</FormLabel>
@@ -371,7 +373,7 @@ export default function LoginComponent() {
                                                     confirmSameAsNew
                                                 )
                                             }
-                                            variant="floating"
+                                            variant="floating_lg"
                                         >
                                             <Input
                                                 value={newConfirmPassword}
@@ -381,6 +383,7 @@ export default function LoginComponent() {
                                                     )
                                                 }
                                                 type="password"
+                                                size={"lg"}
                                                 placeholder=" "
                                             />
                                             <FormLabel>
@@ -407,7 +410,7 @@ export default function LoginComponent() {
                                                     displayName.trim() === "" &&
                                                     touchedNewFirstName
                                                 }
-                                                variant="floating"
+                                                variant="floating_lg"
                                             >
                                                 <Input
                                                     value={displayName}
@@ -420,6 +423,7 @@ export default function LoginComponent() {
                                                         );
                                                     }}
                                                     type="text"
+                                                    size={"lg"}
                                                     placeholder=" "
                                                 />
                                                 <FormLabel>
