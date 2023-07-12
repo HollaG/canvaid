@@ -27,7 +27,6 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { Link } from "@chakra-ui/react";
 
 import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
@@ -157,17 +156,26 @@ export default function Page() {
                         mt={6}
                         ml={showSidebar ? SIDEBAR_WIDTH : 0}
                         pt={6}
-                        bgColor={useColorModeValue("gray.50", "black")}
-                        backgroundImage="url(/assets/background.svg)"
+                        bgColor={useColorModeValue("gray.50", "gray.900")}
+                        backgroundImage={useColorModeValue(
+                            "url(/assets/background.svg)",
+                            "url(/assets/background-dark.svg)"
+                        )}
                         backgroundSize={"200%"}
                         borderRadius="xl"
                     >
                         <Center px={12}>
                             <Box
                                 width="100%"
-                                bgColor="teal.700"
+                                bgColor={useColorModeValue(
+                                    "teal.700",
+                                    "teal.900"
+                                )}
                                 borderRadius={"xl"}
-                                backgroundImage={"url(/assets/background.svg)"}
+                                backgroundImage={useColorModeValue(
+                                    "url(/assets/background.svg)",
+                                    "url(/assets/background-dark.svg)"
+                                )}
                                 // backgroundAttachment="fixed"
                                 backgroundSize={"10%"}
                                 py={{ base: 2, sm: 4, md: 6, lg: 12 }}
@@ -200,6 +208,10 @@ export default function Page() {
                                             bgColor={inputBackgroundColor}
                                         />
                                     </InputGroup>
+
+                                    <Button size="lg" ml={3}>
+                                        <NextLink href="/add">Upload</NextLink>
+                                    </Button>
                                 </Center>
                             </Box>
                         </Center>

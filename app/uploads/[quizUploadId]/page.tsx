@@ -180,17 +180,23 @@ export default function Page() {
                     <Heading>{quiz.quizName}</Heading>
                     <Flex flexDir={"row"} flexWrap="wrap">
                         {quiz.quizInfo.show_correct_answers ? (
-                            <Tag colorScheme={"green"} mr={2}>
-                                Correct answers are shown
-                            </Tag>
+                            <Box mr={2} mb={2}>
+                                <Tag colorScheme={"green"}>
+                                    Correct answers are shown
+                                </Tag>
+                            </Box>
                         ) : (
-                            <Tag colorScheme={"red"} mr={2}>
-                                Correct answers are hidden
-                            </Tag>
+                            <Box mr={2} mb={2}>
+                                <Tag colorScheme={"red"} mr={2}>
+                                    Correct answers are hidden
+                                </Tag>
+                            </Box>
                         )}
-                        <Tag colorScheme={"teal"}>
-                            Total questions seen: {quiz.questions.length}
-                        </Tag>
+                        <Box mr={2} mb={2}>
+                            <Tag colorScheme={"teal"}>
+                                Total questions seen: {quiz.questions.length}
+                            </Tag>
+                        </Box>
                     </Flex>
                     <Box
                         dangerouslySetInnerHTML={{
@@ -229,6 +235,7 @@ export default function Page() {
                                         onClick={() =>
                                             setSelectedAttemptIndex(i)
                                         }
+                                        fontSize="sm"
                                     >
                                         Attempt #{submission.attempt} (
                                         {Math.round(submission.score * 100) /
@@ -247,7 +254,7 @@ export default function Page() {
                             ) : (
                                 <Stack>
                                     <Heading fontSize="xl">
-                                        Attempt{" "}
+                                        Attempt #
                                         {
                                             quiz.submissions[
                                                 selectedAttemptIndex
@@ -395,10 +402,9 @@ const FlaggingButton = ({
             }}
             size="sm"
             variant="ghost"
+            colorScheme={question.isFlagged ? "red" : "gray"}
         >
-            <Box color={question.isFlagged ? "red" : "gray"}>
-                {question.isFlagged ? <FaFlag /> : <FaRegFlag />}
-            </Box>
+            <Box>{question.isFlagged ? <FaFlag /> : <FaRegFlag />}</Box>
         </IconButton>
     );
 };
@@ -494,7 +500,7 @@ const QuestionResultTag = ({
     // if the question is correct
     if (questionResponse.your_score === questionResponse.total_score) {
         return (
-            <Tag colorScheme="green">
+            <Tag colorScheme="green" ml={1}>
                 Correct! ({questionResponse.your_score} /{" "}
                 {questionResponse.total_score})
             </Tag>
@@ -506,7 +512,7 @@ const QuestionResultTag = ({
     if (questionResponse.your_score === 0) {
         // return <Tag colorScheme="red"> Incorrect! </Tag>;
         return (
-            <Tag colorScheme="red">
+            <Tag colorScheme="red" ml={1}>
                 Incorrect! ({questionResponse.your_score} /{" "}
                 {questionResponse.total_score}){" "}
             </Tag>
@@ -515,13 +521,18 @@ const QuestionResultTag = ({
 
     // if the question is not yet graded (score = -1)
     if (questionResponse.your_score === -1) {
-        return <Tag colorScheme="gray"> Not yet graded! </Tag>;
+        return (
+            <Tag colorScheme="gray" ml={1}>
+                {" "}
+                Not yet graded!{" "}
+            </Tag>
+        );
     }
 
     // if the question is partially answered
     if (questionResponse.your_score !== questionResponse.total_score) {
         return (
-            <Tag colorScheme="yellow">
+            <Tag colorScheme="yellow" ml={1}>
                 Partial! ({questionResponse.your_score} /{" "}
                 {questionResponse.total_score}){" "}
             </Tag>
@@ -529,7 +540,7 @@ const QuestionResultTag = ({
         // return <Tag colorScheme="yellow"> Partial! </Tag>;
     }
 
-    return <Tag> Could not parse result! </Tag>;
+    return <Tag ml={1}> Could not parse result! </Tag>;
 };
 
 /**
@@ -794,109 +805,126 @@ const CombinedQuestionList = ({
         };
     });
 
-    console.log({ combinedQuestions });
+    const questionBgColor = useColorModeValue("white", "gray.800");
 
     return (
-        <Stack spacing="10">
+        <Stack>
             <Heading fontSize="xl">
                 {" "}
                 Showing best results for each question{" "}
             </Heading>
-            {combinedQuestions.map((question, i) => (
-                <Box key={i}>
-                    <Heading fontSize="lg" alignItems={"center"}>
-                        {" "}
-                        Question {i + 1}{" "}
-                        <QuestionResultTag
-                            quiz={quiz}
-                            questionResponse={question.best_attempt}
-                        />
-                        <FlaggingButton
-                            question={question}
-                            setQuiz={setQuiz}
-                            quiz={quiz}
-                        />
-                    </Heading>
-                    {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
-                    <div
-                        className="question-text"
-                        dangerouslySetInnerHTML={{
-                            __html: question.question_text,
-                        }}
-                    />
-
-                    <Divider />
-                    <Tabs>
-                        <TabList>
-                            <Tab>
-                                {" "}
-                                Best attempt (#{
-                                    question.best_attempt_number
-                                } - {question.best_attempt.your_score} /{" "}
-                                {question.best_attempt.total_score})
-                            </Tab>
-
-                            {question.attempts
-                                .map((attempt, i) => ({
-                                    v: (
-                                        <Tab key={i}>
-                                            {" "}
-                                            #{i + 1} ({attempt.your_score} /{" "}
-                                            {attempt.total_score}){" "}
-                                        </Tab>
-                                    ),
-                                    i,
-                                }))
-                                .filter(
-                                    (d) =>
-                                        d.i !== question.best_attempt_number - 1
-                                )
-                                .map((d) => d.v)}
-                        </TabList>
-                        <TabPanels>
-                            <TabPanel>
-                                <AnswerList
-                                    questionType={question.question_type}
-                                    answers={question.answers}
-                                    selectedOptions={question.best_attempt}
-                                    show_correct_answers={
-                                        quiz.quizInfo.show_correct_answers
-                                    }
+            <Stack spacing="10">
+                {combinedQuestions.map((question, i) => (
+                    <Box
+                        key={i}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        padding="4"
+                        bgColor={questionBgColor}
+                    >
+                        <Heading
+                            fontSize="lg"
+                            alignItems={"center"}
+                            justifyContent="space-between"
+                            display="flex"
+                        >
+                            {" "}
+                            <div>
+                                Question {i + 1}{" "}
+                                <QuestionResultTag
+                                    quiz={quiz}
+                                    questionResponse={question.best_attempt}
                                 />
-                            </TabPanel>
-                            {question.attempts
-                                .map((attempt, i) => ({
-                                    v: (
-                                        <TabPanel key={i}>
-                                            <AnswerList
-                                                questionType={
-                                                    question.question_type
-                                                }
-                                                answers={question.answers}
-                                                selectedOptions={attempt}
-                                                show_correct_answers={
-                                                    quiz.quizInfo
-                                                        .show_correct_answers
-                                                }
-                                            />
-                                        </TabPanel>
-                                    ),
-                                    i,
-                                }))
-                                .filter(
-                                    (d) =>
-                                        d.i !== question.best_attempt_number - 1
-                                )
-                                .map((d) => d.v)}
-                        </TabPanels>
-                    </Tabs>
-                    <QuestionExtras
-                        question={question}
-                        quiz={quiz}
-                        setQuiz={setQuiz}
-                    />
-                </Box>
-            ))}
+                            </div>
+                            <FlaggingButton
+                                question={question}
+                                setQuiz={setQuiz}
+                                quiz={quiz}
+                            />
+                        </Heading>
+                        {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
+                        <div
+                            className="question-text"
+                            dangerouslySetInnerHTML={{
+                                __html: question.question_text,
+                            }}
+                        />
+
+                        <Divider />
+                        <Tabs>
+                            <TabList>
+                                <Tab>
+                                    {" "}
+                                    Best attempt (#
+                                    {question.best_attempt_number} -{" "}
+                                    {question.best_attempt.your_score} /{" "}
+                                    {question.best_attempt.total_score})
+                                </Tab>
+
+                                {question.attempts
+                                    .map((attempt, i) => ({
+                                        v: (
+                                            <Tab key={i}>
+                                                {" "}
+                                                #{i + 1} ({attempt.your_score} /{" "}
+                                                {attempt.total_score}){" "}
+                                            </Tab>
+                                        ),
+                                        i,
+                                    }))
+                                    .filter(
+                                        (d) =>
+                                            d.i !==
+                                            question.best_attempt_number - 1
+                                    )
+                                    .map((d) => d.v)}
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel>
+                                    <AnswerList
+                                        questionType={question.question_type}
+                                        answers={question.answers}
+                                        selectedOptions={question.best_attempt}
+                                        show_correct_answers={
+                                            quiz.quizInfo.show_correct_answers
+                                        }
+                                    />
+                                </TabPanel>
+                                {question.attempts
+                                    .map((attempt, i) => ({
+                                        v: (
+                                            <TabPanel key={i}>
+                                                <AnswerList
+                                                    questionType={
+                                                        question.question_type
+                                                    }
+                                                    answers={question.answers}
+                                                    selectedOptions={attempt}
+                                                    show_correct_answers={
+                                                        quiz.quizInfo
+                                                            .show_correct_answers
+                                                    }
+                                                />
+                                            </TabPanel>
+                                        ),
+                                        i,
+                                    }))
+                                    .filter(
+                                        (d) =>
+                                            d.i !==
+                                            question.best_attempt_number - 1
+                                    )
+                                    .map((d) => d.v)}
+                            </TabPanels>
+                        </Tabs>
+                        <QuestionExtras
+                            question={question}
+                            quiz={quiz}
+                            setQuiz={setQuiz}
+                        />
+                    </Box>
+                ))}{" "}
+            </Stack>
         </Stack>
     );
 

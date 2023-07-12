@@ -60,6 +60,26 @@ const Courses = ({ quizzes, deletion }: courseProps) => {
                 <Button colorScheme="blue">Upload a Quiz</Button>
             </Flex> */}
 
+            {/* <Text
+                textColor={"gray.600"}
+                fontWeight="bold"
+                fontSize="sm"
+                mb={3}
+                ml={6}
+            >
+                Pinned (0)
+            </Text> */}
+            {/* TODO */}
+
+            <Text
+                textColor={"gray.600"}
+                fontWeight="bold"
+                fontSize="sm"
+                mb={3}
+                ml={6}
+            >
+                Recent
+            </Text>
             <Flex flexWrap="wrap">
                 {quizzes.map((item, key) => (
                     <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
