@@ -39,10 +39,10 @@ const Navbar = () => {
 
     const user = authCtx?.user;
 
-    // TODO: get a hook for scroll position and remove the shadow when scroll at top
-    const [showShadow, setShowShadow] = useState(false);
+    // TODO: do we need this
+    const [showShadow, setShowShadow] = useState(true);
     useScrollPosition(({ prevPos, currPos }) => {
-        setShowShadow(currPos.y < 0);
+        // setShowShadow(currPos.y < 0);
     });
 
     const [date, setDate] = useState<string>("");

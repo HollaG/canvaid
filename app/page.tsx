@@ -16,8 +16,11 @@ import {
     DrawerContent,
     DrawerHeader,
     DrawerOverlay,
+    Flex,
     Heading,
     Input,
+    InputGroup,
+    InputLeftElement,
     Stack,
     Text,
     useColorModeValue,
@@ -37,6 +40,12 @@ import { Quiz } from "@/types/canvas";
 import "./globals.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoginComponent from "@/components/Auth/LoginComponent";
+import Sidebar from "@/components/Sidebar/Sidebar";
+
+import HomePageImage from "@/public/assets/homepage.svg";
+import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
+import { SearchIcon } from "@chakra-ui/icons";
+
 export default function Page() {
     const authCtx = useAuthContainer();
     console.log(authCtx);
@@ -116,13 +125,98 @@ export default function Page() {
             </Drawer>
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
-                <Container
-                    maxW={PAGE_CONTAINER_SIZE}
+                // <Container
+                //     maxW={PAGE_CONTAINER_SIZE}
+                //     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
+                //     mt={NAVBAR_HEIGHT}
+                // >
+                //     <Stack>
+                //         <Heading textAlign={"center"}>
+                //             Welcome back, {user.displayName}!
+                //         </Heading>
+                //         <Link
+                //             as={NextLink}
+                //             href="/add"
+                //             textAlign="center"
+                //             data-testid="add-new-btn"
+                //         >
+                //             Add a new quiz
+                //         </Link>
+                //         <Input placeholder="Search for a quiz..." />
+                //         <Courses
+                //             quizzes={quizzes}
+                //             deletion={handleDeleteItem}
+                //         />
+                //     </Stack>
+                // </Container>
+                <Flex
                     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
                     mt={NAVBAR_HEIGHT}
                 >
-                    <Stack>
-                        <Heading textAlign={"center"}>
+                    <Box
+                        flexShrink={0}
+                        width="200px"
+                        height="100%"
+                        position="fixed"
+                        top={NAVBAR_HEIGHT}
+                        left={0}
+                        bottom={0}
+                    >
+                        <Sidebar />
+                    </Box>
+                    <Stack flexGrow={1} ml={"200px"} pt={6}>
+                        <Center px={12}>
+                            <Box
+                                width="100%"
+                                bgColor="teal.700"
+                                borderRadius={"xl"}
+                                backgroundImage={"url(/assets/background.svg)"}
+                                // backgroundAttachment="fixed"
+                                backgroundSize={"10%"}
+                                py={{ base: 2, sm: 4, md: 6, lg: 12 }}
+                            >
+                                <Heading
+                                    textAlign={"center"}
+                                    fontSize="2xl"
+                                    textColor={"white"}
+                                >
+                                    {" "}
+                                    What will you study today?{" "}
+                                </Heading>
+                                <Center px={6} mt={6}>
+                                    <InputGroup size={"lg"} maxWidth="750px">
+                                        <InputLeftElement
+                                            pointerEvents={"none"}
+                                        >
+                                            <SearchIcon />
+                                        </InputLeftElement>
+                                        <Input
+                                            placeholder="Search for a quiz..."
+                                            variant="filled"
+                                            _hover={{
+                                                bgColor: useColorModeValue(
+                                                    "gray.50",
+                                                    "gray.700"
+                                                ),
+                                            }}
+                                            _focusVisible={{
+                                                bgColor: useColorModeValue(
+                                                    "gray.50",
+                                                    "gray.700"
+                                                ),
+                                            }}
+                                            type="search"
+                                            bgColor={useColorModeValue(
+                                                "gray.100",
+                                                "gray.800"
+                                            )}
+                                        />
+                                    </InputGroup>
+                                </Center>
+                            </Box>
+                        </Center>
+
+                        {/* <Heading textAlign={"center"}>
                             Welcome back, {user.displayName}!
                         </Heading>
                         <Link
@@ -133,13 +227,13 @@ export default function Page() {
                         >
                             Add a new quiz
                         </Link>
-                        <Input placeholder="Search for a quiz..." />
+                        <Input placeholder="Search for a quiz..." /> */}
                         <Courses
                             quizzes={quizzes}
                             deletion={handleDeleteItem}
                         />
                     </Stack>
-                </Container>
+                </Flex>
             )}
         </>
     );

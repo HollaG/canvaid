@@ -9,14 +9,40 @@ import {
     useColorModeValue,
     HStack,
     Stack,
+    Card,
+    CardHeader,
+    Badge,
+    IconButton,
+    CardBody,
+    CardFooter,
+    Stepper,
+    Step,
+    StepIndicator,
+    StepStatus,
+    StepTitle,
+    StepDescription,
+    useSteps,
+    StepSeparator,
+    useMediaQuery,
 } from "@chakra-ui/react";
-import { BsArrowUpRight, BsHeartFill, BsHeart, BsTrash } from "react-icons/bs";
+import {
+    BsArrowUpRight,
+    BsHeartFill,
+    BsHeart,
+    BsTrash,
+    BsThreeDotsVertical,
+} from "react-icons/bs";
 import { QuizUploadProps } from "../Courses";
 import { Quiz } from "@/types/canvas";
 import { Timestamp } from "firebase/firestore";
 import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
+import { formatTimeElapsed } from "@/lib/functions";
+import { TimeIcon } from "@chakra-ui/icons";
+
+import styles from "./QuizUploadCard.module.css";
+import Link from "next/link";
 
 export default function QuizUploadCard({
     quiz,
@@ -29,117 +55,177 @@ export default function QuizUploadCard({
     const handleDelete = () => {
         onDelete(quiz.id);
     };
+
+    // order the submissions according to the attempt number in reverse order
+    const sortedSubmissions = structuredClone(quiz.submissions).sort(
+        (a, b) => b.attempt - a.attempt
+    );
+
+    const hasMoreThan3 = sortedSubmissions.length > 3;
+    // slice it to only show the last 3 submissions
+    const lastThreeSubmissions = sortedSubmissions.slice(0, 3);
+
+    const { activeStep } = useSteps({
+        index: 0,
+        count: lastThreeSubmissions.length,
+    });
+
+    // Custom size
+    const [shouldNotBeFullWidth] = useMediaQuery("(min-width: 1033px)");
+
     return (
-        <Box py={6} height="100%">
+        <Box flexGrow={1} maxWidth={!shouldNotBeFullWidth ? "full" : "400px"}>
             <Box
-                // height="100%"
-                w="xs"
-                rounded={"sm"}
-                my={5}
-                mx={[0, 5]}
-                overflow={"hidden"}
-                bg="white"
-                border={"1px"}
-                borderColor="black"
-                // boxShadow={useColorModeValue(
-                //     "6px 6px 0 black",
-                //     "6px 6px 0 cyan"
-                // )}
+                cursor="pointer"
+                flexGrow={1}
+                mx={6}
+                borderRadius={"xl"}
+                position="relative"
+                _hover={{
+                    transform: "scale(1.01)",
+                }}
+                transition="transform 0.2s ease-in-out"
+                // boxShadow={"md"}
+                className={`wrapper`}
+                boxShadow={"sm"}
             >
-                {/* <Box h={"200px"} borderBottom={"1px"} borderColor="black">
-                    <Img
-                        src={
-                            "https://images.unsplash.com/photo-1542435503-956c469947f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
-                        }
-                        roundedTop={"sm"}
-                        objectFit="cover"
-                        h="full"
-                        w="full"
-                        alt={"Blog Image"}
-                    />
-                </Box> */}
-                <Box p={4}>
-                    <Box
-                        bg="black"
-                        display={"inline-block"}
-                        px={2}
-                        py={1}
-                        color="white"
-                        mb={2}
-                    >
-                        <Text fontSize={"xs"} fontWeight="medium">
-                            {quiz.course}
+                <Box
+                    position="absolute"
+                    borderRadius="xl"
+                    boxShadow={"md"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    transition="opacity 0.2s ease-in-out"
+                    opacity={0}
+                    className="cust-shadow"
+                ></Box>
+                <Link href={`/uploads/${quiz.id}`}>
+                    <Card boxShadow="0">
+                        <CardHeader>
+                            {/* <Flex justifyContent={"space-between"} alignItems="center">
+                    <Box>
+                        <Badge fontSize="lg">
+                            {" "}
+                            {quiz.course.split(" ")[0]}{" "}
+                        </Badge>
+                        <Text fontSize={"sm"} fontWeight="light">
+                            {quiz.course.split(" ").slice(1).join(" ")}
                         </Text>
                     </Box>
-                    <Heading color={"black"} fontSize={"2xl"} noOfLines={1}>
-                        {quiz.quizName}
-                    </Heading>
+                    <IconButton
+                        variant="ghost"
+                        colorScheme="gray"
+                        aria-label="See menu"
+                        icon={<BsThreeDotsVertical />}
+                    />
+                </Flex> */}
 
-                    {quiz.submissions.map((submission, index) => (
-                        <Stack key={index} spacing={1}>
-                            <Text>
+                            <Flex
+                                width="full"
+                                bgColor={useColorModeValue(
+                                    "gray.50",
+                                    "gray.800"
+                                )}
+                                borderRadius={"xl"}
+                                boxShadow="sm"
+                                p={3}
+                                alignItems="center"
+                            >
+                                {/* Course image */}
+                                <Box
+                                    bgColor="teal.500"
+                                    borderRadius={"lg"}
+                                    height="48px"
+                                    width="87px"
+                                    mr={2}
+                                ></Box>
+                                <Box>
+                                    <Text fontWeight="bold">
+                                        {quiz.course.split(" ")[0]}
+                                    </Text>
+                                    <Text>
+                                        {quiz.course
+                                            .split(" ")
+                                            .slice(1)
+                                            .join(" ")}
+                                    </Text>
+                                </Box>
+                            </Flex>
+                        </CardHeader>
+                        <CardBody pt={0}>
+                            <Heading fontSize="lg" mb={3}>
                                 {" "}
-                                Attempt #{index + 1}:{" "}
-                                {Math.round(submission.score * 100) / 100 ?? 0}{" "}
-                                / {submission.quiz_points_possible ?? 0}
-                            </Text>
-                            <Text fontWeight="light" fontSize="xs">
-                                Submitted at{" "}
-                                {new Date(
-                                    submission.finished_at
-                                ).toLocaleString()}
-                            </Text>
-                        </Stack>
-                    ))}
-                    {/* <Text color={"gray.500"} noOfLines={2}>
-                        In this post, we will give an overview of what is new in
-                        React 18, and what it means for the future.
-                    </Text> */}
-                </Box>
-
-                <HStack borderTop={"1px"} color="black" spacing={0}>
-                    <Flex
-                        p={4}
-                        alignItems="center"
-                        justifyContent={"space-between"}
-                        roundedBottom={"sm"}
-                        cursor={"pointer"}
-                        w="full"
-                        as={NextLink}
-                        href={`/uploads/${quiz.id}`}
-                    >
-                        <Text fontSize={"md"} fontWeight={"semibold"}>
-                            View quiz
+                                {quiz.quizName}
+                            </Heading>
+                            {/* {quiz.submissions.map((submission, index) => (
+                    <Stack key={index} spacing={1}>
+                        <Text>
+                            {" "}
+                            Attempt #{index + 1}:{" "}
+                            {Math.round(submission.score * 100) / 100 ?? 0} /{" "}
+                            {submission.quiz_points_possible ?? 0}
                         </Text>
-                        <BsArrowUpRight />
-                    </Flex>
-                    {/* <Flex
-                        p={4}
-                        alignItems="center"
-                        justifyContent={"center"}
-                        // roundedBottom={"sm"}
-                        borderLeft={"1px"}
-                        borderRight="1px"
-                        cursor="pointer"
-                        onClick={() => setLiked(!liked)}
-                    >
-                        {liked ? (
-                            <BsHeartFill fill="red" fontSize={"24px"} />
-                        ) : (
-                            <BsHeart fontSize={"24px"} />
-                        )}
-                    </Flex> */}
-                    <Flex
-                        p={4}
-                        alignItems="center"
-                        justifyContent={"center"}
-                        // roundedBottom={"sm"}
-                        cursor="pointer"
-                        borderLeft="1px"
-                    >
-                        <DeleteButton ID={quiz.id} onDelete={handleDelete} />
-                    </Flex>
-                </HStack>
+                    </Stack>
+                ))} */}
+                            <Stepper
+                                size="sm"
+                                index={activeStep}
+                                orientation="vertical"
+                            >
+                                {sortedSubmissions.map((submission, i) => (
+                                    <Step key={i}>
+                                        <StepIndicator fontSize={"xs"}>
+                                            <StepStatus
+                                                complete={submission.attempt}
+                                                incomplete={submission.attempt}
+                                                active={submission.attempt}
+                                            />
+                                        </StepIndicator>
+                                        <Box flexShrink={0} minH="48px">
+                                            <StepTitle>
+                                                {" "}
+                                                {Math.round(
+                                                    submission.score * 100
+                                                ) / 100 ?? 0}{" "}
+                                                /{" "}
+                                                {submission.quiz_points_possible ??
+                                                    0}{" "}
+                                            </StepTitle>
+                                            <StepDescription>
+                                                {" "}
+                                                {formatTimeElapsed(
+                                                    new Date(
+                                                        submission.finished_at
+                                                    )
+                                                )}{" "}
+                                            </StepDescription>
+                                        </Box>
+                                        <StepSeparator />
+                                    </Step>
+                                ))}
+                                {hasMoreThan3 && <StepSeparator />}
+                            </Stepper>
+                        </CardBody>
+
+                        <CardFooter>
+                            {/* <Text alignItems={"center"} display="flex">
+                    <TimeIcon mr={2} />
+
+                    {formatTimeElapsed(
+                        new Date(
+                            quiz.submissions.sort(
+                                (a, b) =>
+                                    new Date(a.finished_at).getTime() -
+                                    new Date(b.finished_at).getTime()
+                            )[0].finished_at
+                        )
+                    )}
+                </Text> */}
+                        </CardFooter>
+                    </Card>
+                </Link>
             </Box>
         </Box>
     );
