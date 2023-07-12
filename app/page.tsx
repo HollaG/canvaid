@@ -95,6 +95,8 @@ export default function Page() {
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
 
+    const inputHoverColor = useColorModeValue("gray.50", "gray.700");
+    const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
     // if (!user) return <NotAuthedHomePage />;
     // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
 
@@ -162,7 +164,7 @@ export default function Page() {
                         left={0}
                         bottom={0}
                     >
-                        <Sidebar />
+                        <Sidebar quizzes={quizzes} />
                     </Box>
                     <Stack flexGrow={1} ml={"200px"} pt={6}>
                         <Center px={12}>
@@ -194,22 +196,13 @@ export default function Page() {
                                             placeholder="Search for a quiz..."
                                             variant="filled"
                                             _hover={{
-                                                bgColor: useColorModeValue(
-                                                    "gray.50",
-                                                    "gray.700"
-                                                ),
+                                                bgColor: inputHoverColor,
                                             }}
                                             _focusVisible={{
-                                                bgColor: useColorModeValue(
-                                                    "gray.50",
-                                                    "gray.700"
-                                                ),
+                                                bgColor: inputHoverColor,
                                             }}
                                             type="search"
-                                            bgColor={useColorModeValue(
-                                                "gray.100",
-                                                "gray.800"
-                                            )}
+                                            bgColor={inputBackgroundColor}
                                         />
                                     </InputGroup>
                                 </Center>

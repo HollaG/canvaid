@@ -133,13 +133,13 @@ export default function QuizUploadCard({
                                 p={3}
                                 alignItems="center"
                             >
-                                {/* Course image */}
+                                {/* Course color */}
                                 <Box
                                     bgColor="teal.500"
                                     borderRadius={"lg"}
-                                    height="48px"
-                                    width="87px"
-                                    mr={2}
+                                    height="28px"
+                                    width="36px"
+                                    mr={3}
                                 ></Box>
                                 <Box>
                                     <Text fontWeight="bold">

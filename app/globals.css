@@ -5,3 +5,10 @@
 .wrapper:hover .cust-shadow {
     opacity: 1 !important;
 }
+
+.sidebar-link {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 144px;
+    overflow: hidden;
+}

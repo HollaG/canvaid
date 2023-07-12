@@ -1,8 +1,14 @@
 import { useAuthContainer } from "@/app/providers";
 import {
+    Accordion,
+    AccordionButton,
+    AccordionIcon,
+    AccordionItem,
+    AccordionPanel,
     Avatar,
     Box,
     BoxProps,
+    Button,
     Center,
     CloseButton,
     Divider,
@@ -13,7 +19,7 @@ import {
     Heading,
     Icon,
     IconButton,
-    Link,
+    Stack,
     Text,
     useColorModeValue,
     useDisclosure,
@@ -31,6 +37,8 @@ import {
 } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { ReactText } from "react";
+import { Quiz } from "@/types/canvas";
+import Link from "next/link";
 
 /**
  * Sidebar component.
@@ -39,8 +47,34 @@ import { ReactText } from "react";
  *
  * Also displays the quizzes that the user has uploaded, sorted by course
  */
-const Sidebar = () => {
+const Sidebar = ({
+    quizzes,
+}: {
+    quizzes: (Quiz & {
+        id: string;
+    })[];
+}) => {
     const { user } = useAuthContainer();
+
+    // group the quiz by course name
+    const quizzesByCourse = quizzes.reduce(
+        (acc, quiz) => {
+            if (!acc[quiz.course.split(" ")[0].toUpperCase()]) {
+                acc[quiz.course.split(" ")[0].toUpperCase()] = [];
+            }
+            acc[quiz.course.split(" ")[0].toUpperCase()].push(quiz);
+            return acc;
+        },
+        {} as Record<
+            string,
+            (Quiz & {
+                id: string;
+            })[]
+        >
+    );
+
+    console.log({ quizzesByCourse });
+
     return (
         <Box p={6} height="full">
             <Center>
@@ -58,163 +92,50 @@ const Sidebar = () => {
                 {user?.displayName}!
             </Heading>
             <Divider my={6} />
+            <Text textColor={"gray.600"} fontWeight="bold" fontSize="sm" mb={3}>
+                Quick Access
+            </Text>
+            <Accordion>
+                {Object.keys(quizzesByCourse).map((courseCode) => {
+                    const quizzes = quizzesByCourse[courseCode];
+                    return (
+                        <AccordionItem key={courseCode} border={0}>
+                            <h2>
+                                <AccordionButton>
+                                    <Box as="span" flex="1" textAlign="left">
+                                        {courseCode}
+                                    </Box>
+                                    <AccordionIcon />
+                                </AccordionButton>
+                            </h2>
+                            <AccordionPanel pb={4} px={1}>
+                                <Stack>
+                                    {quizzes.map((quiz) => (
+                                        <Button
+                                            size="sm"
+                                            colorScheme={"gray"}
+                                            variant="ghost"
+                                            textAlign={"left"}
+                                            justifyContent="left"
+                                            pl={2}
+                                            textDecor="none"
+                                        >
+                                            <Link
+                                                href={`/uploads/${quiz.id}`}
+                                                className="sidebar-link"
+                                            >
+                                                {quiz.quizName}
+                                            </Link>
+                                        </Button>
+                                    ))}
+                                </Stack>
+                            </AccordionPanel>
+                        </AccordionItem>
+                    );
+                })}
+            </Accordion>
         </Box>
     );
 };
 
 export default Sidebar;
-
-interface LinkItemProps {
-    name: string;
-    icon: IconType;
-}
-const LinkItems: Array<LinkItemProps> = [
-    { name: "Home", icon: FiHome },
-    { name: "Trending", icon: FiTrendingUp },
-    { name: "Explore", icon: FiCompass },
-    { name: "Favourites", icon: FiStar },
-    { name: "Settings", icon: FiSettings },
-];
-
-function SimpleSidebar({ children }: { children: ReactNode }) {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    return (
-        <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
-            <SidebarContent
-                onClose={() => onClose}
-                display={{ base: "none", md: "block" }}
-            />
-            <Drawer
-                autoFocus={false}
-                isOpen={isOpen}
-                placement="left"
-                onClose={onClose}
-                returnFocusOnClose={false}
-                onOverlayClick={onClose}
-                size="full"
-            >
-                <DrawerContent>
-                    <SidebarContent onClose={onClose} />
-                </DrawerContent>
-            </Drawer>
-            {/* mobilenav */}
-            <MobileNav display={{ base: "flex", md: "none" }} onOpen={onOpen} />
-            <Box ml={{ base: 0, md: 60 }} p="4">
-                {children}
-            </Box>
-        </Box>
-    );
-}
-
-interface SidebarProps extends BoxProps {
-    onClose: () => void;
-}
-
-const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
-    return (
-        <Box
-            bg={useColorModeValue("white", "gray.900")}
-            borderRight="1px"
-            borderRightColor={useColorModeValue("gray.200", "gray.700")}
-            w={{ base: "full", md: 60 }}
-            pos="fixed"
-            h="full"
-            {...rest}
-        >
-            <Flex
-                h="20"
-                alignItems="center"
-                mx="8"
-                justifyContent="space-between"
-            >
-                <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-                    Logo
-                </Text>
-                <CloseButton
-                    display={{ base: "flex", md: "none" }}
-                    onClick={onClose}
-                />
-            </Flex>
-            {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon}>
-                    {link.name}
-                </NavItem>
-            ))}
-        </Box>
-    );
-};
-
-interface NavItemProps extends FlexProps {
-    icon: IconType;
-    children: ReactText;
-}
-const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
-    return (
-        <Link
-            href="#"
-            style={{ textDecoration: "none" }}
-            _focus={{ boxShadow: "none" }}
-        >
-            <Flex
-                align="center"
-                p="4"
-                mx="4"
-                borderRadius="lg"
-                role="group"
-                cursor="pointer"
-                _hover={{
-                    bg: "cyan.400",
-                    color: "white",
-                }}
-                {...rest}
-            >
-                {icon && (
-                    <Icon
-                        mr="4"
-                        fontSize="16"
-                        _groupHover={{
-                            color: "white",
-                        }}
-                        as={icon}
-                    />
-                )}
-                {children}
-            </Flex>
-        </Link>
-    );
-};
-
-interface MobileProps extends FlexProps {
-    onOpen: () => void;
-}
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
-    return (
-        <Flex
-            ml={{ base: 0, md: 60 }}
-            px={{ base: 4, md: 24 }}
-            height="20"
-            alignItems="center"
-            bg={useColorModeValue("white", "gray.900")}
-            borderBottomWidth="1px"
-            borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-            justifyContent="flex-start"
-            {...rest}
-        >
-            <IconButton
-                variant="outline"
-                onClick={onOpen}
-                aria-label="open menu"
-                icon={<FiMenu />}
-            />
-
-            <Text
-                fontSize="2xl"
-                ml="8"
-                fontFamily="monospace"
-                fontWeight="bold"
-            >
-                Logo
-            </Text>
-        </Flex>
-    );
-};
