@@ -4,7 +4,11 @@ import {
     addQuizQuestionAnnotation,
     updateQuizQuestionFlag,
 } from "@/firebase/database/repositories/uploads";
-import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import {
+    NAVBAR_HEIGHT,
+    PAGE_CONTAINER_SIZE,
+    SIDEBAR_WIDTH,
+} from "@/lib/constants";
 import {
     Answer,
     QuestionResponse,
@@ -12,6 +16,7 @@ import {
     QuizResponse,
     CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
+    QuizAttempt,
 } from "@/types/canvas";
 import {
     Input,
@@ -38,6 +43,7 @@ import {
     Tag,
     Text,
     FormErrorMessageProps,
+    useColorModeValue,
 } from "@chakra-ui/react";
 
 import {
@@ -54,6 +60,10 @@ import {
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
+import Sidebar from "@/components/Sidebar/Sidebar";
+import CourseInfo from "@/components/Display/CourseInfo";
+import { useAuthContainer } from "@/app/providers";
+import useSidebar from "@/hooks/useSidebar";
 
 /**
  *
@@ -70,14 +80,42 @@ export default function Page() {
     // );
     const [updatedQuiz, setUpdatedQuiz] = useState<Quiz | undefined>(undefined);
 
+    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+
+    const { user } = useAuthContainer();
     useEffect(() => {
-        if (dataId)
-            getQuizUpload(dataId)
-                .then(setQuiz)
-                .catch((e) => {
-                    console.log(e);
-                });
-    }, [dataId]);
+        if (user?.uid) {
+            fetch(`/api/?uid=${user.uid}`)
+                .then((res) => res.json())
+                .then(
+                    (data: {
+                        data: (Quiz & {
+                            id: string;
+                        })[];
+                    }) => {
+                        setQuizzes(data.data || []);
+                        setQuiz(
+                            data.data.filter((quiz) => quiz.id === dataId)[0]
+                        );
+                    }
+                );
+        }
+
+        // if (user?.canvasApiToken) {
+        //   setHasToken(true);
+        // } else {
+        //   setHasToken(false);
+        // }
+    }, [user]);
+
+    // useEffect(() => {
+    //     if (dataId)
+    //         getQuizUpload(dataId)
+    //             .then(setQuiz)
+    //             .catch((e) => {
+    //                 console.log(e);
+    //             });
+    // }, [dataId]);
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
     //console.log(quiz);
@@ -95,162 +133,228 @@ export default function Page() {
 
         return qns || [];
     };
-    if (!quiz)
-        return <Container maxW={PAGE_CONTAINER_SIZE}>Loading...</Container>;
-    return (
-        <Container maxW={PAGE_CONTAINER_SIZE}>
-            <Stack spacing={6}>
-                <Heading>
-                    {quiz.course}: {quiz.quizName}
-                </Heading>
-                <Flex flexDir={"row"} flexWrap="wrap">
-                    {quiz.quizInfo.show_correct_answers ? (
-                        <Tag colorScheme={"green"} mr={2}>
-                            Correct answers are shown
-                        </Tag>
-                    ) : (
-                        <Tag colorScheme={"red"} mr={2}>
-                            Correct answers are hidden
-                        </Tag>
-                    )}
-                    <Tag colorScheme={"green"}>
-                        Total questions seen: {quiz.questions.length}
-                    </Tag>
-                </Flex>
-                <Box
-                    dangerouslySetInnerHTML={{
-                        __html: quiz.quizInfo.description,
-                    }}
-                />
-                <Divider />
 
-                <Grid gridTemplateColumns={{ base: "1fr", md: "200px 1fr" }}>
-                    <GridItem p={5}>
-                        <Stack>
-                            <Button
-                                variant={
-                                    selectedAttemptIndex === -1
-                                        ? "solid"
-                                        : "outline"
-                                }
-                                colorScheme="green"
-                                onClick={() => setSelectedAttemptIndex(-1)}
-                            >
-                                Combined
-                            </Button>
-                            <Divider />
-                            {quiz.submissions.map((submission, i) => (
+    const showSidebar = useSidebar();
+
+    const bgColor = useColorModeValue("gray.50", "gray.900");
+    const questionBgColor = useColorModeValue("white", "gray.800");
+    return (
+        // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
+        <Flex minH={`calc(100vh - ${NAVBAR_HEIGHT})`} mt={NAVBAR_HEIGHT}>
+            {showSidebar && (
+                <Box
+                    flexShrink={0}
+                    width={SIDEBAR_WIDTH}
+                    height="100%"
+                    position="fixed"
+                    top={NAVBAR_HEIGHT}
+                    left={0}
+                    bottom={0}
+                >
+                    <Sidebar quizzes={quizzes} />
+                </Box>
+            )}
+            {quiz ? (
+                <Stack
+                    spacing={6}
+                    flexGrow={1}
+                    ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                    p={4}
+                    bgColor={bgColor}
+                    borderRadius="xl"
+                    mt={6}
+                >
+                    {/* <Box>
+                    <Text
+                        ml={2}
+                        textColor={useColorModeValue("gray.600", "gray.400")}
+                    >
+                        {quiz.course}
+                    </Text>
+                    <Heading>{quiz.quizName}</Heading>
+                </Box> */}
+                    <CourseInfo
+                        courseCode={quiz.course.split(" ")[0]}
+                        courseName={quiz.course.split(" ").slice(1).join(" ")}
+                    />
+                    <Heading>{quiz.quizName}</Heading>
+                    <Flex flexDir={"row"} flexWrap="wrap">
+                        {quiz.quizInfo.show_correct_answers ? (
+                            <Tag colorScheme={"green"} mr={2}>
+                                Correct answers are shown
+                            </Tag>
+                        ) : (
+                            <Tag colorScheme={"red"} mr={2}>
+                                Correct answers are hidden
+                            </Tag>
+                        )}
+                        <Tag colorScheme={"teal"}>
+                            Total questions seen: {quiz.questions.length}
+                        </Tag>
+                    </Flex>
+                    <Box
+                        dangerouslySetInnerHTML={{
+                            __html: quiz.quizInfo.description,
+                        }}
+                    />
+                    <Divider />
+
+                    <Grid
+                        gridTemplateColumns={{ base: "1fr", md: "200px 1fr" }}
+                    >
+                        <GridItem p={5}>
+                            <Stack>
                                 <Button
                                     variant={
-                                        selectedAttemptIndex === i
+                                        selectedAttemptIndex === -1
                                             ? "solid"
-                                            : "ghost"
+                                            : "outline"
                                     }
-                                    colorScheme="green"
-                                    key={i}
-                                    textAlign="left"
-                                    onClick={() => setSelectedAttemptIndex(i)}
+                                    colorScheme="teal"
+                                    onClick={() => setSelectedAttemptIndex(-1)}
                                 >
-                                    Attempt #{submission.attempt} (
-                                    {Math.round(submission.score * 100) / 100}/
-                                    {submission.quiz_points_possible})
+                                    Combined
                                 </Button>
-                            ))}
-                        </Stack>
-                    </GridItem>
-                    <GridItem p={5}>
-                        {selectedAttemptIndex === -1 ? (
-                            <CombinedQuestionList
-                                quiz={quiz}
-                                setQuiz={setQuiz}
-                            />
-                        ) : (
-                            <Stack>
-                                <Heading fontSize="xl">
-                                    Attempt{" "}
-                                    {
-                                        quiz.submissions[selectedAttemptIndex]
-                                            .attempt
-                                    }
-                                </Heading>
                                 <Divider />
-                                <Stack spacing="10">
-                                    {getQuestionsForAttempt(
-                                        selectedAttemptIndex
-                                    ).map((question, i) => (
-                                        <Stack
-                                            key={i}
-                                            alignItems="stretch"
-                                            borderWidth="1px"
-                                            borderRadius="md"
-                                            padding="4"
-                                        >
-                                            <Heading
-                                                fontSize="lg"
-                                                alignItems={"center"}
-                                                display="flex"
-                                                justifyContent={"space-between"}
+                                {quiz.submissions.map((submission, i) => (
+                                    <Button
+                                        variant={
+                                            selectedAttemptIndex === i
+                                                ? "solid"
+                                                : "ghost"
+                                        }
+                                        colorScheme="teal"
+                                        key={i}
+                                        textAlign="left"
+                                        onClick={() =>
+                                            setSelectedAttemptIndex(i)
+                                        }
+                                    >
+                                        Attempt #{submission.attempt} (
+                                        {Math.round(submission.score * 100) /
+                                            100}
+                                        /{submission.quiz_points_possible})
+                                    </Button>
+                                ))}
+                            </Stack>
+                        </GridItem>
+                        <GridItem p={5}>
+                            {selectedAttemptIndex === -1 ? (
+                                <CombinedQuestionList
+                                    quiz={quiz}
+                                    setQuiz={setQuiz}
+                                />
+                            ) : (
+                                <Stack>
+                                    <Heading fontSize="xl">
+                                        Attempt{" "}
+                                        {
+                                            quiz.submissions[
+                                                selectedAttemptIndex
+                                            ].attempt
+                                        }
+                                    </Heading>
+
+                                    <Stack spacing="10">
+                                        {getQuestionsForAttempt(
+                                            selectedAttemptIndex
+                                        ).map((question, i) => (
+                                            <Stack
+                                                key={i}
+                                                alignItems="stretch"
+                                                borderWidth="1px"
+                                                borderRadius="md"
+                                                padding="4"
+                                                bgColor={questionBgColor}
                                             >
-                                                <div>
-                                                    {" "}
-                                                    Question {i + 1}{" "}
-                                                    <QuestionResultTag
+                                                <Heading
+                                                    fontSize="lg"
+                                                    alignItems={"center"}
+                                                    display="flex"
+                                                    justifyContent={
+                                                        "space-between"
+                                                    }
+                                                >
+                                                    <div>
+                                                        {" "}
+                                                        Question {i + 1}{" "}
+                                                        <QuestionResultTag
+                                                            quiz={quiz}
+                                                            questionResponse={
+                                                                quiz
+                                                                    .selectedOptions[
+                                                                    selectedAttemptIndex
+                                                                ][question.id]
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <FlaggingButton
+                                                        question={question}
                                                         quiz={quiz}
-                                                        questionResponse={
+                                                        setQuiz={setQuiz}
+                                                    />
+                                                </Heading>
+                                                <div
+                                                    className="question-text"
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: question.question_text,
+                                                    }}
+                                                />
+                                                <Divider />
+                                                <Box mt={3}>
+                                                    <AnswerList
+                                                        questionType={
+                                                            question.question_type
+                                                        }
+                                                        answers={
+                                                            question.answers
+                                                        }
+                                                        selectedOptions={
+                                                            quiz
+                                                                .selectedOptions[
+                                                                selectedAttemptIndex
+                                                            ] &&
                                                             quiz
                                                                 .selectedOptions[
                                                                 selectedAttemptIndex
                                                             ][question.id]
                                                         }
+                                                        show_correct_answers={
+                                                            quiz.quizInfo
+                                                                .show_correct_answers
+                                                        }
                                                     />
-                                                </div>
-                                                <FlaggingButton
+                                                </Box>
+                                                <QuestionExtras
                                                     question={question}
                                                     quiz={quiz}
                                                     setQuiz={setQuiz}
                                                 />
-                                            </Heading>
-                                            <div
-                                                className="question-text"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: question.question_text,
-                                                }}
-                                            />
-                                            <Divider />
-                                            <Box mt={3}>
-                                                <AnswerList
-                                                    questionType={
-                                                        question.question_type
-                                                    }
-                                                    answers={question.answers}
-                                                    selectedOptions={
-                                                        quiz.selectedOptions[
-                                                            selectedAttemptIndex
-                                                        ] &&
-                                                        quiz.selectedOptions[
-                                                            selectedAttemptIndex
-                                                        ][question.id]
-                                                    }
-                                                    show_correct_answers={
-                                                        quiz.quizInfo
-                                                            .show_correct_answers
-                                                    }
-                                                />
-                                            </Box>
-                                            <QuestionExtras
-                                                question={question}
-                                                quiz={quiz}
-                                                setQuiz={setQuiz}
-                                            />
-                                        </Stack>
-                                    ))}
+                                            </Stack>
+                                        ))}
+                                    </Stack>
                                 </Stack>
-                            </Stack>
-                        )}
-                    </GridItem>
-                </Grid>
-            </Stack>
-        </Container>
+                            )}
+                        </GridItem>
+                    </Grid>
+                </Stack>
+            ) : (
+                <Stack
+                    spacing={6}
+                    flexGrow={1}
+                    ml={SIDEBAR_WIDTH}
+                    p={4}
+                    bgColor={bgColor}
+                    borderRadius="xl"
+                    mt={6}
+                >
+                    {" "}
+                    Loading...{" "}
+                </Stack>
+            )}
+        </Flex>
+
+        // </Container>
     );
 }
 const FlaggingButton = ({
@@ -351,7 +455,7 @@ const QuestionExtras = ({
                     />
                     <Button
                         type="submit"
-                        colorScheme={"green"}
+                        colorScheme={"teal"}
                         size="sm"
                         variant="ghost"
                     >

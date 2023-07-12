@@ -55,7 +55,7 @@ const Navbar = () => {
         // </Container>
         <Box position={"relative"}>
             <Box
-                bg={useColorModeValue("white", "gray.900")}
+                bg={useColorModeValue("white", "gray.800")}
                 opacity={showShadow ? 0.9 : 1}
                 px={4}
                 position="fixed"

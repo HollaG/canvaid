@@ -43,6 +43,7 @@ import { TimeIcon } from "@chakra-ui/icons";
 
 import styles from "./QuizUploadCard.module.css";
 import Link from "next/link";
+import CourseInfo from "../Display/CourseInfo";
 
 export default function QuizUploadCard({
     quiz,
@@ -74,7 +75,11 @@ export default function QuizUploadCard({
     const [shouldNotBeFullWidth] = useMediaQuery("(min-width: 1033px)");
 
     return (
-        <Box flexGrow={1} maxWidth={!shouldNotBeFullWidth ? "full" : "400px"}>
+        <Box
+            flexGrow={1}
+            maxWidth={!shouldNotBeFullWidth ? "full" : "400px"}
+            mb={4}
+        >
             <Box
                 cursor="pointer"
                 flexGrow={1}
@@ -122,37 +127,13 @@ export default function QuizUploadCard({
                     />
                 </Flex> */}
 
-                            <Flex
-                                width="full"
-                                bgColor={useColorModeValue(
-                                    "gray.50",
-                                    "gray.800"
-                                )}
-                                borderRadius={"xl"}
-                                boxShadow="sm"
-                                p={3}
-                                alignItems="center"
-                            >
-                                {/* Course color */}
-                                <Box
-                                    bgColor="teal.500"
-                                    borderRadius={"lg"}
-                                    height="28px"
-                                    width="36px"
-                                    mr={3}
-                                ></Box>
-                                <Box>
-                                    <Text fontWeight="bold">
-                                        {quiz.course.split(" ")[0]}
-                                    </Text>
-                                    <Text>
-                                        {quiz.course
-                                            .split(" ")
-                                            .slice(1)
-                                            .join(" ")}
-                                    </Text>
-                                </Box>
-                            </Flex>
+                            <CourseInfo
+                                courseCode={quiz.course.split(" ")[0]}
+                                courseName={quiz.course
+                                    .split(" ")
+                                    .slice(1)
+                                    .join(" ")}
+                            />
                         </CardHeader>
                         <CardBody pt={0}>
                             <Heading fontSize="lg" mb={3}>

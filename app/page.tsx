@@ -33,7 +33,11 @@ import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
-import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import {
+    NAVBAR_HEIGHT,
+    PAGE_CONTAINER_SIZE,
+    SIDEBAR_WIDTH,
+} from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Quiz } from "@/types/canvas";
 
@@ -45,6 +49,7 @@ import Sidebar from "@/components/Sidebar/Sidebar";
 import HomePageImage from "@/public/assets/homepage.svg";
 import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
 import { SearchIcon } from "@chakra-ui/icons";
+import useSidebar from "@/hooks/useSidebar";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -53,7 +58,7 @@ export default function Page() {
     const user = authCtx?.user;
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
-    //const [hasToken, setHasToken] = useState(false);
+
     useEffect(() => {
         if (user?.uid) {
             fetch(`/api/?uid=${user.uid}`)
@@ -100,6 +105,8 @@ export default function Page() {
     // if (!user) return <NotAuthedHomePage />;
     // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
 
+    const showSidebar = useSidebar();
+
     return (
         <>
             <Drawer
@@ -127,46 +134,34 @@ export default function Page() {
             </Drawer>
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
-                // <Container
-                //     maxW={PAGE_CONTAINER_SIZE}
-                //     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
-                //     mt={NAVBAR_HEIGHT}
-                // >
-                //     <Stack>
-                //         <Heading textAlign={"center"}>
-                //             Welcome back, {user.displayName}!
-                //         </Heading>
-                //         <Link
-                //             as={NextLink}
-                //             href="/add"
-                //             textAlign="center"
-                //             data-testid="add-new-btn"
-                //         >
-                //             Add a new quiz
-                //         </Link>
-                //         <Input placeholder="Search for a quiz..." />
-                //         <Courses
-                //             quizzes={quizzes}
-                //             deletion={handleDeleteItem}
-                //         />
-                //     </Stack>
-                // </Container>
                 <Flex
                     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
                     mt={NAVBAR_HEIGHT}
                 >
-                    <Box
-                        flexShrink={0}
-                        width="200px"
-                        height="100%"
-                        position="fixed"
-                        top={NAVBAR_HEIGHT}
-                        left={0}
-                        bottom={0}
+                    {showSidebar && (
+                        <Box
+                            flexShrink={0}
+                            width={SIDEBAR_WIDTH}
+                            height="100%"
+                            position="fixed"
+                            top={NAVBAR_HEIGHT}
+                            left={0}
+                            bottom={0}
+                        >
+                            <Sidebar quizzes={quizzes} />
+                        </Box>
+                    )}
+                    {/* TODO: change to dynamic background */}
+                    <Stack
+                        flexGrow={1}
+                        mt={6}
+                        ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                        pt={6}
+                        bgColor={useColorModeValue("gray.50", "black")}
+                        backgroundImage="url(/assets/background.svg)"
+                        backgroundSize={"200%"}
+                        borderRadius="xl"
                     >
-                        <Sidebar quizzes={quizzes} />
-                    </Box>
-                    <Stack flexGrow={1} ml={"200px"} pt={6}>
                         <Center px={12}>
                             <Box
                                 width="100%"

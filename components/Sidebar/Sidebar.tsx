@@ -110,7 +110,7 @@ const Sidebar = ({
                             </h2>
                             <AccordionPanel pb={4} px={1}>
                                 <Stack>
-                                    {quizzes.map((quiz) => (
+                                    {quizzes.map((quiz, i) => (
                                         <Button
                                             size="sm"
                                             colorScheme={"gray"}
@@ -119,6 +119,7 @@ const Sidebar = ({
                                             justifyContent="left"
                                             pl={2}
                                             textDecor="none"
+                                            key={i}
                                         >
                                             <Link
                                                 href={`/uploads/${quiz.id}`}
