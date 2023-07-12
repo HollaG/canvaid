@@ -21,7 +21,6 @@ type courseProps = {
 };
 const Courses = ({ quizzes, deletion }: courseProps) => {
     console.log(quizzes);
-    
 
     // const modules = [
     //     {
@@ -54,7 +53,6 @@ const Courses = ({ quizzes, deletion }: courseProps) => {
         // Set state or perform an action to show all quizzes for the module
         console.log("Showing all quizzes for module", moduleIndex + 1);
     };
-    
 
     return (
         <Box p={4}>
@@ -62,54 +60,37 @@ const Courses = ({ quizzes, deletion }: courseProps) => {
                 <Button colorScheme="blue">Upload a Quiz</Button>
             </Flex> */}
 
-            <Text fontSize="xl" fontWeight="bold" mb={2} align={"center"}>
-                Your recent uploads
-            </Text>
+            {/* <Text
+                textColor={"gray.600"}
+                fontWeight="bold"
+                fontSize="sm"
+                mb={3}
+                ml={6}
+            >
+                Pinned (0)
+            </Text> */}
+            {/* TODO */}
 
-            <Grid templateColumns="repeat(3, 1fr)" alignItems={"start"}>
-                {/* {modules.map((module, moduleIndex) => (
-                    <Box
-                        key={module.id}
-                        p={4}
-                        border="1px solid"
-                        borderRadius="md"
-                    >
-                        <Text fontSize="lg" fontWeight="bold" mb={2}>
-                            <Link
-                                href={{
-                                    pathname: "/course",
-                                    query: { name: module.name },
-                                }}
-                            >
-                                {module.name}
-                            </Link>
-                        </Text>
-                        {module.quizzes.map((quiz) => (
-                            <li key={quiz.id}>
-                                <Link
-                                    href={{
-                                        pathname: "/quiz",
-                                        query: { id: quiz.id },
-                                    }}
-                                >
-                                    <Text key={quiz.id}>{quiz.name}</Text>
-                                </Link>
-                            </li>
-                        ))}
-                        <Flex justify="flex-end">
-                            <Button
-                                colorScheme="blue"
-                                onClick={() => showAllQuizzes(moduleIndex)}
-                            >
-                                See All Quizzes
-                            </Button>
-                        </Flex>
-                    </Box>
-                ))} */}
+            <Text
+                textColor={"gray.600"}
+                fontWeight="bold"
+                fontSize="sm"
+                mb={3}
+                ml={6}
+            >
+                Recent
+            </Text>
+            <Flex flexWrap="wrap">
                 {quizzes.map((item, key) => (
                     <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
                 ))}
-            </Grid>
+            </Flex>
+
+            {/* <Grid templateColumns="repeat(3, 1fr)" alignItems={"start"}>
+                {quizzes.map((item, key) => (
+                    <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
+                ))}
+            </Grid> */}
         </Box>
     );
 };

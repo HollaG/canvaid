@@ -16,27 +16,40 @@ import {
     DrawerContent,
     DrawerHeader,
     DrawerOverlay,
+    Flex,
     Heading,
     Input,
+    InputGroup,
+    InputLeftElement,
     Stack,
     Text,
     useColorModeValue,
     useDisclosure,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { Link } from "@chakra-ui/react";
 
 import { useAuthContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
-import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import {
+    NAVBAR_HEIGHT,
+    PAGE_CONTAINER_SIZE,
+    SIDEBAR_WIDTH,
+} from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Quiz } from "@/types/canvas";
 
 import "./globals.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoginComponent from "@/components/Auth/LoginComponent";
+import Sidebar from "@/components/Sidebar/Sidebar";
+
+import HomePageImage from "@/public/assets/homepage.svg";
+import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
+import { SearchIcon } from "@chakra-ui/icons";
+import useSidebar from "@/hooks/useSidebar";
+
 export default function Page() {
     const authCtx = useAuthContainer();
     console.log(authCtx);
@@ -44,7 +57,7 @@ export default function Page() {
     const user = authCtx?.user;
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
-    //const [hasToken, setHasToken] = useState(false);
+
     useEffect(() => {
         if (user?.uid) {
             fetch(`/api/?uid=${user.uid}`)
@@ -86,8 +99,12 @@ export default function Page() {
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
 
+    const inputHoverColor = useColorModeValue("gray.50", "gray.700");
+    const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
     // if (!user) return <NotAuthedHomePage />;
     // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
+
+    const showSidebar = useSidebar();
 
     return (
         <>
@@ -116,13 +133,90 @@ export default function Page() {
             </Drawer>
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
-                <Container
-                    maxW={PAGE_CONTAINER_SIZE}
+                <Flex
                     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
                     mt={NAVBAR_HEIGHT}
                 >
-                    <Stack>
-                        <Heading textAlign={"center"}>
+                    {showSidebar && (
+                        <Box
+                            flexShrink={0}
+                            width={SIDEBAR_WIDTH}
+                            height="100%"
+                            position="fixed"
+                            top={NAVBAR_HEIGHT}
+                            left={0}
+                            bottom={0}
+                        >
+                            <Sidebar quizzes={quizzes} />
+                        </Box>
+                    )}
+                    {/* TODO: change to dynamic background */}
+                    <Stack
+                        flexGrow={1}
+                        mt={6}
+                        ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                        pt={6}
+                        bgColor={useColorModeValue("gray.50", "gray.900")}
+                        backgroundImage={useColorModeValue(
+                            "url(/assets/background.svg)",
+                            "url(/assets/background-dark.svg)"
+                        )}
+                        backgroundSize={"200%"}
+                        borderRadius="xl"
+                    >
+                        <Center px={12}>
+                            <Box
+                                width="100%"
+                                bgColor={useColorModeValue(
+                                    "teal.700",
+                                    "teal.900"
+                                )}
+                                borderRadius={"xl"}
+                                backgroundImage={useColorModeValue(
+                                    "url(/assets/background.svg)",
+                                    "url(/assets/background-dark.svg)"
+                                )}
+                                // backgroundAttachment="fixed"
+                                backgroundSize={"10%"}
+                                py={{ base: 2, sm: 4, md: 6, lg: 12 }}
+                            >
+                                <Heading
+                                    textAlign={"center"}
+                                    fontSize="2xl"
+                                    textColor={"white"}
+                                >
+                                    {" "}
+                                    What will you study today?{" "}
+                                </Heading>
+                                <Center px={6} mt={6}>
+                                    <InputGroup size={"lg"} maxWidth="750px">
+                                        <InputLeftElement
+                                            pointerEvents={"none"}
+                                        >
+                                            <SearchIcon />
+                                        </InputLeftElement>
+                                        <Input
+                                            placeholder="Search for a quiz..."
+                                            variant="filled"
+                                            _hover={{
+                                                bgColor: inputHoverColor,
+                                            }}
+                                            _focusVisible={{
+                                                bgColor: inputHoverColor,
+                                            }}
+                                            type="search"
+                                            bgColor={inputBackgroundColor}
+                                        />
+                                    </InputGroup>
+
+                                    <Button size="lg" ml={3}>
+                                        <NextLink href="/add">Upload</NextLink>
+                                    </Button>
+                                </Center>
+                            </Box>
+                        </Center>
+
+                        {/* <Heading textAlign={"center"}>
                             Welcome back, {user.displayName}!
                         </Heading>
                         <Link
@@ -133,13 +227,13 @@ export default function Page() {
                         >
                             Add a new quiz
                         </Link>
-                        <Input placeholder="Search for a quiz..." />
+                        <Input placeholder="Search for a quiz..." /> */}
                         <Courses
                             quizzes={quizzes}
                             deletion={handleDeleteItem}
                         />
                     </Stack>
-                </Container>
+                </Flex>
             )}
         </>
     );

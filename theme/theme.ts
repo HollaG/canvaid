@@ -3,6 +3,8 @@ import {
     StyleConfig,
     withDefaultColorScheme,
 } from "@chakra-ui/react";
+import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ["latin"] });
 
 const activeLabelStyles = {
     transform: "scale(0.85) translateY(-24px)",
@@ -73,6 +75,10 @@ const components: Record<string, StyleConfig> = {
 };
 export const theme = extendTheme({
     components,
+    fonts: {
+        body: inter.style.fontFamily,
+        heading: inter.style.fontFamily,
+    },
 });
 
 export const customTheme = extendTheme(
