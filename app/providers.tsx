@@ -21,18 +21,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 
 // TODO: Refactor this to it's own file
+// if no user, set to false.
 interface IAuthContext {
-    user?: AppUser;
-    setUser: React.Dispatch<React.SetStateAction<AppUser | undefined>>;
+    user?: AppUser | false;
+    setUser: React.Dispatch<React.SetStateAction<AppUser | undefined | false>>;
 }
 
+// Load the user from localstorage
+const storedUser = localStorage.getItem("user");
+
 export const UserContext = createContext<IAuthContext>({
-    user: undefined,
+    user: storedUser ? JSON.parse(storedUser) : undefined,
     setUser: () => {},
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<AppUser>();
+    const [user, setUser] = useState<AppUser | false | undefined>(
+        storedUser ? JSON.parse(storedUser) : undefined
+    );
 
     const AuthContainer: IAuthContext = {
         user,
@@ -58,10 +64,16 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 const appUser = await createUserIfNotExists(
                     JSON.parse(JSON.stringify(user))
                 ).catch(console.log);
-                if (appUser) setUser(appUser);
-                else setUser(undefined);
+                if (appUser) {
+                    setUser(appUser);
+                    localStorage.setItem("user", JSON.stringify(appUser));
+                } else {
+                    setUser(false);
+                    localStorage.removeItem("user");
+                }
             } else {
-                setUser(undefined);
+                setUser(false);
+                localStorage.removeItem("user");
             }
         });
 

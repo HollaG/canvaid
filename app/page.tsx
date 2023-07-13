@@ -51,6 +51,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
+import { getUploads } from "@/lib/functions";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -61,12 +62,10 @@ export default function Page() {
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
 
     useEffect(() => {
-        if (user?.uid) {
-            fetch(`/api/?uid=${user.uid}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setQuizzes(data.data || []);
-                });
+        if (user) {
+            getUploads(user.uid).then((data) => {
+                setQuizzes(data.data || []);
+            });
         }
 
         // if (user?.canvasApiToken) {
@@ -96,7 +95,7 @@ export default function Page() {
             console.log("Closing modal!");
             onClose();
         }
-    }, [showLogIn, user, user?.canvasApiToken]);
+    }, [showLogIn, user]);
 
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -138,20 +137,6 @@ export default function Page() {
                     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
                     mt={NAVBAR_HEIGHT}
                 >
-                    {showSidebar && (
-                        <Box
-                            flexShrink={0}
-                            width={SIDEBAR_WIDTH}
-                            height="100%"
-                            position="fixed"
-                            top={NAVBAR_HEIGHT}
-                            left={0}
-                            bottom={0}
-                        >
-                            <Sidebar quizzes={quizzes} />
-                        </Box>
-                    )}
-                    {/* TODO: change to dynamic background */}
                     <Stack
                         flexGrow={1}
                         mt={6}
