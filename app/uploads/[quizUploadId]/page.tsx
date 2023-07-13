@@ -57,12 +57,13 @@ import {
     FormEvent,
     Dispatch,
     SetStateAction,
+    useMemo,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
-import { useAuthContainer } from "@/app/providers";
+import { useAuthContainer, useQuizContainer } from "@/app/providers";
 import useSidebar from "@/hooks/useSidebar";
 import { getUploads } from "@/lib/functions";
 import QuizContainer from "@/components/PageWrappers/Quiz";
@@ -89,45 +90,29 @@ export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
 
+    const { quizzes, setQuiz } = useQuizContainer();
     const [questionInputs, setQuestionInputs] = useState<string>("");
-    const [quiz, setQuiz] = useState<Quiz & { id: string }>();
-    // const [quizAnnotations, setQuizAnnotations] = useState(
-    //     quiz?.questions.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
-    // );
-    const [updatedQuiz, setUpdatedQuiz] = useState<Quiz | undefined>(undefined);
 
-    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    const quiz = useMemo(
+        () => quizzes.filter((quiz) => quiz.id === dataId)[0],
+        [quizzes, dataId]
+    );
+
+    const [pageQuiz, setPageQuiz] = useState(
+        quizzes.filter((quiz) => quiz.id === dataId)[0]
+    );
+
+    // fetch quiz incase this is not this user's quiz
+    useEffect(() => {
+        if (!quiz) {
+            getQuizUpload(dataId).then((data) => {
+                setQuiz(data);
+                setPageQuiz(data);
+            });
+        }
+    }, [dataId, quiz, setQuiz]);
 
     const { user } = useAuthContainer();
-    useEffect(() => {
-        if (user) {
-            getUploads(user.uid).then(
-                (data: {
-                    data: (Quiz & {
-                        id: string;
-                    })[];
-                }) => {
-                    setQuizzes(data.data || []);
-                    setQuiz(data.data.filter((quiz) => quiz.id === dataId)[0]);
-                }
-            );
-        }
-
-        // if (user?.canvasApiToken) {
-        //   setHasToken(true);
-        // } else {
-        //   setHasToken(false);
-        // }
-    }, [user]);
-
-    // useEffect(() => {
-    //     if (dataId)
-    //         getQuizUpload(dataId)
-    //             .then(setQuiz)
-    //             .catch((e) => {
-    //                 console.log(e);
-    //             });
-    // }, [dataId]);
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
     //console.log(quiz);
@@ -146,7 +131,6 @@ export default function Page() {
         return qns || [];
     };
 
-    const showSidebar = useSidebar();
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const questionBgColor = useColorModeValue("white", "gray.800");
     return (
@@ -156,7 +140,7 @@ export default function Page() {
                 <Stack
                     spacing={6}
                     flexGrow={1}
-                    ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                    ml={{ base: 0, md: SIDEBAR_WIDTH }}
                     p={4}
                     bgColor={bgColor}
                     borderRadius="xl"
@@ -369,14 +353,7 @@ const FlaggingButton = ({
 }: {
     question: QuizSubmissionQuestion;
     quiz: Quiz & { id: string };
-    setQuiz: Dispatch<
-        SetStateAction<
-            | (Quiz & {
-                  id: string;
-              })
-            | undefined
-        >
-    >;
+    setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
     const [isFlagged, setIsFlagged] = useState(question.isFlagged);
     const handleFlagQuestion = async (questionId: number) => {
@@ -413,14 +390,7 @@ const QuestionExtras = ({
 }: {
     question: QuizSubmissionQuestion;
     quiz: Quiz & { id: string };
-    setQuiz: Dispatch<
-        SetStateAction<
-            | (Quiz & {
-                  id: string;
-              })
-            | undefined
-        >
-    >;
+    setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
@@ -747,14 +717,7 @@ const CombinedQuestionList = ({
     setQuiz,
 }: {
     quiz: Quiz & { id: string };
-    setQuiz: Dispatch<
-        SetStateAction<
-            | (Quiz & {
-                  id: string;
-              })
-            | undefined
-        >
-    >;
+    setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
     const qns = quiz.questions;
 

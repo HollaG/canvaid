@@ -140,11 +140,8 @@ export default function QuizContainer({
         return qns || [];
     };
 
-    const showSidebar = useSidebar();
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const questionBgColor = useColorModeValue("white", "gray.800");
-
-    console.log(showSidebar);
 
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
@@ -153,7 +150,7 @@ export default function QuizContainer({
                 <Stack
                     spacing={6}
                     flexGrow={1}
-                    ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                    ml={{ base: 0, md: SIDEBAR_WIDTH }}
                     p={4}
                     bgColor={bgColor}
                     borderRadius="xl"

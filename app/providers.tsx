@@ -9,16 +9,75 @@ import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
+import { Quiz } from "@/types/canvas";
+import { getUploads } from "@/lib/functions";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <CacheProvider>
             <ChakraProvider theme={customTheme}>
-                <UserProvider>{children}</UserProvider>
+                <UserProvider>
+                    <QuizStorageProvider>{children}</QuizStorageProvider>
+                </UserProvider>
             </ChakraProvider>
         </CacheProvider>
     );
 }
+
+interface IQuizStorageContext {
+    quizzes: (Quiz & { id: string })[];
+    setQuizzes: React.Dispatch<React.SetStateAction<(Quiz & { id: string })[]>>;
+    setQuiz: (
+        quiz: Quiz & {
+            id: string;
+        }
+    ) => void;
+}
+
+export const QuizStorageContext = createContext<IQuizStorageContext>({
+    quizzes: [],
+    setQuizzes: () => {},
+    setQuiz: (quiz) => {},
+});
+
+const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
+    const authCtx = useAuthContainer();
+    const user = authCtx.user;
+
+    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    const QuizStorageContainer: IQuizStorageContext = {
+        quizzes,
+        setQuizzes,
+        setQuiz: (
+            quiz: Quiz & {
+                id: string;
+            }
+        ) => {
+            setQuizzes((prev) => {
+                const newQuizzes = [...prev];
+                const index = newQuizzes.findIndex((qn) => qn.id === quiz.id);
+                if (index !== -1) newQuizzes[index] = quiz;
+                else newQuizzes.push(quiz);
+                return newQuizzes;
+            });
+        },
+    };
+
+    useEffect(() => {
+        if (user) {
+            getUploads(user.uid).then((data) => {
+                setQuizzes(data.data || []);
+            });
+        }
+    }, [user]);
+    return (
+        <QuizStorageContext.Provider value={QuizStorageContainer}>
+            {children}
+        </QuizStorageContext.Provider>
+    );
+};
+
+export const useQuizContainer = () => useContext(QuizStorageContext);
 
 // TODO: Refactor this to it's own file
 // if no user, set to false.

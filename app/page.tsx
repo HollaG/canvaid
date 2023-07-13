@@ -28,7 +28,7 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
-import { useAuthContainer } from "./providers";
+import { useAuthContainer, useQuizContainer } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
@@ -55,25 +55,23 @@ import { getUploads } from "@/lib/functions";
 
 export default function Page() {
     const authCtx = useAuthContainer();
-    console.log(authCtx);
+    const { quizzes, setQuizzes } = useQuizContainer();
 
     const user = authCtx?.user;
 
-    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    // useEffect(() => {
+    //     if (user) {
+    //         getUploads(user.uid).then((data) => {
+    //             setQuizzes(data.data || []);
+    //         });
+    //     }
 
-    useEffect(() => {
-        if (user) {
-            getUploads(user.uid).then((data) => {
-                setQuizzes(data.data || []);
-            });
-        }
-
-        // if (user?.canvasApiToken) {
-        //   setHasToken(true);
-        // } else {
-        //   setHasToken(false);
-        // }
-    }, [user]);
+    //     // if (user?.canvasApiToken) {
+    //     //   setHasToken(true);
+    //     // } else {
+    //     //   setHasToken(false);
+    //     // }
+    // }, [user]);
 
     const handleDeleteItem = (itemId: string) => {
         const newState = quizzes.filter((item) => item.id !== itemId);
@@ -104,8 +102,6 @@ export default function Page() {
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
     // if (!user) return <NotAuthedHomePage />;
     // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
-
-    const showSidebar = useSidebar();
 
     // For add new quiz
     const {
@@ -140,7 +136,7 @@ export default function Page() {
                     <Stack
                         flexGrow={1}
                         mt={6}
-                        ml={showSidebar ? SIDEBAR_WIDTH : 0}
+                        ml={{ base: 0, md: SIDEBAR_WIDTH }}
                         pt={6}
                         bgColor={useColorModeValue("gray.50", "gray.900")}
                         backgroundImage={useColorModeValue(

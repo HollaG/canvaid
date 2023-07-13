@@ -54,7 +54,7 @@ import useSidebar from "@/hooks/useSidebar";
 const Sidebar = () => {
     const { user } = useAuthContainer();
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
-    const showSidebar = useSidebar();
+
     useEffect(() => {
         if (user) {
             getUploads(user.uid).then((data) => {
@@ -88,7 +88,7 @@ const Sidebar = () => {
 
     console.log({ quizzesByCourse });
 
-    if (!user || !showSidebar) return null;
+    if (!user) return null;
     return (
         <Box
             flexShrink={0}
@@ -98,6 +98,7 @@ const Sidebar = () => {
             top={NAVBAR_HEIGHT}
             left={0}
             bottom={0}
+            display={{ base: "none", md: "block" }}
         >
             <Box p={6} height="full">
                 <Center>
