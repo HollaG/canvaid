@@ -5,6 +5,7 @@ import {
     updateQuizQuestionFlag,
 } from "@/firebase/database/repositories/uploads";
 import {
+    COLLECTION_NAME,
     NAVBAR_HEIGHT,
     PAGE_CONTAINER_SIZE,
     SIDEBAR_WIDTH,
@@ -12,11 +13,11 @@ import {
 import {
     Answer,
     QuestionResponse,
-    Quiz,
     QuizResponse,
     CanvasQuizSubmissionQuestion,
-    QuizSubmissionQuestion,
     QuizAttempt,
+    Quiz,
+    QuizSubmissionQuestion,
 } from "@/types/canvas";
 import {
     Input,
@@ -57,62 +58,70 @@ import {
     FormEvent,
     Dispatch,
     SetStateAction,
-    useMemo,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
-import { DeleteAnnotationButton } from "@/components/DeleteButton";
+
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
+import { BsTrash } from "react-icons/bs";
+
 import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
-import { useAuthContainer, useQuizContainer } from "@/app/providers";
+import { useAuthContainer } from "@/app/providers";
 import useSidebar from "@/hooks/useSidebar";
 import { getUploads } from "@/lib/functions";
-import QuizContainer from "@/components/PageWrappers/Quiz";
-
-// export default async function Page({
-//     params,
-//     searchParams,
-// }: {
-//     params: { quizUploadId: string };
-//     searchParams?: { [key: string]: string | string[] | undefined };
-// }) {
-//     const uploadId = params.quizUploadId;
-
-//     const data = await getQuizUpload(uploadId);
-
-//     return <QuizContainer loadedQuiz={data} />;
-// }
+import { db } from "@/firebase/database";
 
 /**
- *
+ * @deprecated
  * @returns The page for each user's quiz that they uploaded.
  */
-export default function Page() {
+export default function QuizContainer({
+    loadedQuiz,
+}: {
+    loadedQuiz: Quiz & { id: string };
+}) {
     const params = useParams();
     const dataId = params.quizUploadId;
 
-    const { quizzes, setQuiz } = useQuizContainer();
     const [questionInputs, setQuestionInputs] = useState<string>("");
+    const [quiz, setQuiz] = useState<Quiz & { id: string }>(loadedQuiz);
+    // const [quizAnnotations, setQuizAnnotations] = useState(
+    //     quiz?.questions.map((qn) => ({stateid:qn.id, stateAnnotation: qn.annotations}))
+    // );
+    const [updatedQuiz, setUpdatedQuiz] = useState<Quiz | undefined>(undefined);
 
-    const quiz = useMemo(
-        () => quizzes.filter((quiz) => quiz.id === dataId)[0],
-        [quizzes, dataId]
-    );
-
-    const [pageQuiz, setPageQuiz] = useState(
-        quizzes.filter((quiz) => quiz.id === dataId)[0]
-    );
-
-    // fetch quiz incase this is not this user's quiz
-    useEffect(() => {
-        if (!quiz) {
-            getQuizUpload(dataId).then((data) => {
-                setQuiz(data);
-                setPageQuiz(data);
-            });
-        }
-    }, [dataId, quiz, setQuiz]);
+    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
 
     const { user } = useAuthContainer();
+    useEffect(() => {
+        if (user) {
+            getUploads(user.uid).then(
+                (data: {
+                    data: (Quiz & {
+                        id: string;
+                    })[];
+                }) => {
+                    setQuizzes(data.data || []);
+                    setQuiz(data.data.filter((quiz) => quiz.id === dataId)[0]);
+                }
+            );
+        }
+
+        // if (user?.canvasApiToken) {
+        //   setHasToken(true);
+        // } else {
+        //   setHasToken(false);
+        // }
+    }, [user]);
+
+    // useEffect(() => {
+    //     if (dataId)
+    //         getQuizUpload(dataId)
+    //             .then(setQuiz)
+    //             .catch((e) => {
+    //                 console.log(e);
+    //             });
+    // }, [dataId]);
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
     //console.log(quiz);
@@ -133,6 +142,7 @@ export default function Page() {
 
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const questionBgColor = useColorModeValue("white", "gray.800");
+
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex minH={`calc(100vh - ${NAVBAR_HEIGHT})`} mt={NAVBAR_HEIGHT}>
@@ -353,7 +363,13 @@ const FlaggingButton = ({
 }: {
     question: QuizSubmissionQuestion;
     quiz: Quiz & { id: string };
-    setQuiz: (quiz: Quiz & { id: string }) => void;
+    setQuiz: Dispatch<
+        SetStateAction<
+            | Quiz & {
+                  id: string;
+              }
+        >
+    >;
 }) => {
     const [isFlagged, setIsFlagged] = useState(question.isFlagged);
     const handleFlagQuestion = async (questionId: number) => {
@@ -390,7 +406,13 @@ const QuestionExtras = ({
 }: {
     question: QuizSubmissionQuestion;
     quiz: Quiz & { id: string };
-    setQuiz: (quiz: Quiz & { id: string }) => void;
+    setQuiz: Dispatch<
+        SetStateAction<
+            | Quiz & {
+                  id: string;
+              }
+        >
+    >;
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
@@ -717,7 +739,13 @@ const CombinedQuestionList = ({
     setQuiz,
 }: {
     quiz: Quiz & { id: string };
-    setQuiz: (quiz: Quiz & { id: string }) => void;
+    setQuiz: Dispatch<
+        SetStateAction<
+            | Quiz & {
+                  id: string;
+              }
+        >
+    >;
 }) => {
     const qns = quiz.questions;
 
@@ -895,3 +923,78 @@ const CombinedQuestionList = ({
 
     // </Stack>
 };
+
+type DeleteButtonProps = {
+    ID: string;
+    onDelete: () => void;
+};
+function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
+    const handleDelete = async () => {
+        try {
+            console.log("Attempting delete of ", ID);
+            const docRef = doc(db, COLLECTION_NAME, ID);
+            await deleteDoc(docRef);
+            onDelete();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    return <BsTrash fontSize={"24px"} onClick={() => handleDelete()} />;
+}
+
+function DeleteAnnotationButton({
+    ID,
+    annotationID,
+    setQuiz,
+    question,
+}: {
+    ID: string;
+    annotationID: number;
+    question: QuizSubmissionQuestion;
+    setQuiz: Dispatch<
+        SetStateAction<
+            | Quiz & {
+                  id: string;
+              }
+        >
+    >;
+}) {
+    const handleDelete = async () => {
+        try {
+            console.log("Attempting delete of ");
+            const existingQuiz = doc(db, COLLECTION_NAME, ID);
+            const existingQuizData = (
+                await getDoc(existingQuiz)
+            ).data() as Quiz;
+            const existingQuestions = existingQuizData.questions;
+            const newQuestions = existingQuestions.map((qn) => {
+                if (qn.id === question.id) {
+                    qn.annotations = qn.annotations.filter(
+                        (ann) => ann.annotationID !== annotationID
+                    );
+                }
+                return qn;
+            });
+            existingQuizData.questions = newQuestions;
+            await updateDoc(existingQuiz, existingQuizData);
+            const updatedQuiz = {
+                ...existingQuizData,
+                id: ID,
+            };
+            setQuiz(updatedQuiz);
+            return updatedQuiz;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    return (
+        <IconButton
+            aria-label="delete"
+            icon={<BsTrash />}
+            size="sm"
+            onClick={() => handleDelete()}
+        />
+    );
+}
