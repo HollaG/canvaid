@@ -1,5 +1,7 @@
 import Body from "@/components/Body";
 import Footer from "@/components/Footer/Footer";
+import Sidebar from "@/components/Sidebar/Sidebar";
+import { SIDEBAR_WIDTH } from "@/lib/constants";
 
 import { Inter } from "next/font/google";
 import Navbar from "../components/Navbar/Navbar";
@@ -22,8 +24,14 @@ export default function RootLayout({
             <body>
                 <Providers>
                     <Navbar />
-
-                    <Body>{children}</Body>
+                    <Sidebar />
+                    <div
+                    // style={{
+                    //     marginLeft: SIDEBAR_WIDTH,
+                    // }}
+                    >
+                        <Body>{children}</Body>
+                    </div>
                     <Footer />
                 </Providers>
             </body>

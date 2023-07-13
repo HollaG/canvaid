@@ -23,3 +23,9 @@ export const formatTimeElapsed = (date: Date) => {
         return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
     else return "just now";
 };
+
+export const getUploads = async (uid: string) => {
+    const res = await fetch(`/api/?uid=${uid}`);
+
+    return res.json();
+};
