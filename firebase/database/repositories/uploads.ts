@@ -29,85 +29,90 @@ export const create = async (
     const dbRef = collection(db, COLLECTION_NAME);
     // delete all null fields
     recursivelyReplaceNullToZero(quizAttempt);
-    try {
-        const existingQuizQuery = query(
-            dbRef,
-            where("quizName", "==", quizAttempt.quizName),
-            where("userUid", "==", quizAttempt.userUid)
+
+    const existingQuizQuery = query(
+        dbRef,
+        where("quizName", "==", quizAttempt.quizName),
+        where("userUid", "==", quizAttempt.userUid)
+    );
+
+    const existingSnapshot = await getDocs(existingQuizQuery);
+    //console.log("existingSnap :" + existingSnapshot);
+    if (existingSnapshot.size === 0) {
+        console.log("Creating new!");
+        console.log(quizAttempt.questions);
+
+        // first, get the quiz data from canvas
+        // const res = await fetch(`${CANVAS_URL}courses/${}`)
+
+        const newQuiz: Quiz = {
+            // maybe use inheritance for types instead for mutliple quiz attempt
+            submissions: [quizAttempt.submission],
+            questions: quizAttempt.questions,
+            selectedOptions: [quizAttempt.selectedOptions],
+            quizName: quizAttempt.quizName,
+            course: quizAttempt.course,
+            userUid: quizAttempt.userUid,
+            lastUpdated: new Date(),
+            quizInfo: quizInformation,
+        };
+        // recursivelyReplaceNullToZero(newQuiz);
+        console.log(JSON.stringify(newQuiz, null, 2));
+        const docRef = await addDoc(dbRef, newQuiz);
+
+        return {
+            id: docRef.id,
+            ...newQuiz,
+        } as Quiz & { id: string };
+    } else {
+        console.log("Updating with new attempt!");
+        const latestDoc = existingSnapshot.docs[0];
+        const existingData = latestDoc.data() as Quiz;
+        console.log("Existing Data:", existingData);
+        const fieldDataSubmissions = existingData.submissions;
+
+        const fieldDataSelectedOptions = existingData.selectedOptions || [];
+
+        const existingQuestions = existingData.questions;
+
+        // merge the existing questions with the new ones. two questions are the same if they have the same ID
+        const newAttemptQuestions = quizAttempt.questions;
+        const mergedQuestions = [
+            ...existingQuestions,
+            ...newAttemptQuestions.filter(
+                (newQuestion) =>
+                    !existingQuestions.some(
+                        (existingQuestion) =>
+                            existingQuestion.id === newQuestion.id
+                    )
+            ),
+        ];
+
+        // Check if the user has already submitted this attempt.
+        const hasSubmitted = fieldDataSubmissions.some(
+            (submission) =>
+                submission.attempt === quizAttempt.submission.attempt
         );
-
-        const existingSnapshot = await getDocs(existingQuizQuery);
-        //console.log("existingSnap :" + existingSnapshot);
-        if (existingSnapshot.size === 0) {
-            console.log("Creating new!");
-            console.log(quizAttempt.questions);
-
-            // first, get the quiz data from canvas
-            // const res = await fetch(`${CANVAS_URL}courses/${}`)
-
-            const newQuiz: Quiz = {
-                // maybe use inheritance for types instead for mutliple quiz attempt
-                submissions: [quizAttempt.submission],
-                questions: quizAttempt.questions,
-                selectedOptions: [quizAttempt.selectedOptions],
-                quizName: quizAttempt.quizName,
-                course: quizAttempt.course,
-                userUid: quizAttempt.userUid,
-                lastUpdated: new Date(),
-                quizInfo: quizInformation,
-            };
-            // recursivelyReplaceNullToZero(newQuiz);
-            console.log(JSON.stringify(newQuiz, null, 2));
-            const docRef = await addDoc(dbRef, newQuiz);
-
-            return {
-                id: docRef.id,
-                ...newQuiz,
-            } as Quiz & { id: string };
-        } else {
-            console.log("Updating with new attempt!");
-            const latestDoc = existingSnapshot.docs[0];
-            const existingData = latestDoc.data() as Quiz;
-            console.log("Existing Data:", existingData);
-            const fieldDataSubmissions = existingData.submissions;
-
-            const fieldDataSelectedOptions = existingData.selectedOptions || [];
-
-            const existingQuestions = existingData.questions;
-
-            // merge the existing questions with the new ones. two questions are the same if they have the same ID
-            const newAttemptQuestions = quizAttempt.questions;
-            const mergedQuestions = [
-                ...existingQuestions,
-                ...newAttemptQuestions.filter(
-                    (newQuestion) =>
-                        !existingQuestions.some(
-                            (existingQuestion) =>
-                                existingQuestion.id === newQuestion.id
-                        )
-                ),
-            ];
-
-            console.log("New Submission:", quizAttempt);
-
-            fieldDataSubmissions.push(quizAttempt.submission);
-            fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
-
-            await updateDoc(latestDoc.ref, {
-                submissions: fieldDataSubmissions,
-                selectedOptions: fieldDataSelectedOptions,
-                questions: mergedQuestions,
-                lastUpdated: new Date(),
-            });
-
-            return {
-                id: latestDoc.id,
-                ...existingData,
-            } as Quiz & { id: string };
+        if (hasSubmitted) {
+            throw new Error("You have already submitted this attempt!");
         }
-    } catch (e) {
-        console.log(e);
-        throw e;
+
+        console.log("New Submission:", quizAttempt);
+
+        fieldDataSubmissions.push(quizAttempt.submission);
+        fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
+
+        await updateDoc(latestDoc.ref, {
+            submissions: fieldDataSubmissions,
+            selectedOptions: fieldDataSelectedOptions,
+            questions: mergedQuestions,
+            lastUpdated: new Date(),
+        });
+
+        return {
+            id: latestDoc.id,
+            ...existingData,
+        } as Quiz & { id: string };
     }
 };
 // const quizId = existingSnapshot.docs[0].id;
@@ -243,6 +248,47 @@ export const addQuizQuestionAnnotation = async (
     } catch (e) {
         console.log("ERROR:", e);
         throw e;
+    }
+};
+
+export const deleteAttempt = async (
+    quizId: string,
+    uid: string,
+    attemptNumber: number
+) => {
+    try {
+        const quizRef = doc(db, COLLECTION_NAME, quizId);
+
+        const quizDoc = await getDoc(quizRef);
+        const quizData = quizDoc.data() as Quiz;
+
+        // remove the submission and selected options
+        const submissionIndex = quizData.submissions.findIndex(
+            (submission) => submission.attempt === attemptNumber
+        );
+
+        const removedSubmissions = quizData.submissions.splice(
+            submissionIndex,
+            1
+        );
+        const removedSelectedOptions = quizData.selectedOptions.splice(
+            submissionIndex,
+            1
+        );
+
+        if (quizData.submissions.length === 0) {
+            // no more
+            await deleteDoc(quizRef);
+        } else {
+            // update
+            await updateDoc(quizRef, {
+                submissions: quizData.submissions,
+                selectedOptions: quizData.selectedOptions,
+            });
+        }
+        return "";
+    } catch (e: any) {
+        return e.toString();
     }
 };
 

@@ -49,6 +49,8 @@ import HomePageImage from "@/public/assets/homepage.svg";
 import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
 import { SearchIcon } from "@chakra-ui/icons";
 import useSidebar from "@/hooks/useSidebar";
+import DrawerContainer from "@/components/Drawer/DrawerContainer";
+import AddComponent from "@/components/Add/AddComponent";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -95,7 +97,7 @@ export default function Page() {
             onClose();
         }
     }, [showLogIn, user, user?.canvasApiToken]);
-    console.log(showLogIn);
+
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -106,31 +108,30 @@ export default function Page() {
 
     const showSidebar = useSidebar();
 
+    // For add new quiz
+    const {
+        isOpen: isOpenAddNewQuiz,
+        onOpen: onOpenAddNewQuiz,
+        onClose: onCloseAddNewQuiz,
+    } = useDisclosure();
+
     return (
         <>
-            <Drawer
+            <DrawerContainer
                 onClose={() => {
                     router.push("/");
                 }}
                 isOpen={isOpen}
-                size={"full"}
             >
-                <DrawerOverlay />
-                <DrawerContent mt={NAVBAR_HEIGHT}>
-                    <DrawerCloseButton />
-                    <DrawerHeader
-                        fontWeight={"normal"}
-                        bgColor={useColorModeValue("white", "gray.900")}
-                    >
-                        <Container maxWidth={PAGE_CONTAINER_SIZE}> </Container>
-                    </DrawerHeader>
-                    <DrawerBody
-                        bgColor={useColorModeValue("white", "gray.900")}
-                    >
-                        <LoginComponent />
-                    </DrawerBody>
-                </DrawerContent>
-            </Drawer>
+                <LoginComponent />
+            </DrawerContainer>
+            <DrawerContainer
+                onClose={onCloseAddNewQuiz}
+                isOpen={isOpenAddNewQuiz}
+            >
+                <AddComponent onClose={onCloseAddNewQuiz} />
+            </DrawerContainer>
+
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
                 <Flex
@@ -209,8 +210,12 @@ export default function Page() {
                                         />
                                     </InputGroup>
 
-                                    <Button size="lg" ml={3}>
-                                        <NextLink href="/add">Upload</NextLink>
+                                    <Button
+                                        size="lg"
+                                        ml={3}
+                                        onClick={onOpenAddNewQuiz}
+                                    >
+                                        Upload
                                     </Button>
                                 </Center>
                             </Box>
