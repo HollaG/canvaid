@@ -3,9 +3,11 @@ import { Flex, useColorModeValue, Text, Box } from "@chakra-ui/react";
 const CourseInfo = ({
     courseCode,
     courseName,
+    DeleteButton,
 }: {
     courseCode: string;
     courseName: string;
+    DeleteButton?: JSX.Element;
 }) => {
     return (
         <Flex
@@ -15,19 +17,23 @@ const CourseInfo = ({
             boxShadow="sm"
             p={3}
             alignItems="center"
+            justifyContent="space-between"
         >
             {/* Course color */}
-            <Box
-                bgColor="teal.500"
-                borderRadius={"lg"}
-                height="28px"
-                width="36px"
-                mr={3}
-            ></Box>
-            <Box>
-                <Text fontWeight="bold">{courseCode}</Text>
-                <Text>{courseName}</Text>
-            </Box>
+            <Flex alignItems={"center"}>
+                <Box
+                    bgColor="teal.500"
+                    borderRadius={"lg"}
+                    height="28px"
+                    width="36px"
+                    mr={3}
+                ></Box>
+                <Box>
+                    <Text fontWeight="bold">{courseCode}</Text>
+                    <Text>{courseName}</Text>
+                </Box>
+            </Flex>
+            {DeleteButton}
         </Flex>
     );
 };
