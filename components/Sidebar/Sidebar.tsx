@@ -1,5 +1,5 @@
 "use client";
-import { useAuthContainer } from "@/app/providers";
+import { useAuthContainer, useQuizContainer } from "@/app/providers";
 import {
     Accordion,
     AccordionButton,
@@ -61,21 +61,22 @@ import { signOutAll } from "@/firebase/auth";
  */
 const Sidebar = () => {
     const { user } = useAuthContainer();
-    const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    // const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
 
-    useEffect(() => {
-        if (user) {
-            getUploads(user.uid).then((data) => {
-                setQuizzes(data.data || []);
-            });
-        }
+    // useEffect(() => {
+    //     if (user) {
+    //         getUploads(user.uid).then((data) => {
+    //             setQuizzes(data.data || []);
+    //         });
+    //     }
 
-        // if (user?.canvasApiToken) {
-        //   setHasToken(true);
-        // } else {
-        //   setHasToken(false);
-        // }
-    }, [user]);
+    //     // if (user?.canvasApiToken) {
+    //     //   setHasToken(true);
+    //     // } else {
+    //     //   setHasToken(false);
+    //     // }
+    // }, [user]);
+    const { quizzes } = useQuizContainer();
 
     // group the quiz by course name
     const quizzesByCourse = quizzes.reduce(
