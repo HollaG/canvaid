@@ -24,6 +24,8 @@ import {
     Text,
     useColorModeValue,
     useDisclosure,
+    Link,
+    useColorMode,
 } from "@chakra-ui/react";
 
 import React, { ReactNode, useEffect, useState } from "react";
@@ -39,11 +41,17 @@ import {
 import { IconType } from "react-icons";
 import { ReactText } from "react";
 import { Quiz } from "@/types/canvas";
-import Link from "next/link";
+import NextLink from "next/link";
 import { getUploads } from "@/lib/functions";
-import { SIDEBAR_WIDTH, NAVBAR_HEIGHT } from "@/lib/constants";
+import { SIDEBAR_WIDTH, NAVBAR_HEIGHT, FOOTER_HEIGHT } from "@/lib/constants";
 import useSidebar from "@/hooks/useSidebar";
 
+import MainLogo from "@/public/logos/main.png";
+import Image from "next/image";
+
+import { TbDoorExit } from "react-icons/tb";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { signOutAll } from "@/firebase/auth";
 /**
  * Sidebar component.
  *
@@ -88,19 +96,28 @@ const Sidebar = () => {
 
     console.log({ quizzesByCourse });
 
+    const { colorMode, toggleColorMode } = useColorMode();
+
     if (!user) return null;
+    const sidebarColor = useColorModeValue("white", "gray.900");
     return (
         <Box
             flexShrink={0}
             width={SIDEBAR_WIDTH}
             height="100%"
             position="fixed"
-            top={NAVBAR_HEIGHT}
+            top={0}
             left={0}
-            bottom={0}
+            // bottom={FOOTER_HEIGHT}
             display={{ base: "none", md: "block" }}
+            bgColor={sidebarColor}
         >
-            <Box p={6} height="full">
+            <Flex p={6} pr={0} height="full" flexDir={"column"}>
+                <Flex alignItems="center" mb={6}>
+                    <Link as={NextLink} href="/">
+                        <Image src={MainLogo} height="34" alt="Website logo" />
+                    </Link>
+                </Flex>
                 <Center>
                     <Avatar
                         size="2xl"
@@ -124,7 +141,7 @@ const Sidebar = () => {
                 >
                     Quick Access
                 </Text>
-                <Accordion>
+                <Accordion flexGrow={1} overflowY="auto">
                     {Object.keys(quizzesByCourse).map((courseCode) => {
                         const quizzes = quizzesByCourse[courseCode];
                         return (
@@ -154,12 +171,12 @@ const Sidebar = () => {
                                                 textDecor="none"
                                                 key={i}
                                             >
-                                                <Link
+                                                <NextLink
                                                     href={`/uploads/${quiz.id}`}
                                                     className="sidebar-link"
                                                 >
                                                     {quiz.quizName}
-                                                </Link>
+                                                </NextLink>
                                             </Button>
                                         ))}
                                     </Stack>
@@ -168,7 +185,34 @@ const Sidebar = () => {
                         );
                     })}
                 </Accordion>
-            </Box>
+                <Flex alignItems={"center"} justifyContent="space-between">
+                    <Button
+                        onClick={toggleColorMode}
+                        variant="ghost"
+                        colorScheme="gray"
+                    >
+                        {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                    </Button>
+                    <Button
+                        variant={"ghost"}
+                        colorScheme="gray"
+                        onClick={signOutAll}
+                    >
+                        <TbDoorExit />
+                    </Button>
+                </Flex>
+                {/* <Flex textAlign="right">
+                    <Text
+                        textColor={"gray.600"}
+                        fontWeight="bold"
+                        fontSize="sm"
+                        mt={3}
+                        w="full"
+                    >
+                        About us
+                    </Text>
+                </Flex> */}
+            </Flex>
         </Box>
     );
 };
