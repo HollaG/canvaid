@@ -31,16 +31,31 @@ const NotCanvasApiTokenPage = () => {
         setIsSubmitting(true);
         event.preventDefault();
         try {
-            const docRef = doc(db, "users", user.uid);
+            fetch("/api/validation", {
+                method: "POST",
+                body: JSON.stringify(token),
+            })
+                .then((res) => {
+                    console.log(res);
+                    return res.json();
+                })
+                .then((data) => {
+                    if (data.success) {
+                        const docRef = doc(db, "users", user.uid);
 
-            const firebaseUser = JSON.parse(
-                JSON.stringify({ ...user, canvasApiToken: token })
-            );
-            await updateDoc(docRef, firebaseUser);
+                        const firebaseUser = JSON.parse(
+                            JSON.stringify({ ...user, canvasApiToken: token })
+                        );
+                        updateDoc(docRef, firebaseUser);
 
-            // Update the hasToken state and redirect to the main page
-            // update the user's state in the auth container
-            authCtx.setUser(firebaseUser);
+                        // Update the hasToken state and redirect to the main page
+                        // update the user's state in the auth container
+                        authCtx.setUser(firebaseUser);
+                    } else {
+                        console.log("Invalid token");
+                    }
+                })
+                .catch(console.error);
         } catch (error) {
             console.log("Error updating token in Firebase:", error);
         } finally {
