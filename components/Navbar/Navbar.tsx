@@ -50,6 +50,94 @@ const Navbar = () => {
         setDate(new Date().toLocaleDateString());
     }, []);
     return (
+        // <Box height={NAVBAR_HEIGHT} px={6} pt={3} position="fixed" w="100%">
+        //     <Box
+        //         width="full"
+        //         borderRadius={"full"}
+        //         boxShadow="xl"
+        //         p={3}
+        //         // bgColor="teal.100"
+        //         bgColor="white"
+        //     >
+        //         <Flex
+        //             alignItems={"center"}
+        //             justifyContent={"space-between"}
+        //             width="100%"
+        //         >
+        //             <Flex alignItems="center">
+        //                 <Link as={NextLink} href="/">
+        //                     <Image
+        //                         src={MainLogo}
+        //                         height="34"
+        //                         alt="Website logo"
+        //                     />
+        //                 </Link>
+        //             </Flex>
+        //             <Text>Current date: {date}</Text>
+        //             <Flex alignItems={"center"}>
+        //                 <Stack direction={"row"} spacing={2}>
+        //                     {/* <Timer /> */}
+        //                     <Button
+        //                         onClick={toggleColorMode}
+        //                         variant="ghost"
+        //                         colorScheme="gray"
+        //                     >
+        //                         {colorMode === "light" ? (
+        //                             <MoonIcon />
+        //                         ) : (
+        //                             <SunIcon />
+        //                         )}
+        //                     </Button>
+
+        //                     <Menu>
+        //                         <MenuButton
+        //                             as={Button}
+        //                             rounded={"full"}
+        //                             cursor={"pointer"}
+        //                             minW={0}
+        //                             variant="ghost"
+        //                             colorScheme="gray"
+        //                         >
+        //                             <Text> Menu </Text>
+        //                         </MenuButton>
+        //                         <MenuList alignItems={"center"}>
+        //                             {user ? (
+        //                                 <>
+        //                                     <br />
+        //                                     <Center>
+        //                                         <UserAvatar
+        //                                             user={user}
+        //                                             size="2xl"
+        //                                         />
+        //                                     </Center>
+        //                                     <br />
+        //                                     <Center>
+        //                                         <p>{user.displayName}</p>
+        //                                     </Center>
+        //                                     <Center>
+        //                                         <p>{user.email}</p>
+        //                                     </Center>
+        //                                     <br />
+        //                                     <MenuDivider />
+        //                                     <MenuItem onClick={signOutAll}>
+        //                                         Logout
+        //                                     </MenuItem>
+        //                                 </>
+        //                             ) : (
+        //                                 <Center>
+        //                                     <Button as={NextLink} href="/auth">
+        //                                         {" "}
+        //                                         Login{" "}
+        //                                     </Button>
+        //                                 </Center>
+        //                             )}
+        //                         </MenuList>
+        //                     </Menu>
+        //                 </Stack>
+        //             </Flex>
+        //         </Flex>
+        //     </Box>
+        // </Box>
         // <Container size={PAGE_CONTAINER_SIZE} height={NAVBAR_HEIGHT}>
         //     <Text> Hello ! </Text>
         // </Container>
@@ -81,7 +169,7 @@ const Navbar = () => {
                                 />
                             </Link>
                         </Flex>
-                        <Text>Current date: {date}</Text>
+                        {/* <Text>Current date: {date}</Text> */}
                         <Flex alignItems={"center"}>
                             <Stack direction={"row"} spacing={2}>
                                 {/* <Timer /> */}
@@ -97,7 +185,7 @@ const Navbar = () => {
                                     )}
                                 </Button>
 
-                                <Menu>
+                                {/* <Menu>
                                     <MenuButton
                                         as={Button}
                                         rounded={"full"}
@@ -143,7 +231,7 @@ const Navbar = () => {
                                             </Center>
                                         )}
                                     </MenuList>
-                                </Menu>
+                                </Menu> */}
                             </Stack>
                         </Flex>
                     </Flex>

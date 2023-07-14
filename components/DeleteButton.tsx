@@ -11,6 +11,12 @@ type DeleteButtonProps = {
     ID: string;
     onDelete: () => void;
 };
+
+/**
+ * @deprecated Use deleteQuiz instead
+ * @param param0
+ * @returns
+ */
 function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
     const handleDelete = async () => {
         try {

@@ -117,6 +117,7 @@ export default function Page() {
                     router.push("/");
                 }}
                 isOpen={isOpen}
+                showNavbar
             >
                 <LoginComponent />
             </DrawerContainer>
@@ -131,7 +132,7 @@ export default function Page() {
             {user && user.canvasApiToken && (
                 <Flex
                     minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
-                    mt={NAVBAR_HEIGHT}
+                    px={{ base: 0, md: 6 }}
                 >
                     <Stack
                         flexGrow={1}

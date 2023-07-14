@@ -42,6 +42,8 @@ import {
     FcInTransit,
     FcMindMap,
 } from "react-icons/fc";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer/Footer";
 
 export default function NotAuthedHomePage() {
     const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
@@ -56,6 +58,7 @@ export default function NotAuthedHomePage() {
                     rel="stylesheet"
                 />
             </Head>
+            <Navbar />
             <Stack spacing={0}>
                 <Center
                     background={useColorModeValue("gray.100", "gray.900")}
@@ -213,6 +216,7 @@ export default function NotAuthedHomePage() {
                     <Container maxW={PAGE_CONTAINER_SIZE}></Container>
                 </Box>
             </Stack>
+            <Footer />
         </>
     );
 }

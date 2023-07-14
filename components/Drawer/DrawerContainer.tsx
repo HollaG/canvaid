@@ -17,8 +17,10 @@ const DrawerContainer = ({
     onOpen,
     isOpen,
     children,
+    showNavbar = false,
 }: UseDisclosureProps & {
     children: React.ReactNode;
+    showNavbar?: boolean;
 }) => {
     return (
         <Drawer
@@ -27,7 +29,7 @@ const DrawerContainer = ({
             size={"full"}
         >
             <DrawerOverlay />
-            <DrawerContent mt={NAVBAR_HEIGHT}>
+            <DrawerContent mt={showNavbar ? NAVBAR_HEIGHT : 0}>
                 <DrawerCloseButton />
                 <DrawerHeader
                     fontWeight={"normal"}
