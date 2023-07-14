@@ -135,7 +135,11 @@ export default function Page() {
     const questionBgColor = useColorModeValue("white", "gray.800");
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
-        <Flex minH={`calc(100vh - ${NAVBAR_HEIGHT})`} mt={NAVBAR_HEIGHT}>
+        <Flex
+            minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
+            // mt={NAVBAR_HEIGHT}
+            px={{ base: 0, md: 6 }}
+        >
             {quiz ? (
                 <Stack
                     spacing={6}

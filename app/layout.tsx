@@ -23,7 +23,7 @@ export default function RootLayout({
         <html lang="en" className={inter.className}>
             <body>
                 <Providers>
-                    <Navbar />
+                    {/* <Navbar /> */}
                     <Sidebar />
                     <div
                     // style={{
@@ -32,7 +32,7 @@ export default function RootLayout({
                     >
                         <Body>{children}</Body>
                     </div>
-                    <Footer />
+                    {/* <Footer /> */}
                 </Providers>
             </body>
         </html>
