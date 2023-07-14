@@ -11,6 +11,9 @@ import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
 import { Quiz } from "@/types/canvas";
 import { getUploads } from "@/lib/functions";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/firebase/database";
+import { COLLECTION_NAME } from "@/lib/constants";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -45,6 +48,16 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
     const user = authCtx.user;
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+
+    // initial fetch
+    useEffect(() => {
+        if (user) {
+            getUploads(user.uid).then((data) => {
+                setQuizzes(data.data || []);
+            });
+        }
+    }, [user]);
+
     const QuizStorageContainer: IQuizStorageContext = {
         quizzes,
         setQuizzes,
@@ -66,9 +79,50 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         if (user) {
-            getUploads(user.uid).then((data) => {
-                setQuizzes(data.data || []);
+            const docsRef = query(
+                collection(db, COLLECTION_NAME),
+                where("userUid", "==", user.uid)
+            );
+            const unsubscribe = onSnapshot(docsRef, {
+                next: (querySnapshot) => {
+                    setQuizzes((prev) => {
+                        const newQuizzes: (Quiz & { id: string })[] = [...prev];
+
+                        querySnapshot.docChanges().forEach((change) => {
+                            if (change.type === "added") {
+                                const quiz = change.doc.data() as Quiz & {
+                                    id: string;
+                                };
+                                quiz.id = change.doc.id;
+                                newQuizzes.push(quiz);
+                            }
+                            if (change.type === "modified") {
+                                const quiz = change.doc.data() as Quiz & {
+                                    id: string;
+                                };
+                                quiz.id = change.doc.id;
+                                const index = newQuizzes.findIndex(
+                                    (qn) => qn.id === quiz.id
+                                );
+                                if (index !== -1) newQuizzes[index] = quiz;
+                                else newQuizzes.push(quiz);
+                            } else {
+                                // deleted
+                                const id = change.doc.id;
+                                const index = newQuizzes.findIndex(
+                                    (qn) => qn.id === id
+                                );
+                                if (index !== -1) newQuizzes.splice(index, 1);
+                            }
+                        });
+                        return newQuizzes;
+                    });
+                },
             });
+
+            return () => unsubscribe();
+        } else {
+            return;
         }
     }, [user]);
     return (

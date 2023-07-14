@@ -119,10 +119,14 @@ export default function Page() {
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
         if (!quiz) {
-            getQuizUpload(dataId).then((data) => {
-                setQuiz(data);
-                setPageQuiz(data);
-            });
+            getQuizUpload(dataId)
+                .then((data) => {
+                    setQuiz(data);
+                    setPageQuiz(data);
+                })
+                .catch(() => {
+                    router.push("/");
+                });
         }
     }, [dataId, quiz, setQuiz]);
 
