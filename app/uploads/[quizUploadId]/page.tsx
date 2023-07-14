@@ -3,6 +3,8 @@ import {
     getQuizUpload,
     addQuizQuestionAnnotation,
     updateQuizQuestionFlag,
+    deleteAttempt,
+    deleteQuiz,
 } from "@/firebase/database/repositories/uploads";
 import {
     NAVBAR_HEIGHT,
@@ -44,6 +46,12 @@ import {
     Text,
     FormErrorMessageProps,
     useColorModeValue,
+    Tooltip,
+    useDisclosure,
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    useToast,
 } from "@chakra-ui/react";
 
 import {
@@ -67,6 +75,9 @@ import { useAuthContainer, useQuizContainer } from "@/app/providers";
 import useSidebar from "@/hooks/useSidebar";
 import { getUploads } from "@/lib/functions";
 import QuizContainer from "@/components/PageWrappers/Quiz";
+import { DeleteIcon } from "@chakra-ui/icons";
+import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 
 // export default async function Page({
 //     params,
@@ -93,10 +104,13 @@ export default function Page() {
     const { quizzes, setQuiz } = useQuizContainer();
     const [questionInputs, setQuestionInputs] = useState<string>("");
 
-    const quiz = useMemo(
-        () => quizzes.filter((quiz) => quiz.id === dataId)[0],
-        [quizzes, dataId]
-    );
+    const authCtx = useAuthContainer();
+    const user = authCtx.user;
+
+    const router = useRouter();
+    const quiz = quizzes.filter((quiz) => quiz.id === dataId)[0];
+
+    const toast = useToast();
 
     const [pageQuiz, setPageQuiz] = useState(
         quizzes.filter((quiz) => quiz.id === dataId)[0]
@@ -111,8 +125,6 @@ export default function Page() {
             });
         }
     }, [dataId, quiz, setQuiz]);
-
-    const { user } = useAuthContainer();
 
     const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
     //console.log(quiz);
@@ -133,6 +145,78 @@ export default function Page() {
 
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const questionBgColor = useColorModeValue("white", "gray.800");
+
+    // For deleting the whole quiz
+    const alertDeleteDisclosure = useDisclosure();
+
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+    const confirmDelete = () => {
+        // delete quiz
+        // delete all attempts
+        if (!user) return;
+        setIsDeleting(true);
+        deleteQuiz(quiz.id, user.uid)
+            .then(() => {
+                // redirect to home page
+                router.push("/");
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: "Quiz deleted!",
+                });
+            })
+            .catch((e) => {
+                setDeleteErrorMessage(e);
+            })
+            .finally(() => {
+                setIsDeleting(false);
+                alertDeleteDisclosure.onClose();
+            });
+    };
+
+    // For deleting an attempt
+    const attemptDeleteDisclosure = useDisclosure();
+    const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
+
+    const [attemptNumberToDelete, setAttemptNumberToDelete] = useState(-1);
+    const confirmDeleteAttempt = () => {
+        // delete attempt
+        if (!user || attemptNumberToDelete === -1) return;
+        setIsDeletingAttempt(true);
+        deleteAttempt(quiz.id, user.uid, attemptNumberToDelete)
+            .then((res) => {
+                if (res.status === "deleted") {
+                    // redirect
+                    router.push("/");
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Attempt deleted!",
+                        description:
+                            "Your quiz has been deleted as it has no more uploaded attempts.",
+                    });
+                } else {
+                    // remove attempt from quiz
+                    const data = res.data;
+
+                    setQuiz(data);
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Attempt deleted!",
+                    });
+                }
+            })
+            .catch((e) => {
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error deleting attempt",
+                    description: e,
+                });
+            })
+            .finally(() => {
+                setIsDeletingAttempt(false);
+                attemptDeleteDisclosure.onClose();
+            });
+    };
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -140,6 +224,38 @@ export default function Page() {
             // mt={NAVBAR_HEIGHT}
             px={{ base: 0, md: 6 }}
         >
+            <CustomAlertDialog
+                {...alertDeleteDisclosure}
+                bodyText={`Are you sure you want to delete this quiz? All attempts will be deleted. 
+                
+                This action is not reversible.`}
+                headerText="Delete quiz"
+                ConfirmButton={
+                    <Button
+                        onClick={confirmDelete}
+                        isLoading={isDeleting}
+                        colorScheme="red"
+                    >
+                        Delete
+                    </Button>
+                }
+            />
+            <CustomAlertDialog
+                {...attemptDeleteDisclosure}
+                bodyText={`Are you sure you want to delete Attempt #${attemptNumberToDelete}?  
+                
+                This action is not reversible.`}
+                headerText={`Delete Attempt #${attemptNumberToDelete}`}
+                ConfirmButton={
+                    <Button
+                        onClick={confirmDeleteAttempt}
+                        isLoading={isDeletingAttempt}
+                        colorScheme="red"
+                    >
+                        Delete
+                    </Button>
+                }
+            />
             {quiz ? (
                 <Stack
                     spacing={6}
@@ -159,9 +275,37 @@ export default function Page() {
                     </Text>
                     <Heading>{quiz.quizName}</Heading>
                 </Box> */}
+                    {deleteErrorMessage && (
+                        <Alert status="error">
+                            <AlertIcon />
+                            <AlertTitle>{deleteErrorMessage}</AlertTitle>
+                        </Alert>
+                    )}
                     <CourseInfo
                         courseCode={quiz.course.split(" ")[0]}
                         courseName={quiz.course.split(" ").slice(1).join(" ")}
+                        DeleteButton={
+                            <Tooltip label="Delete this quiz">
+                                <Button
+                                    colorScheme={"red"}
+                                    aria-role="Delete"
+                                    onClick={alertDeleteDisclosure.onOpen}
+                                    isLoading={isDeleting}
+                                    size="sm"
+                                >
+                                    <DeleteIcon />
+                                    <Text
+                                        display={{
+                                            md: "unset",
+                                            base: "none",
+                                        }}
+                                        ml={2}
+                                    >
+                                        Delete
+                                    </Text>
+                                </Button>
+                            </Tooltip>
+                        }
                     />
                     <Heading>{quiz.quizName}</Heading>
                     <Flex flexDir={"row"} flexWrap="wrap">
@@ -239,15 +383,35 @@ export default function Page() {
                                 />
                             ) : (
                                 <Stack>
-                                    <Heading fontSize="xl">
-                                        Attempt #
-                                        {
-                                            quiz.submissions[
-                                                selectedAttemptIndex
-                                            ].attempt
-                                        }
-                                    </Heading>
-
+                                    <Flex
+                                        justifyContent={"space-between"}
+                                        alignItems="center"
+                                    >
+                                        <Heading fontSize="xl">
+                                            Attempt #
+                                            {
+                                                quiz.submissions[
+                                                    selectedAttemptIndex
+                                                ].attempt
+                                            }
+                                        </Heading>
+                                        <Flex>
+                                            <Button
+                                                size="sm"
+                                                colorScheme={"red"}
+                                                onClick={() => {
+                                                    attemptDeleteDisclosure.onOpen();
+                                                    setAttemptNumberToDelete(
+                                                        quiz.submissions[
+                                                            selectedAttemptIndex
+                                                        ].attempt
+                                                    );
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </Button>
+                                        </Flex>
+                                    </Flex>
                                     <Stack spacing="10">
                                         {getQuestionsForAttempt(
                                             selectedAttemptIndex

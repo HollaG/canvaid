@@ -58,6 +58,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
                 const index = newQuizzes.findIndex((qn) => qn.id === quiz.id);
                 if (index !== -1) newQuizzes[index] = quiz;
                 else newQuizzes.push(quiz);
+
                 return newQuizzes;
             });
         },
