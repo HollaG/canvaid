@@ -52,6 +52,7 @@ import Image from "next/image";
 import { TbDoorExit } from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
+import Navbar from "../Navbar/Navbar";
 /**
  * Sidebar component.
  *
@@ -101,107 +102,115 @@ const Sidebar = () => {
     if (!user) return null;
     const sidebarColor = useColorModeValue("white", "gray.900");
     return (
-        <Box
-            flexShrink={0}
-            width={SIDEBAR_WIDTH}
-            height="100%"
-            position="fixed"
-            top={0}
-            left={0}
-            // bottom={FOOTER_HEIGHT}
-            display={{ base: "none", md: "block" }}
-            bgColor={sidebarColor}
-        >
-            <Flex p={6} pr={0} height="full" flexDir={"column"}>
-                <Flex alignItems="center" mb={6}>
-                    <Link as={NextLink} href="/">
-                        <Image src={MainLogo} height="34" alt="Website logo" />
-                    </Link>
-                </Flex>
-                <Center>
-                    <Avatar
-                        size="2xl"
-                        src={user?.photoURL}
-                        name={user?.displayName}
-                    />
-                </Center>
-                <Text mt={3} textAlign="center">
-                    {" "}
-                    Welcome back,{" "}
-                </Text>
-                <Heading fontSize="xl" textAlign={"center"}>
-                    {user?.displayName}!
-                </Heading>
-                <Divider my={6} />
-                <Text
-                    textColor={"gray.600"}
-                    fontWeight="bold"
-                    fontSize="sm"
-                    mb={3}
-                >
-                    Quick Access
-                </Text>
-                <Accordion flexGrow={1} overflowY="auto">
-                    {Object.keys(quizzesByCourse).map((courseCode) => {
-                        const quizzes = quizzesByCourse[courseCode];
-                        return (
-                            <AccordionItem key={courseCode} border={0}>
-                                <h2>
-                                    <AccordionButton>
-                                        <Box
-                                            as="span"
-                                            flex="1"
-                                            textAlign="left"
-                                        >
-                                            {courseCode}
-                                        </Box>
-                                        <AccordionIcon />
-                                    </AccordionButton>
-                                </h2>
-                                <AccordionPanel pb={4} px={1}>
-                                    <Stack>
-                                        {quizzes.map((quiz, i) => (
-                                            <Button
-                                                size="sm"
-                                                colorScheme={"gray"}
-                                                variant="ghost"
-                                                textAlign={"left"}
-                                                justifyContent="left"
-                                                pl={2}
-                                                textDecor="none"
-                                                key={i}
+        <>
+            <Box display={{ base: "block", md: "none" }} height={NAVBAR_HEIGHT}>
+                <Navbar />
+            </Box>
+            <Box
+                flexShrink={0}
+                width={SIDEBAR_WIDTH}
+                height="100%"
+                position="fixed"
+                top={0}
+                left={0}
+                // bottom={FOOTER_HEIGHT}
+                display={{ base: "none", md: "block" }}
+                bgColor={sidebarColor}
+            >
+                <Flex p={6} pr={0} height="full" flexDir={"column"}>
+                    <Flex alignItems="center" mb={6}>
+                        <Link as={NextLink} href="/">
+                            <Image
+                                src={MainLogo}
+                                height="34"
+                                alt="Website logo"
+                            />
+                        </Link>
+                    </Flex>
+                    <Center>
+                        <Avatar
+                            size="2xl"
+                            src={user?.photoURL}
+                            name={user?.displayName}
+                        />
+                    </Center>
+                    <Text mt={3} textAlign="center">
+                        {" "}
+                        Welcome back,{" "}
+                    </Text>
+                    <Heading fontSize="xl" textAlign={"center"}>
+                        {user?.displayName}!
+                    </Heading>
+                    <Divider my={6} />
+                    <Text
+                        textColor={"gray.600"}
+                        fontWeight="bold"
+                        fontSize="sm"
+                        mb={3}
+                    >
+                        Quick Access
+                    </Text>
+                    <Accordion flexGrow={1} overflowY="auto">
+                        {Object.keys(quizzesByCourse).map((courseCode) => {
+                            const quizzes = quizzesByCourse[courseCode];
+                            return (
+                                <AccordionItem key={courseCode} border={0}>
+                                    <h2>
+                                        <AccordionButton>
+                                            <Box
+                                                as="span"
+                                                flex="1"
+                                                textAlign="left"
                                             >
-                                                <NextLink
-                                                    href={`/uploads/${quiz.id}`}
-                                                    className="sidebar-link"
+                                                {courseCode}
+                                            </Box>
+                                            <AccordionIcon />
+                                        </AccordionButton>
+                                    </h2>
+                                    <AccordionPanel pb={4} px={1}>
+                                        <Stack>
+                                            {quizzes.map((quiz, i) => (
+                                                <Button
+                                                    size="sm"
+                                                    colorScheme={"gray"}
+                                                    variant="ghost"
+                                                    textAlign={"left"}
+                                                    justifyContent="left"
+                                                    pl={2}
+                                                    textDecor="none"
+                                                    key={i}
                                                 >
-                                                    {quiz.quizName}
-                                                </NextLink>
-                                            </Button>
-                                        ))}
-                                    </Stack>
-                                </AccordionPanel>
-                            </AccordionItem>
-                        );
-                    })}
-                </Accordion>
-                <Flex alignItems={"center"} justifyContent="space-between">
-                    <Button
-                        onClick={toggleColorMode}
-                        variant="ghost"
-                        colorScheme="gray"
-                    >
-                        {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-                    </Button>
-                    <Button
-                        variant={"ghost"}
-                        colorScheme="gray"
-                        onClick={signOutAll}
-                    >
-                        <TbDoorExit />
-                    </Button>
-                </Flex>
-                {/* <Flex textAlign="right">
+                                                    <NextLink
+                                                        href={`/uploads/${quiz.id}`}
+                                                        className="sidebar-link"
+                                                    >
+                                                        {quiz.quizName}
+                                                    </NextLink>
+                                                </Button>
+                                            ))}
+                                        </Stack>
+                                    </AccordionPanel>
+                                </AccordionItem>
+                            );
+                        })}
+                    </Accordion>
+                    <Flex alignItems={"center"} justifyContent="space-between">
+                        <Button
+                            onClick={toggleColorMode}
+                            variant="ghost"
+                            colorScheme="gray"
+                        >
+                            {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                        </Button>
+                        <Button
+                            variant={"ghost"}
+                            colorScheme="gray"
+                            onClick={signOutAll}
+                        >
+                            <TbDoorExit />
+                        </Button>
+                    </Flex>
+                    {/* <Flex textAlign="right">
                     <Text
                         textColor={"gray.600"}
                         fontWeight="bold"
@@ -212,8 +221,9 @@ const Sidebar = () => {
                         About us
                     </Text>
                 </Flex> */}
-            </Flex>
-        </Box>
+                </Flex>
+            </Box>
+        </>
     );
 };
 
