@@ -52,6 +52,7 @@ import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
+import { TbSearch } from "react-icons/tb";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -136,7 +137,7 @@ export default function Page() {
                 >
                     <Stack
                         flexGrow={1}
-                        mt={6}
+                        mt={{ base: 0, md: 6 }}
                         ml={{ base: 0, md: SIDEBAR_WIDTH }}
                         pt={6}
                         bgColor={useColorModeValue("gray.50", "gray.900")}
@@ -145,7 +146,7 @@ export default function Page() {
                             "url(/assets/background-dark.svg)"
                         )}
                         backgroundSize={"200%"}
-                        borderRadius="xl"
+                        borderRadius={{ base: 0, md: "xl" }}
                     >
                         <Center px={12}>
                             <Box
@@ -167,17 +168,16 @@ export default function Page() {
                                     textAlign={"center"}
                                     fontSize="2xl"
                                     textColor={"white"}
-                                    px={2}
                                 >
                                     {" "}
                                     What will you study today?{" "}
                                 </Heading>
                                 <Center px={6} mt={6}>
-                                    <InputGroup size={"lg"} maxWidth="750px">
+                                    <InputGroup size={"md"} maxWidth="750px">
                                         <InputLeftElement
                                             pointerEvents={"none"}
                                         >
-                                            <SearchIcon />
+                                            <TbSearch />
                                         </InputLeftElement>
                                         <Input
                                             placeholder="Search for a quiz..."
@@ -194,7 +194,7 @@ export default function Page() {
                                     </InputGroup>
 
                                     <Button
-                                        size="lg"
+                                        size="md"
                                         ml={3}
                                         onClick={onOpenAddNewQuiz}
                                     >
