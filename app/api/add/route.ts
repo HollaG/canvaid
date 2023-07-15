@@ -1,4 +1,5 @@
 import { create } from "@/firebase/database/repositories/uploads";
+import { getUser } from "@/firebase/database/repositories/users";
 import {
     CanvasQuiz,
     Course,
@@ -32,6 +33,10 @@ export interface IAddBody {
 }
 
 const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL;
+
+const PARSE_ERROR_MESSAGE = "Error parsing HTML!";
+const API_ERROR_MESSAGE =
+    "Error accessing the Canvas API! Check if your Canvas token is valid.";
 //`https://canvas.instructure.com/api/v1/`;
 
 // https://github.com/vercel/next.js/discussions/39957
@@ -47,19 +52,25 @@ export async function POST(request: Request) {
         // console.log({ data });
 
         if (!html) {
-            return console.log("error: no data");
+            throw new Error(PARSE_ERROR_MESSAGE);
         }
 
         const root = parse(html);
 
         const obj: QuizResponse = {};
         if (!root) {
-            return console.log("NO ROOT");
+            throw new Error(PARSE_ERROR_MESSAGE);
         }
 
         /** ---- API ---- */
-        // TODO: put the API token in the database
-        const API_TOKEN = process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN;
+        // get the user
+        const userData = await getUser(uid);
+
+        const API_TOKEN = userData.canvasApiToken;
+        if (!API_TOKEN) {
+            throw new Error("No API token was present!");
+        }
+
         const URL =
             root.getElementById("skip_navigation_link")?.getAttribute("href") ||
             "";
@@ -88,6 +99,8 @@ export async function POST(request: Request) {
 
         const [courseId, quizId] = URL.match(/\d+/g) || [];
 
+        if (!courseId || !quizId) throw new Error(PARSE_ERROR_MESSAGE);
+
         const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
 
         const CANVAS_HTTP_OPTIONS = {
@@ -108,6 +121,9 @@ export async function POST(request: Request) {
 
         const res = await quizDataResponse.json();
         const quizData = res["quiz_submissions"] as CanvasQuizSubmission[];
+
+        if (res.errors) throw new Error(API_ERROR_MESSAGE);
+
         const quizSubmissionID = quizData[0].id;
 
         /**
@@ -122,6 +138,9 @@ export async function POST(request: Request) {
         const quizSubmissionQuestions = (
             await quizSubmissionQuestionsResponse.json()
         )["quiz_submission_questions"] as CanvasQuizSubmissionQuestion[];
+
+        // @ts-expect-error
+        if (quizSubmissionQuestions.errors) throw new Error(API_ERROR_MESSAGE);
 
         const quizSubmissionQuestionsNewFeatures = quizSubmissionQuestions.map(
             (question) => {
@@ -143,6 +162,9 @@ export async function POST(request: Request) {
                 CANVAS_HTTP_OPTIONS
             )
         ).json()) as CanvasQuiz;
+
+        // @ts-expect-error
+        if (quizInformation.errors) throw new Error(API_ERROR_MESSAGE);
 
         const quizName = _quizName || quizInformation.title;
 
@@ -167,12 +189,12 @@ export async function POST(request: Request) {
 
         const questions = root.querySelectorAll(".question");
 
-        if (!questions) return console.log("NO QUESTIONS");
+        if (!questions) throw new Error(PARSE_ERROR_MESSAGE);
 
         for (const question of questions) {
             // console.log(questionWrapper);
 
-            if (!question) return console.log("NO QUESTION");
+            if (!question) throw new Error(PARSE_ERROR_MESSAGE);
             const questionId = question.id.split("_")[1];
 
             const answers = question.querySelectorAll(".answer");
@@ -306,7 +328,7 @@ export async function POST(request: Request) {
             // }
             const pointElement = question.querySelector(".user_points");
 
-            if (!pointElement) return console.log("NO POINT ELEMENT");
+            if (!pointElement) throw new Error(PARSE_ERROR_MESSAGE);
             const [yourScore, totalScore] = pointElement.innerText
                 .replace("pts", "")
                 .split(" / ")
@@ -371,6 +393,13 @@ export async function POST(request: Request) {
             return NextResponse.json(null, {
                 status: 409,
                 statusText: e,
+            });
+        }
+
+        if (e.message) {
+            return NextResponse.json(null, {
+                status: 400,
+                statusText: e.message,
             });
         }
         return NextResponse.json(null, {
