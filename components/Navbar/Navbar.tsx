@@ -31,6 +31,7 @@ import { useEffect, useState } from "react";
 
 import MainLogo from "@/public/logos/main.png";
 import Image from "next/image";
+import { TbDoorExit } from "react-icons/tb";
 
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
@@ -184,6 +185,15 @@ const Navbar = () => {
                                         <SunIcon />
                                     )}
                                 </Button>
+                                {user && (
+                                    <Button
+                                        variant={"ghost"}
+                                        colorScheme="gray"
+                                        onClick={signOutAll}
+                                    >
+                                        <TbDoorExit />
+                                    </Button>
+                                )}
 
                                 {/* <Menu>
                                     <MenuButton
