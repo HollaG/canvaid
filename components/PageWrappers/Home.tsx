@@ -44,6 +44,7 @@ import {
 } from "react-icons/fc";
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
+import { TbArrowNarrowDown, TbArrowNarrowRight } from "react-icons/tb";
 
 export default function NotAuthedHomePage() {
     const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
@@ -116,7 +117,9 @@ export default function NotAuthedHomePage() {
                                                 as={NextLink}
                                                 href="/?login=true"
                                                 data-testid="cta-btn"
-                                                rightIcon={<ArrowForwardIcon />}
+                                                rightIcon={
+                                                    <TbArrowNarrowRight />
+                                                }
                                                 size="lg"
                                             >
                                                 Get Started
@@ -127,7 +130,9 @@ export default function NotAuthedHomePage() {
                                                 // onClick={signInWithGoogle}
 
                                                 data-testid="learn-more-btn"
-                                                rightIcon={<ArrowDownIcon />}
+                                                rightIcon={
+                                                    <TbArrowNarrowDown />
+                                                }
                                                 variant="outline"
                                                 size="lg"
                                             >

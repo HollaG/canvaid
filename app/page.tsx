@@ -52,6 +52,7 @@ import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
+import { TbSearch } from "react-icons/tb";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -172,11 +173,11 @@ export default function Page() {
                                     What will you study today?{" "}
                                 </Heading>
                                 <Center px={6} mt={6}>
-                                    <InputGroup size={"lg"} maxWidth="750px">
+                                    <InputGroup size={"md"} maxWidth="750px">
                                         <InputLeftElement
                                             pointerEvents={"none"}
                                         >
-                                            <SearchIcon />
+                                            <TbSearch />
                                         </InputLeftElement>
                                         <Input
                                             placeholder="Search for a quiz..."
@@ -193,7 +194,7 @@ export default function Page() {
                                     </InputGroup>
 
                                     <Button
-                                        size="lg"
+                                        size="md"
                                         ml={3}
                                         onClick={onOpenAddNewQuiz}
                                     >
@@ -218,6 +219,7 @@ export default function Page() {
                         <Courses
                             quizzes={quizzes}
                             deletion={handleDeleteItem}
+                            onAddNew={onOpenAddNewQuiz}
                         />
                     </Stack>
                 </Flex>
