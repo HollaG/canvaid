@@ -167,6 +167,7 @@ export default function Page() {
                                     textAlign={"center"}
                                     fontSize="2xl"
                                     textColor={"white"}
+                                    px={2}
                                 >
                                     {" "}
                                     What will you study today?{" "}
@@ -218,6 +219,7 @@ export default function Page() {
                         <Courses
                             quizzes={quizzes}
                             deletion={handleDeleteItem}
+                            onAddNew={onOpenAddNewQuiz}
                         />
                     </Stack>
                 </Flex>

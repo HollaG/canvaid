@@ -1,11 +1,22 @@
 "use client";
 import { Quiz } from "@/types/canvas";
-import { Box, Flex, Button, Text, Grid } from "@chakra-ui/react";
+import {
+    Box,
+    Flex,
+    Button,
+    Text,
+    Grid,
+    Center,
+    Heading,
+} from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
 import { useState } from "react";
 import DeleteButton from "./DeleteButton";
 import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
+
+import EmptyImage from "@/public/assets/empty.svg";
+import Image from "next/image";
 
 export type QuizUploadProps = {
     name: string;
@@ -15,11 +26,12 @@ export type QuizUploadProps = {
     }[];
     id: number;
 };
-type courseProps = {
+type CourseProps = {
     quizzes: (Quiz & { id: string })[];
     deletion: (itemid: string) => void;
+    onAddNew: () => void;
 };
-const Courses = ({ quizzes, deletion }: courseProps) => {
+const Courses = ({ quizzes, deletion, onAddNew }: CourseProps) => {
     console.log(quizzes);
 
     // const modules = [
@@ -71,15 +83,39 @@ const Courses = ({ quizzes, deletion }: courseProps) => {
             </Text> */}
             {/* TODO */}
 
-            <Text
-                textColor={"gray.600"}
-                fontWeight="bold"
-                fontSize="sm"
-                mb={3}
-                ml={6}
-            >
-                Recent
-            </Text>
+            {quizzes.length ? (
+                <Text
+                    textColor={"gray.600"}
+                    fontWeight="bold"
+                    fontSize="sm"
+                    mb={3}
+                    ml={6}
+                >
+                    Recent
+                </Text>
+            ) : (
+                <Box>
+                    <Center>
+                        <Box maxW="300px">
+                            <Image
+                                src={EmptyImage}
+                                alt="Image representing that there is nothing here"
+                            />
+                        </Box>
+                    </Center>
+                    <Heading textAlign={"center"} mt={4} fontSize="xl">
+                        You don't have any quizzes yet!
+                    </Heading>
+                    <Text textAlign={"center"} mt={2}>
+                        Start adding by clicking the button below.
+                    </Text>
+                    <Center mt={5}>
+                        <Button size="sm" onClick={onAddNew}>
+                            Upload
+                        </Button>
+                    </Center>
+                </Box>
+            )}
             <Flex flexWrap="wrap">
                 {quizzes.map((item, key) => (
                     <QuizUploadCard key={key} quiz={item} onDelete={deletion} />

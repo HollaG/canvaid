@@ -262,6 +262,9 @@ export const deleteAttempt = async (
         const quizDoc = await getDoc(quizRef);
         const quizData = quizDoc.data() as Quiz;
 
+        if (quizData.userUid !== uid) {
+            throw new Error("Not authorized");
+        }
         // remove the submission and selected options
         const submissionIndex = quizData.submissions.findIndex(
             (submission) => submission.attempt === attemptNumber
@@ -279,13 +282,39 @@ export const deleteAttempt = async (
         if (quizData.submissions.length === 0) {
             // no more
             await deleteDoc(quizRef);
+
+            return {
+                status: "deleted",
+            };
         } else {
             // update
             await updateDoc(quizRef, {
                 submissions: quizData.submissions,
                 selectedOptions: quizData.selectedOptions,
             });
+            return {
+                status: "updated",
+                data: { ...quizData, id: quizId },
+            };
         }
+    } catch (e: any) {
+        return e.toString();
+    }
+};
+
+export const deleteQuiz = async (quizId: string, uid: string) => {
+    try {
+        const quizRef = doc(db, COLLECTION_NAME, quizId);
+
+        const quizDoc = await getDoc(quizRef);
+        const quizData = quizDoc.data() as Quiz;
+
+        if (quizData.userUid !== uid) {
+            throw new Error("Not authorized");
+        }
+
+        await deleteDoc(quizRef);
+
         return "";
     } catch (e: any) {
         return e.toString();
