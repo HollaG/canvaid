@@ -5,6 +5,7 @@ import { BsTrash } from "react-icons/bs";
 import { db } from "../firebase/database/index";
 import { Quiz, QuizSubmissionQuestion } from "../types/canvas";
 import { Dispatch, SetStateAction } from "react";
+import { DeleteIcon } from "@chakra-ui/icons";
 const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
 
 type DeleteButtonProps = {
@@ -76,9 +77,11 @@ export function DeleteAnnotationButton({
     return (
         <IconButton
             aria-label="delete"
-            icon={<BsTrash />}
+            icon={<DeleteIcon />}
             size="sm"
             onClick={() => handleDelete()}
+            colorScheme="red"
+            variant="ghost"
         />
     );
 }

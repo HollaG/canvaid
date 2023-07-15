@@ -614,15 +614,18 @@ const QuestionExtras = ({
                 {question.annotations.length &&
                     question.annotations.map((annotation, i) => {
                         return (
-                            <>
-                                <Text key={i}> {annotation.annotation}</Text>
+                            <Flex key={i}>
+                                <Text flexGrow={1}>
+                                    {" "}
+                                    {annotation.annotation}
+                                </Text>
                                 <DeleteAnnotationButton
                                     ID={quiz.id}
                                     annotationID={annotation.annotationID}
                                     setQuiz={setQuiz}
                                     question={question}
                                 />
-                            </>
+                            </Flex>
                         );
                     })}
             </Stack>
