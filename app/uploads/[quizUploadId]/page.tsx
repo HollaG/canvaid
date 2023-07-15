@@ -267,8 +267,8 @@ export default function Page() {
                     ml={{ base: 0, md: SIDEBAR_WIDTH }}
                     p={4}
                     bgColor={bgColor}
-                    borderRadius="xl"
-                    mt={6}
+                    borderRadius={{ base: 0, md: "xl" }}
+                    mt={{ base: 0, md: 6 }}
                 >
                     {/* <Box>
                     <Text

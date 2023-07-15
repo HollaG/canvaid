@@ -49,7 +49,7 @@ import useSidebar from "@/hooks/useSidebar";
 import MainLogo from "@/public/logos/main.png";
 import Image from "next/image";
 
-import { TbDoorExit } from "react-icons/tb";
+import { TbDoorExit, TbMoon, TbSun, TbSunLow } from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
 import Navbar from "../Navbar/Navbar";
@@ -118,7 +118,7 @@ const Sidebar = () => {
                 display={{ base: "none", md: "block" }}
                 bgColor={sidebarColor}
             >
-                <Flex p={6} pr={0} height="full" flexDir={"column"}>
+                <Flex p={6} height="full" flexDir={"column"}>
                     <Flex alignItems="center" mb={6}>
                         <Link as={NextLink} href="/">
                             <Image
@@ -201,7 +201,7 @@ const Sidebar = () => {
                             variant="ghost"
                             colorScheme="gray"
                         >
-                            {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                            {colorMode === "light" ? <TbMoon /> : <TbSun />}
                         </Button>
                         <Button
                             variant={"ghost"}

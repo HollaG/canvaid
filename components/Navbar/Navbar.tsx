@@ -31,7 +31,7 @@ import { useEffect, useState } from "react";
 
 import MainLogo from "@/public/logos/main.png";
 import Image from "next/image";
-import { TbDoorExit } from "react-icons/tb";
+import { TbDoorExit, TbMoon, TbSun, TbSunLow } from "react-icons/tb";
 
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
@@ -180,9 +180,9 @@ const Navbar = () => {
                                     colorScheme="gray"
                                 >
                                     {colorMode === "light" ? (
-                                        <MoonIcon />
+                                        <TbMoon />
                                     ) : (
-                                        <SunIcon />
+                                        <TbSun />
                                     )}
                                 </Button>
                                 {user && (

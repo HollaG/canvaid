@@ -136,7 +136,7 @@ export default function Page() {
                 >
                     <Stack
                         flexGrow={1}
-                        mt={6}
+                        mt={{ base: 0, md: 6 }}
                         ml={{ base: 0, md: SIDEBAR_WIDTH }}
                         pt={6}
                         bgColor={useColorModeValue("gray.50", "gray.900")}
@@ -145,7 +145,7 @@ export default function Page() {
                             "url(/assets/background-dark.svg)"
                         )}
                         backgroundSize={"200%"}
-                        borderRadius="xl"
+                        borderRadius={{ base: 0, md: "xl" }}
                     >
                         <Center px={12}>
                             <Box
@@ -167,7 +167,6 @@ export default function Page() {
                                     textAlign={"center"}
                                     fontSize="2xl"
                                     textColor={"white"}
-                                    px={2}
                                 >
                                     {" "}
                                     What will you study today?{" "}
@@ -219,7 +218,6 @@ export default function Page() {
                         <Courses
                             quizzes={quizzes}
                             deletion={handleDeleteItem}
-                            onAddNew={onOpenAddNewQuiz}
                         />
                     </Stack>
                 </Flex>
