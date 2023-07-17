@@ -19,6 +19,7 @@ import {
     CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
     QuizAttempt,
+    CanvasQuizSubmission,
 } from "@/types/canvas";
 import {
     Input,
@@ -92,7 +93,8 @@ import QuizContainer from "@/components/PageWrappers/Quiz";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
-
+import { parse } from "path";
+import { create } from "@/firebase/database/repositories/uploads";
 // export default async function Page({
 //     params,
 //     searchParams,
@@ -330,7 +332,7 @@ export default function Page() {
                     />
                     <Heading>{quiz.quizName}</Heading>
                     {isExamMode ? (
-                        <Exam />
+                        <Exam numQn={numQn} quiz={quiz} />
                     ) : (
                         <>
                             <Button onClick={onOpen}>
@@ -626,9 +628,93 @@ export default function Page() {
         // </Container>
     );
 }
-const Exam = () => {
-    const [openModal, setOpenModal] = useState(false);
+const Exam = ({
+    numQn,
+    quiz,
+}: {
+    numQn: string;
+    quiz: Quiz & { id: string };
+}) => {
+    const updatedQuestions = [...quiz.questions];
+    let updatedSelectedOptions = [...quiz.selectedOptions];
+    if (quiz.questions.length > parseInt(numQn)) {
+        let difference = quiz.questions.length - parseInt(numQn);
+        // Remove random elements from the copied array
+        for (let i = 0; i < difference; i++) {
+            const randomIndex = Math.floor(
+                Math.random() * updatedQuestions.length
+            );
+            const removedQn = updatedQuestions.splice(randomIndex, 1);
+            const id = removedQn[0].id;
+            updatedSelectedOptions = updatedSelectedOptions.filter(
+                (option) => !option.hasOwnProperty(id)
+            );
+        }
+    }
+    let minSubmissionAttempt = -1;
+    for (let i = 0; i < quiz.submissions.length; i++) {
+        if (quiz.submissions[i].attempt < minSubmissionAttempt) {
+            minSubmissionAttempt = quiz.submissions[i].attempt;
+        }
+    }
+    const newSubmission: CanvasQuizSubmission = {
+        id: minSubmissionAttempt,
+        // The ID of the Quiz the quiz submission belongs to.
+        quiz_id: parseInt(quiz.id),
+        // The ID of the Student that made the quiz submission.
+        user_id: parseInt(quiz.userUid),
+        // The ID of the Submission the quiz submission represents.
+        submission_id: minSubmissionAttempt,
+        // The time at which the student started the quiz submission.
+        started_at: "",
+        // The time at which the student submitted the quiz submission.
+        finished_at: "",
+        // The time at which the quiz submission will be overdue, and be flagged as a
+        // late submission.
+        end_at: "",
+        // For quizzes that allow multiple attempts, this field specifies the quiz
+        // submission attempt number.
+        attempt: minSubmissionAttempt,
+        // Number of times the student was allowed to re-take the quiz over the
+        // multiple-attempt limit.
+        extra_attempts: 0,
+        // Amount of extra time allowed for the quiz submission, in minutes.
+        extra_time: 0,
+        // The student can take the quiz even if it's locked for everyone else
+        manually_unlocked: true,
+        // Amount of time spent, in seconds.
+        time_spent: 0,
+        // The score of the quiz submission, if graded.
+        score: -1,
+        // The original score of the quiz submission prior to any re-grading.
+        score_before_regrade: -1,
+        // For quizzes that allow multiple attempts, this is the score that will be
+        // used, which might be the score of the latest, or the highest, quiz
+        // submission.
+        kept_score: -1,
+        // Number of points the quiz submission's score was fudged by.
+        fudge_points: -1,
+        // Whether the student has viewed their results to the quiz.
+        has_seen_results: false,
+        // The current state of the quiz submission. Possible values:
+        // ['untaken'|'pending_review'|'complete'|'settings_only'|'preview'].
+        workflow_state: "untaken",
+        // Indicates whether the quiz submission is overdue and needs submission
+        overdue_and_needs_submission: false,
 
+        quiz_points_possible: 0,
+    };
+    quiz.submissions.push(newSubmission);
+    // no need to change the question order here
+    // for (let i = 0; i < updatedQuestions.length; i++) {
+    //     updatedQuestions[i].position = i + 1;
+    // }
+    // new quiz attempt object
+    const newQuizAttempt: Quiz & { id: string } = {
+        ...quiz,
+        submissions: quiz.submissions,
+        selectedOptions: updatedSelectedOptions,
+    };
     return <></>;
 };
 const FlaggingButton = ({
@@ -1016,6 +1102,7 @@ const CombinedQuestionList = ({
         let bestResult: QuestionResponse = {};
         let bestAttemptNumber = 0;
         const attempts: QuestionResponse[] = [];
+        // use selectedOptions to get the answers in the attempt which has the corresponding quesiton id
 
         quiz.selectedOptions.forEach((selectedOptions, submissionIndex) => {
             // each selectedOptions is each attempt
