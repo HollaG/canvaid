@@ -1,4 +1,5 @@
 import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
+import { getRandomColor } from "@/lib/functions";
 import { CanvasQuiz, Quiz, QuizAttempt, annotations } from "@/types/canvas";
 import {
     addDoc,
@@ -27,6 +28,26 @@ export const create = async (
     quizAttempt: QuizAttempt,
     quizInformation: CanvasQuiz
 ): Promise<Quiz & { id: string }> => {
+    // assign a random color if it doesn't exist
+
+    const userRef = doc(db, "users", quizAttempt.userUid.toString());
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.data();
+
+    if (!userData) throw new Error("No user data found!");
+    const userCourseColors = userData.courseColors;
+    const courseCode = quizAttempt.course.split(" ")[0];
+    if (!userCourseColors || !userCourseColors[courseCode]) {
+        await updateDoc(userRef, {
+            courseColors: {
+                ...userCourseColors,
+                [courseCode]: getRandomColor(),
+            },
+        });
+    } else {
+        // don't do anything, already has a color.
+    }
+
     const dbRef = collection(db, COLLECTION_NAME);
     // delete all null fields
     recursivelyReplaceNullToZero(quizAttempt);
