@@ -3,11 +3,11 @@ import { Flex, useColorModeValue, Text, Box } from "@chakra-ui/react";
 const CourseInfo = ({
     courseCode,
     courseName,
-    DeleteButton,
+    Button,
 }: {
     courseCode: string;
     courseName: string;
-    DeleteButton?: JSX.Element;
+    Button?: JSX.Element;
 }) => {
     return (
         <Flex
@@ -33,7 +33,7 @@ const CourseInfo = ({
                     <Text>{courseName}</Text>
                 </Box>
             </Flex>
-            {DeleteButton}
+            {Button}
         </Flex>
     );
 };

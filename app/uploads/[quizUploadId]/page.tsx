@@ -288,7 +288,7 @@ export default function Page() {
                     <CourseInfo
                         courseCode={quiz.course.split(" ")[0]}
                         courseName={quiz.course.split(" ").slice(1).join(" ")}
-                        DeleteButton={
+                        Button={
                             <Tooltip label="Delete this quiz">
                                 <Button
                                     colorScheme={"red"}

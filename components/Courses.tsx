@@ -8,6 +8,7 @@ import {
     Grid,
     Center,
     Heading,
+    Collapse,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
@@ -17,6 +18,8 @@ import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
 
 import EmptyImage from "@/public/assets/empty.svg";
 import Image from "next/image";
+import { TbClock, TbPinnedFilled } from "react-icons/tb";
+import { useQuizContainer } from "@/app/providers";
 
 export type QuizUploadProps = {
     name: string;
@@ -27,13 +30,18 @@ export type QuizUploadProps = {
     id: number;
 };
 type CourseProps = {
-    quizzes: (Quiz & { id: string })[];
     deletion: (itemid: string) => void;
     onAddNew: () => void;
 };
-const Courses = ({ quizzes, deletion, onAddNew }: CourseProps) => {
-    console.log(quizzes);
-
+const Courses = ({ deletion, onAddNew }: CourseProps) => {
+    const { quizzes, searchString } = useQuizContainer();
+    const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
+    const filteredQuizzes = quizzes.filter((quiz) => {
+        return (
+            quiz.quizName.toLowerCase().includes(searchString.toLowerCase()) ||
+            quiz.course.toLowerCase().includes(searchString.toLowerCase())
+        );
+    });
     // const modules = [
     //     {
     //         id: 1,
@@ -83,6 +91,26 @@ const Courses = ({ quizzes, deletion, onAddNew }: CourseProps) => {
             </Text> */}
             {/* TODO */}
 
+            <Collapse in={!!pinnedQuizzes.length}>
+                <Text
+                    textColor={"gray.600"}
+                    fontWeight="bold"
+                    fontSize="sm"
+                    mb={3}
+                    ml={6}
+                    display="flex"
+                    alignItems={"center"}
+                    gap={1}
+                >
+                    <TbPinnedFilled /> Pinned
+                </Text>
+                <Flex flexWrap="wrap">
+                    {pinnedQuizzes.map((item, key) => (
+                        <QuizUploadCard key={key} quiz={item} />
+                    ))}
+                </Flex>
+            </Collapse>
+
             {quizzes.length ? (
                 <Text
                     textColor={"gray.600"}
@@ -90,8 +118,11 @@ const Courses = ({ quizzes, deletion, onAddNew }: CourseProps) => {
                     fontSize="sm"
                     mb={3}
                     ml={6}
+                    display="flex"
+                    alignItems={"center"}
+                    gap={1}
                 >
-                    Recent
+                    <TbClock /> Recent
                 </Text>
             ) : (
                 <Box>
@@ -117,8 +148,8 @@ const Courses = ({ quizzes, deletion, onAddNew }: CourseProps) => {
                 </Box>
             )}
             <Flex flexWrap="wrap">
-                {quizzes.map((item, key) => (
-                    <QuizUploadCard key={key} quiz={item} onDelete={deletion} />
+                {filteredQuizzes.map((item, key) => (
+                    <QuizUploadCard key={key} quiz={item} />
                 ))}
             </Flex>
 

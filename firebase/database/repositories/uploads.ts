@@ -1,3 +1,4 @@
+import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
 import { CanvasQuiz, Quiz, QuizAttempt, annotations } from "@/types/canvas";
 import {
     addDoc,
@@ -55,6 +56,12 @@ export const create = async (
             userUid: quizAttempt.userUid,
             lastUpdated: new Date(),
             quizInfo: quizInformation,
+
+            quizSettings: {
+                academicYear: ACADEMIC_YEAR,
+                semester: ACADEMIC_SEMESTER,
+                isPinned: false,
+            },
         };
         // recursivelyReplaceNullToZero(newQuiz);
         console.log(JSON.stringify(newQuiz, null, 2));
@@ -316,6 +323,32 @@ export const deleteQuiz = async (quizId: string, uid: string) => {
         await deleteDoc(quizRef);
 
         return "";
+    } catch (e: any) {
+        return e.toString();
+    }
+};
+
+/**
+ * Toggles the pin state of the quiz.
+ * Relies on `onSnapshot` to update the UI.
+ *
+ * @param quizId The quiz ID to pin / unpin
+ * @returns
+ */
+export const togglePinQuiz = async (quizId: string) => {
+    try {
+        const quizRef = doc(db, COLLECTION_NAME, quizId);
+
+        const quizDoc = await getDoc(quizRef);
+        const quizData = quizDoc.data() as Quiz;
+
+        await updateDoc(quizRef, {
+            "quizSettings.isPinned": !quizData.quizSettings.isPinned,
+        });
+
+        return {
+            isPinned: !quizData.quizSettings.isPinned,
+        };
     } catch (e: any) {
         return e.toString();
     }
