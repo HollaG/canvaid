@@ -384,15 +384,17 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                     <Text fontWeight={"bold"}>Score</Text>
                                     <Text>
                                         {" "}
-                                        {
-                                            uploadedData?.quizAttempt.submission
-                                                .score
-                                        }{" "}
+                                        {Math.round(
+                                            (uploadedData?.quizAttempt
+                                                .submission.score || 0) * 100
+                                        ) / 100}{" "}
                                         /{" "}
-                                        {
-                                            uploadedData?.quizAttempt.submission
-                                                .quiz_points_possible
-                                        }
+                                        {Math.round(
+                                            (uploadedData?.quizAttempt
+                                                .submission
+                                                .quiz_points_possible || 0) *
+                                                100
+                                        ) / 100}
                                     </Text>
                                 </Box>
                                 <Box>
