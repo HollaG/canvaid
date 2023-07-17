@@ -160,7 +160,34 @@ const Sidebar = () => {
                                                 as="span"
                                                 flex="1"
                                                 textAlign="left"
+                                                alignItems={"center"}
+                                                display="flex"
                                             >
+                                                {/* <Icon
+                                                    viewBox="0 0 200 200"
+                                                    color={
+                                                        user?.courseColors[
+                                                            courseCode
+                                                        ] || "gray.500"
+                                                    }
+                                                    mr={1}
+                                                >
+                                                    <path
+                                                        fill="currentColor"
+                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                    />
+                                                </Icon> */}
+                                                <Box
+                                                    w="12px"
+                                                    h="12px"
+                                                    borderRadius="4px"
+                                                    bgColor={
+                                                        user?.courseColors[
+                                                            courseCode
+                                                        ] || "gray.500"
+                                                    }
+                                                    mr={2}
+                                                ></Box>
                                                 {courseCode}
                                             </Box>
                                             <AccordionIcon />
