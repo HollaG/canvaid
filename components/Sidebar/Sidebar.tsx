@@ -96,10 +96,8 @@ const Sidebar = () => {
         >
     );
 
-    console.log({ quizzesByCourse });
-
     const { colorMode, toggleColorMode } = useColorMode();
-
+    const helperColor = useColorModeValue("gray.600", "gray.400");
     if (!user) return null;
     const sidebarColor = useColorModeValue("white", "gray.900");
     return (
@@ -144,7 +142,7 @@ const Sidebar = () => {
                     </Heading>
                     <Divider my={6} />
                     <Text
-                        textColor={"gray.600"}
+                        textColor={helperColor}
                         fontWeight="bold"
                         fontSize="sm"
                         mb={3}

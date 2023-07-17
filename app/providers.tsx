@@ -35,12 +35,16 @@ interface IQuizStorageContext {
             id: string;
         }
     ) => void;
+    searchString: string;
+    setSearchString: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const QuizStorageContext = createContext<IQuizStorageContext>({
     quizzes: [],
     setQuizzes: () => {},
     setQuiz: (quiz) => {},
+    searchString: "",
+    setSearchString: () => {},
 });
 
 const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
@@ -48,6 +52,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
     const user = authCtx.user;
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    const [searchString, setSearchString] = useState<string>("");
 
     // initial fetch
     useEffect(() => {
@@ -75,6 +80,8 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
                 return newQuizzes;
             });
         },
+        searchString,
+        setSearchString,
     };
 
     useEffect(() => {

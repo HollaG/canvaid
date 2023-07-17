@@ -56,7 +56,8 @@ import { TbSearch } from "react-icons/tb";
 
 export default function Page() {
     const authCtx = useAuthContainer();
-    const { quizzes, setQuizzes } = useQuizContainer();
+    const { quizzes, setQuizzes, searchString, setSearchString } =
+        useQuizContainer();
 
     const user = authCtx?.user;
 
@@ -111,6 +112,7 @@ export default function Page() {
         onClose: onCloseAddNewQuiz,
     } = useDisclosure();
 
+    // for searching
     return (
         <>
             <DrawerContainer
@@ -190,6 +192,10 @@ export default function Page() {
                                             }}
                                             type="search"
                                             bgColor={inputBackgroundColor}
+                                            value={searchString}
+                                            onChange={(e) =>
+                                                setSearchString(e.target.value)
+                                            }
                                         />
                                     </InputGroup>
 
@@ -217,7 +223,6 @@ export default function Page() {
                         </Link>
                         <Input placeholder="Search for a quiz..." /> */}
                         <Courses
-                            quizzes={quizzes}
                             deletion={handleDeleteItem}
                             onAddNew={onOpenAddNewQuiz}
                         />
