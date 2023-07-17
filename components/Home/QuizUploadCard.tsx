@@ -30,13 +30,7 @@ import {
     Button,
     Icon,
 } from "@chakra-ui/react";
-import {
-    BsArrowUpRight,
-    BsHeartFill,
-    BsHeart,
-    BsTrash,
-    BsThreeDotsVertical,
-} from "react-icons/bs";
+
 import { QuizUploadProps } from "../Courses";
 import { Quiz } from "@/types/canvas";
 import { Timestamp } from "firebase/firestore";
