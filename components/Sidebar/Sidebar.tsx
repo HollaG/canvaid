@@ -96,6 +96,8 @@ const Sidebar = () => {
         >
     );
 
+    const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
+
     const { colorMode, toggleColorMode } = useColorMode();
     const helperColor = useColorModeValue("gray.600", "gray.400");
     if (!user) return null;
@@ -141,6 +143,59 @@ const Sidebar = () => {
                         {user?.displayName}!
                     </Heading>
                     <Divider my={6} />
+                    <Text
+                        textColor={helperColor}
+                        fontWeight="bold"
+                        fontSize="sm"
+                        mb={3}
+                    >
+                        Pinned
+                    </Text>
+                    {pinnedQuizzes.length > 0 ? (
+                        <Stack mb={6}>
+                            {pinnedQuizzes.map((quiz, i) => (
+                                <Button
+                                    size="sm"
+                                    colorScheme={"gray"}
+                                    variant="ghost"
+                                    textAlign={"left"}
+                                    justifyContent="left"
+                                    pl={0}
+                                    textDecor="none"
+                                    key={i}
+                                >
+                                    <NextLink
+                                        href={`/uploads/${quiz.id}`}
+                                        className="sidebar-link"
+                                    >
+                                        <Flex
+                                            alignItems={"center"}
+                                            justifyContent="left"
+                                        >
+                                            <Box
+                                                w="12px"
+                                                height="12px"
+                                                borderRadius="4px"
+                                                flexShrink={0}
+                                                bgColor={
+                                                    user?.courseColors[
+                                                        quiz.course.split(
+                                                            " "
+                                                        )[0]
+                                                    ] || "gray.500"
+                                                }
+                                                mr={2}
+                                            ></Box>
+                                            {quiz.quizName}
+                                        </Flex>
+                                    </NextLink>
+                                </Button>
+                            ))}
+                        </Stack>
+                    ) : (
+                        <></>
+                    )}
+
                     <Text
                         textColor={helperColor}
                         fontWeight="bold"
