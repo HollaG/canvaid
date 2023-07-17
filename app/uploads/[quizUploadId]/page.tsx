@@ -529,6 +529,7 @@ const FlaggingButton = ({
     setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
     const [isFlagged, setIsFlagged] = useState(question.isFlagged);
+    const toast = useToast();
     const handleFlagQuestion = async (questionId: number) => {
         try {
             const updatedQuizData = await updateQuizQuestionFlag(
@@ -538,8 +539,19 @@ const FlaggingButton = ({
             );
             setQuiz(updatedQuizData);
             setIsFlagged(!isFlagged);
-        } catch (e) {
+            toast({
+                ...SUCCESS_TOAST_OPTIONS,
+                title: `Question ${!isFlagged ? "flagged" : "unflagged"}`,
+            });
+        } catch (e: any) {
             console.log(e);
+            toast({
+                ...ERROR_TOAST_OPTIONS,
+                title: `Error ${
+                    !isFlagged ? "flagging" : "unflagging"
+                } question`,
+                description: e.toString(),
+            });
         }
     };
     return (
