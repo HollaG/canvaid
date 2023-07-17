@@ -78,6 +78,7 @@ import QuizContainer from "@/components/PageWrappers/Quiz";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { TbTrashX } from "react-icons/tb";
 
 // export default async function Page({
 //     params,
@@ -297,7 +298,7 @@ export default function Page() {
                                     isLoading={isDeleting}
                                     size="sm"
                                 >
-                                    <DeleteIcon />
+                                    <TbTrashX />
                                     <Text
                                         display={{
                                             md: "unset",
@@ -412,7 +413,7 @@ export default function Page() {
                                                     );
                                                 }}
                                             >
-                                                <DeleteIcon />
+                                                <TbTrashX />
                                             </Button>
                                         </Flex>
                                     </Flex>

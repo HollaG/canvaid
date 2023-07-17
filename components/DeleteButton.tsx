@@ -1,11 +1,11 @@
 "use client";
 import { Button, Flex, Text, IconButton } from "@chakra-ui/react";
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { BsTrash } from "react-icons/bs";
 import { db } from "../firebase/database/index";
 import { Quiz, QuizSubmissionQuestion } from "../types/canvas";
 import { Dispatch, SetStateAction } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { TbTrashX } from "react-icons/tb";
 const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
 
 type DeleteButtonProps = {
@@ -30,7 +30,7 @@ function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
         }
     };
 
-    return <BsTrash fontSize={"24px"} onClick={() => handleDelete()} />;
+    return <TbTrashX fontSize={"24px"} onClick={() => handleDelete()} />;
 }
 export default DeleteButton;
 
@@ -77,7 +77,7 @@ export function DeleteAnnotationButton({
     return (
         <IconButton
             aria-label="delete"
-            icon={<DeleteIcon />}
+            icon={<TbTrashX />}
             size="sm"
             onClick={() => handleDelete()}
             colorScheme="red"
