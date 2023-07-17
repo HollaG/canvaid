@@ -29,3 +29,22 @@ export const getUploads = async (uid: string) => {
 
     return res.json();
 };
+
+/**
+ * Generate the academic year and semester display.
+ *
+ * e.g. 23/24 S1
+ * e.g. 24/25 ST1
+ */
+export const getAcademicYearAndSemester = (
+    academicYear: number,
+    semester: number
+) => {
+    if (semester === 3 || semester === 4) {
+        return `${academicYear - 2000}/${academicYear - 1999} ST${
+            semester - 2
+        }`;
+    } else {
+        return `${academicYear - 2000}/${academicYear - 1999} S${semester}`;
+    }
+};

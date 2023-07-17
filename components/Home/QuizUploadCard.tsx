@@ -28,6 +28,7 @@ import {
     useToast,
     useDisclosure,
     Button,
+    Icon,
 } from "@chakra-ui/react";
 import {
     BsArrowUpRight,
@@ -42,7 +43,7 @@ import { Timestamp } from "firebase/firestore";
 import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
-import { formatTimeElapsed } from "@/lib/functions";
+import { formatTimeElapsed, getAcademicYearAndSemester } from "@/lib/functions";
 import { DeleteIcon, TimeIcon } from "@chakra-ui/icons";
 
 import styles from "./QuizUploadCard.module.css";
@@ -56,6 +57,7 @@ import {
 import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import CustomAlertDialog from "../Alert/CustomAlertDialog";
 import { useAuthContainer } from "@/app/providers";
+import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
 
 export default function QuizUploadCard({
     quiz,
@@ -136,6 +138,7 @@ export default function QuizUploadCard({
             });
     };
 
+    const helperColor = useColorModeValue("gray.600", "gray.400");
     return (
         <Box
             flexGrow={1}
@@ -251,34 +254,77 @@ export default function QuizUploadCard({
                         </CardBody>
 
                         <CardFooter w="full">
-                            <Flex justifyContent={"end"} w="full" gap={2}>
-                                <IconButton
-                                    icon={
-                                        quiz.quizSettings.isPinned ? (
-                                            <TbPinnedFilled />
-                                        ) : (
-                                            <TbPin />
-                                        )
-                                    }
-                                    aria-label="Pin quiz"
-                                    size="sm"
-                                    variant="ghost"
-                                    colorScheme="gray"
-                                    onClick={pinQuiz}
-                                />
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                                w="full"
+                            >
+                                <Text
+                                    textColor={helperColor}
+                                    fontWeight="bold"
+                                    fontSize="sm"
+                                    display="flex"
+                                    alignItems={"center"}
+                                >
+                                    <Icon
+                                        viewBox="0 0 200 200"
+                                        color={
+                                            quiz.quizSettings.academicYear ===
+                                                ACADEMIC_YEAR &&
+                                            quiz.quizSettings.semester ===
+                                                ACADEMIC_SEMESTER
+                                                ? "green.500"
+                                                : "gray.500"
+                                        }
+                                        mr={1}
+                                    >
+                                        <path
+                                            fill="currentColor"
+                                            d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                        />
+                                    </Icon>
+                                    {getAcademicYearAndSemester(
+                                        quiz.quizSettings.academicYear,
+                                        quiz.quizSettings.semester
+                                    )}
+                                </Text>
+                                <Flex
+                                    justifyContent={"end"}
+                                    gap={2}
+                                    flexGrow={1}
+                                    alignItems="center"
+                                >
+                                    <IconButton
+                                        icon={
+                                            quiz.quizSettings.isPinned ? (
+                                                <TbPinnedFilled />
+                                            ) : (
+                                                <TbPin />
+                                            )
+                                        }
+                                        aria-label="Pin quiz"
+                                        size="sm"
+                                        variant="ghost"
+                                        colorScheme="gray"
+                                        onClick={pinQuiz}
+                                    />
 
-                                <Divider orientation="vertical" />
-                                <IconButton
-                                    icon={<TbTrashX />}
-                                    aria-label="Delete quiz"
-                                    size="sm"
-                                    variant="ghost"
-                                    colorScheme={"red"}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        alertDeleteDisclosure.onOpen();
-                                    }}
-                                />
+                                    <Divider
+                                        orientation="vertical"
+                                        height="28px"
+                                    />
+                                    <IconButton
+                                        icon={<TbTrashX />}
+                                        aria-label="Delete quiz"
+                                        size="sm"
+                                        variant="ghost"
+                                        colorScheme={"red"}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            alertDeleteDisclosure.onOpen();
+                                        }}
+                                    />
+                                </Flex>
                             </Flex>
                             {/* <Text alignItems={"center"} display="flex">
                     <TimeIcon mr={2} />

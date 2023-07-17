@@ -9,6 +9,7 @@ import {
     Center,
     Heading,
     Collapse,
+    useColorModeValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
@@ -42,6 +43,8 @@ const Courses = ({ deletion, onAddNew }: CourseProps) => {
             quiz.course.toLowerCase().includes(searchString.toLowerCase())
         );
     });
+
+    const helperColor = useColorModeValue("gray.600", "gray.400");
     // const modules = [
     //     {
     //         id: 1,
@@ -93,7 +96,7 @@ const Courses = ({ deletion, onAddNew }: CourseProps) => {
 
             <Collapse in={!!pinnedQuizzes.length}>
                 <Text
-                    textColor={"gray.600"}
+                    textColor={helperColor}
                     fontWeight="bold"
                     fontSize="sm"
                     mb={3}
@@ -113,7 +116,7 @@ const Courses = ({ deletion, onAddNew }: CourseProps) => {
 
             {quizzes.length ? (
                 <Text
-                    textColor={"gray.600"}
+                    textColor={helperColor}
                     fontWeight="bold"
                     fontSize="sm"
                     mb={3}
