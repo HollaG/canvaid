@@ -55,7 +55,7 @@ export type ExamDetails = {
     courseName: string;
     quizName?: string;
     numQns: number;
-    timeLimit: number;
+    timeLimit?: number;
 };
 export type Exam = {
     examDetails: ExamDetails;
