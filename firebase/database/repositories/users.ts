@@ -23,6 +23,7 @@ export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
                 ...user,
                 canvasApiToken: "",
                 uploadedIds: [],
+                courseColors: {},
             } as AppUser;
         }
     } catch (e) {
@@ -39,6 +40,24 @@ export const getUser = async (uid: string): Promise<AppUser> => {
         return {
             ...docRef.data(),
         } as AppUser;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const updateUserColorChoice = async (
+    uid: string,
+    courseCode: string,
+    color: string
+) => {
+    const dbRef = doc(db, "users", uid);
+    try {
+        await updateDoc(dbRef, {
+            [`courseColors.${courseCode}`]: color,
+        });
+
+        return true;
     } catch (e) {
         console.log(e);
         throw e;
