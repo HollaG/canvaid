@@ -10,7 +10,6 @@ import { Select, Button } from "@chakra-ui/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuizContainer } from "../providers";
-import { parseJsonSourceFileConfigFileContent } from "typescript";
 const exam = () => {
     const { quizzes, setQuizzes } = useQuizContainer();
     const router = useRouter();
@@ -19,6 +18,7 @@ const exam = () => {
     type QuizOption = {
         id: string;
         name: string;
+        course: string;
     };
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
@@ -58,6 +58,7 @@ const exam = () => {
             selectQuiz.push({
                 id: quiz.id,
                 name: quiz.quizName,
+                course: quiz.course,
             });
         }
     });
@@ -72,7 +73,15 @@ const exam = () => {
             {!confirmed && (
                 <>
                     {isSubmitted && <ExamMenu examQuizzes={examQuizzes} />}
-                    {!isSubmitted && (
+                    {!isSubmitted && selectedQuiz.length == 0 && (
+                        <div>
+                            <h1>No quizzes avaliable</h1>
+                            <Button onClick={() => router.push("../")}>
+                                Go Back To Add A Quiz
+                            </Button>
+                        </div>
+                    )}
+                    {!isSubmitted && selectedQuiz.length != 0 && (
                         <form onSubmit={handleSubmit}>
                             <Select
                                 placeholder="Choose courses"
