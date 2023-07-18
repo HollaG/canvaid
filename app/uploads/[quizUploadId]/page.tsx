@@ -241,17 +241,22 @@ export default function Page() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [numQn, setNumQn] = useState("");
     let numOfAvailableQnsWithCorrectAnswers = 0;
-    let correctAnswerWithQuestions: QuizResponse = {};
-    if (quiz.quizInfo.show_correct_answers) {
+    const correctAnswerWithQuestions: QuizResponse = {};
+    const numOfAttempts = quiz.selectedOptions.length;
+
+    if (quiz?.quizInfo.show_correct_answers) {
         numOfAvailableQnsWithCorrectAnswers = quiz.questions.length;
         for (let i = 0; i < quiz.questions.length; i++) {
             const questionID = quiz.questions[i].id;
             let foundCorrect = false;
             let j = 0;
-            while (j < quiz.selectedOptions.length && !foundCorrect) {
+            while (j < numOfAttempts && !foundCorrect) {
+                // loop thru the selectedOptions array
                 const attempt = quiz.selectedOptions[j]; // jh submission
                 if (attempt[questionID]) {
-                    const questionResponse = attempt[questionID];
+                    const questionResponse = JSON.parse(
+                        JSON.stringify(attempt[questionID])
+                    );
                     questionResponse.selected_answer_ids = [];
                     questionResponse.your_score = 0; // might need to change to -1
                     correctAnswerWithQuestions[questionID] = questionResponse;
@@ -261,15 +266,17 @@ export default function Page() {
             }
         }
     } else {
-        for (let i = 0; i < quiz.questions.length; i++) {
+        for (let i = 0; i < quiz?.questions.length; i++) {
             const questionID = quiz.questions[i].id;
             // check through all the attempts whether there's a correct answer
             let j = 0;
             let foundCorrect = false;
-            while (j < quiz.selectedOptions.length && !foundCorrect) {
+            while (j < numOfAttempts && !foundCorrect) {
                 const attempt = quiz.selectedOptions[j]; // jh submission
                 if (attempt[questionID]) {
-                    const questionResponse = attempt[questionID];
+                    const questionResponse = JSON.parse(
+                        JSON.stringify(attempt[questionID]) // deepcloning
+                    );
                     if (
                         availableQuestionsWithCorrectAnswers(questionResponse)
                     ) {
@@ -289,6 +296,9 @@ export default function Page() {
             }
         }
     }
+
+    //     console.log(numOfAvailableQnsWithCorrectAnswers);
+    // }
 
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
@@ -822,14 +832,7 @@ const Exam = ({
                                         display="flex"
                                         justifyContent={"space-between"}
                                     >
-                                        <div>
-                                            {" "}
-                                            Question {i + 1}{" "}
-                                            <QuestionResultTag
-                                                quiz={quiz}
-                                                questionResponse={quizResponse}
-                                            />
-                                        </div>
+                                        <div> Question {i + 1} </div>
                                     </Heading>
                                     <div
                                         className="question-text"
@@ -838,8 +841,8 @@ const Exam = ({
                                         }}
                                     />
                                     <Divider />
-                                    <Box mt={3}>
-                                        <AnswerList
+                                    {/* <Box mt={3}>
+                                         <AnswerList
                                             questionType={
                                                 question.question_type
                                             }
@@ -849,8 +852,8 @@ const Exam = ({
                                                 quiz.quizInfo
                                                     .show_correct_answers
                                             }
-                                        />
-                                    </Box>
+                                        /> *
+                                    </Box> */}
                                 </Stack>
                             ))}
                         </Stack>
@@ -860,8 +863,137 @@ const Exam = ({
         </>
     );
 };
-const ExamQuestion = () => {
-    return <></>;
+const ExamAnswerList = ({
+    questionType,
+    answers,
+    selectedOptions,
+    show_correct_answers,
+}: {
+    questionType: string;
+    answers: Answer[];
+    selectedOptions: QuestionResponse;
+    show_correct_answers: boolean;
+}) => {
+    // console.log("reredner");
+    switch (questionType) {
+        case "multiple_choice_question":
+        case "true_false_question":
+            return (
+                <RadioGroup
+                    value={
+                        selectedOptions.selected_answer_ids?.[0].toString() ??
+                        "0"
+                        // onChange = {handleAnswerChange}
+                    }
+                >
+                    <Stack>
+                        {answers.map((answer, i) => (
+                            <Flex alignItems={"center"} key={i}>
+                                <Box
+                                    width="100px"
+                                    textAlign={"end"}
+                                    mr={3}
+                                ></Box>
+                                <Radio key={i} value={answer.id.toString()}>
+                                    {" "}
+                                    {answer.text ?? answer.html}{" "}
+                                </Radio>
+                            </Flex>
+                        ))}
+                    </Stack>
+                </RadioGroup>
+            );
+
+        case "multiple_answers_question":
+            const userSelected = selectedOptions.selected_answer_ids?.map((s) =>
+                s.toString()
+            ) || [""];
+            return (
+                <CheckboxGroup value={userSelected}>
+                    <Stack spacing={4}>
+                        {answers.map((answer, i) => (
+                            <Flex alignItems={"center"} key={i}>
+                                <Box width="100px" textAlign={"end"} mr={3}>
+                                    <AnswerResultTag
+                                        answer={answer}
+                                        selectedOptions={selectedOptions}
+                                        show_correct_answers={
+                                            show_correct_answers
+                                        }
+                                    />
+                                </Box>
+                                <Checkbox
+                                    key={i}
+                                    value={answer.id.toString()}
+                                    isReadOnly
+                                >
+                                    {" "}
+                                    {answer.text ?? answer.html}{" "}
+                                </Checkbox>
+                            </Flex>
+                        ))}
+                    </Stack>
+                </CheckboxGroup>
+            );
+
+        case "essay_question":
+        case "short_answer_question":
+        case "numerical_question":
+            return (
+                <Stack spacing={4}>
+                    <Flex alignItems={"center"}>
+                        {" "}
+                        <Box width="100px" textAlign="end" mr={3}>
+                            <AnswerResultTag
+                                selectedOptions={selectedOptions}
+                                show_correct_answers={show_correct_answers}
+                            />
+                        </Box>{" "}
+                        <Box>
+                            <Stack spacing={1}>
+                                <Text
+                                    fontWeight="semibold"
+                                    textDecoration={"underline"}
+                                >
+                                    Your answer
+                                </Text>{" "}
+                                <Text>{selectedOptions.answer_text}</Text>
+                            </Stack>
+                        </Box>
+                    </Flex>
+                    {selectedOptions?.correct_answer_text && (
+                        <Flex alignItems={"center"}>
+                            {" "}
+                            <Box width="100px" textAlign="end" mr={3}>
+                                {/* <Badge colorScheme="green">Correct!</Badge> */}
+                            </Box>{" "}
+                            <Box>
+                                <Stack spacing={1}>
+                                    <Text
+                                        fontWeight="semibold"
+                                        textDecoration={"underline"}
+                                    >
+                                        Correct answer
+                                        {selectedOptions?.correct_answer_text
+                                            ?.length > 1
+                                            ? "s"
+                                            : ""}
+                                    </Text>{" "}
+                                    {selectedOptions.correct_answer_text?.map(
+                                        (ans, i) => (
+                                            <Text key={i}>{ans}</Text>
+                                        )
+                                    )}
+                                </Stack>
+                            </Box>
+                        </Flex>
+                    )}
+                </Stack>
+            );
+
+        default:
+            return <>--- UNSUPPORTED QUESTION TYPE ---</>;
+    }
 };
 const FlaggingButton = ({
     question,
