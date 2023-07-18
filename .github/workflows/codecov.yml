@@ -22,7 +22,7 @@ jobs:
             - name: Install dependencies
               run: npm install
             - name: 'Create env file'
-                run: |
+              run: 
                   echo "${{ secrets.ENV_FILE }}" > .env
             - name: Run tests and collect coverage
               run: npm run test
