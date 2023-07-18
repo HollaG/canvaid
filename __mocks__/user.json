@@ -4,5 +4,6 @@
     "email": "",
     "photoURL": "",
     "uid": "1234567890",
-    "uploadedIds": []
+    "uploadedIds": [],
+    "courseColors": {}
 }

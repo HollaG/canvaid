@@ -222,6 +222,8 @@ export default function Page() {
                 attemptDeleteDisclosure.onClose();
             });
     };
+    console.log("HELLO QUIZ");
+    console.log(quiz);
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
