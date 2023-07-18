@@ -34,6 +34,9 @@ jobs:
 
                   NEXT_PUBLIC_ACAD_YEAR: ${{ secrets.NEXT_PUBLIC_ACAD_YEAR }}
                   NEXT_PUBLIC_SEM: ${{ secrets.NEXT_PUBLIC_SEM }}
+            - name: 'Create env file'
+                run: |
+                  echo "${{ secrets.ENV_FILE }}" > .env
             - name: Run tests and collect coverage
               run: npm run test
             - name: Upload coverage to Codecov
