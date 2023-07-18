@@ -691,5 +691,10 @@
         "description": "<p>This quiz is based on the video \"How to Teach, Part 3\".&nbsp;</p>\n<p>There are 6 multiple-choice questions (MCQs) and 4 multiple-response questions (MRQs).</p>\n<p>Each MCQ has one correct answer. Each question is worth one mark.</p>\n<p>Each MRQ has one or more correct answers. You need to pick all the correct answers to get 1 mark per question.</p>\n<p>To pass this quiz, you need to get at least 5&nbsp;marks out of 10.</p><script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
         "id": 7744,
         "migration_id": "g80606da1488e4828b16c73cdd68aaefc"
+    },
+    "quizSettings": {
+        "semester": 1,
+        "academicYear": 2023,
+        "isPinned": false
     }
 }

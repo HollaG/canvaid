@@ -29,6 +29,7 @@ describe("Add a new quiz page", () => {
                     <UserContext.Provider
                         value={{
                             user: USER,
+                            setUser: jest.fn(),
                         }}
                     >
                         <AddPage />
