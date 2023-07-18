@@ -25,53 +25,9 @@ import { useDropzone } from "react-dropzone";
 import { Quiz, QuizAttempt } from "@/types/canvas";
 
 export default function Page() {
-    const [course, setCourse] = useState("");
-    const [name, setName] = useState("");
-
     const authObj = useAuthContainer();
     const router = useRouter();
     const user = authObj?.user;
-    const onSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (!user) return;
-
-        // @ts-ignore
-        console.log({ e: e.target[2].files[0] });
-
-        // @ts-ignore
-        if (!e.target[2].files[0]) return;
-
-        // @ts-ignore
-        const file = e.target[2].files[0];
-        // body.append("file", file);
-
-        if (file instanceof File) {
-            file.text().then((txt: string) => {
-                const body: IAddBody = {
-                    html: txt,
-                    quizName: name,
-                    course,
-                    uid: user.uid,
-                };
-                fetch("/api/add", {
-                    method: "POST",
-                    body: JSON.stringify(body),
-                })
-                    .then((res) => {
-                        console.log(res);
-                        return res.json();
-                    })
-                    .then((data) => {
-                        console.log("Submitted!");
-                        router.push("/");
-                    })
-                    .catch(console.error);
-            });
-        }
-        // form.append("file", file);
-
-        // console.log({ file });
-    };
 
     // 0: not uploading
     // 1: uploading
@@ -100,8 +56,8 @@ export default function Page() {
                 file.text().then((txt: string) => {
                     const body: IAddBody = {
                         html: txt,
-                        quizName: name,
-                        course,
+                        quizName: "",
+                        course: "",
                         uid: user.uid,
                     };
                     fetch("/api/add", {
@@ -140,7 +96,7 @@ export default function Page() {
                 }, 2000);
             }
         },
-        [course, name, router, user]
+        [router, user]
     );
     const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
         useDropzone({

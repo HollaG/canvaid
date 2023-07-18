@@ -1,23 +1,27 @@
+import { enableFetchMocks } from "jest-fetch-mock";
+import "jest-fetch-mock";
+
 import HomePage from "@/app/page";
 import { QuizStorageContext, UserContext } from "@/app/providers";
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import USER from "../__mocks__/user.json";
 import QUIZZES from "../__mocks__/quizzes.json";
-import { act } from "react-dom/test-utils";
+
 import { AppUser } from "@/types/user";
 import { AppRouterContextProviderMock } from "@/__mocks__/wrappers";
 
 import mockRouter from "next-router-mock";
 import { customTheme } from "@/theme/theme";
 import { ChakraProvider } from "@chakra-ui/react";
-const getQuizData = jest.fn(() =>
-    Promise.resolve({
-        json: () => Promise.resolve({ data: QUIZZES }),
-    })
-) as jest.Mock;
-global.fetch = getQuizData;
+// const validateToken = jest.fn(() =>
+//     Promise.resolve({
+//         json: () => Promise.resolve({ success: true }),
+//     })
+// ) as jest.Mock;
+// global.fetch = validateToken;
 jest.mock("next/navigation");
 
 Object.defineProperty(window, "matchMedia", {
@@ -32,6 +36,11 @@ Object.defineProperty(window, "matchMedia", {
         removeEventListener: jest.fn(),
         dispatchEvent: jest.fn(),
     })),
+});
+
+Object.defineProperty(window, "scrollTo", {
+    writable: true,
+    value: jest.fn(),
 });
 
 // hacky workaround for structuredClone
@@ -49,6 +58,11 @@ jest.mock("next/navigation", () => ({
         return new URLSearchParams(path);
     },
     useParams: () => ({ quizUploadId: "CgBnvGYEayotCQXfrpi7" }),
+}));
+
+jest.mock("firebase/firestore", () => ({
+    ...jest.requireActual("firebase/firestore"),
+    updateDoc: jest.fn(),
 }));
 
 describe("Home page", () => {
@@ -79,13 +93,31 @@ describe("Home page", () => {
             login: true,
         };
 
-        act(() =>
+        const mockSetUser = jest.fn((user: AppUser | false | undefined) => {
+            console.log({ user });
+            rerender(
+                <AppRouterContextProviderMock router={{}}>
+                    <UserContext.Provider
+                        value={{
+                            user: USER,
+                            setUser: jest.fn(),
+                        }}
+                    >
+                        <ChakraProvider theme={customTheme}>
+                            <HomePage />
+                        </ChakraProvider>
+                    </UserContext.Provider>
+                </AppRouterContextProviderMock>
+            );
+        });
+
+        const { rerender } = await act(() =>
             render(
                 <AppRouterContextProviderMock router={{}}>
                     <UserContext.Provider
                         value={{
                             user: { ...USER, canvasApiToken: "" },
-                            setUser: jest.fn(),
+                            setUser: mockSetUser as any,
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -100,11 +132,50 @@ describe("Home page", () => {
 
         expect(getStartedBtn).toBeInTheDocument();
 
-        act(() => {
+        await act(async () => {
             mockRouter.push("/?login=true");
         });
+        expect(mockRouter).toMatchObject({
+            asPath: "/?login=true",
+            pathname: "/",
+            query: { login: "true" },
+        });
 
-        expect(await screen.findByTestId("token-input")).toBeInTheDocument();
+        const tokenInput = await screen.findByTestId("token-input");
+
+        expect(tokenInput).toBeInTheDocument();
+
+        // mock token
+        await act(async () => await userEvent.type(tokenInput, "12345678901"));
+
+        fetchMock.mockResponseOnce(JSON.stringify({ success: false }));
+        // fetchMock.mockReject(new Error("fake error message"));
+        // click submit
+
+        const submitButton = await screen.findByTestId("token-submit");
+
+        expect(submitButton).toBeInTheDocument();
+
+        await userEvent.click(submitButton);
+
+        expect(
+            await screen.findByText(/Invalid Canvas API Token!/)
+        ).toBeInTheDocument();
+        // fetchMock.mockClear();
+        // fetchMock.mockResponseOnce(JSON.stringify({ success: true }));
+
+        // await userEvent.click(submitButton);
+
+        // userEvent.click(await screen.findByTestId("token-submit"));
+
+        // expect a redirect to the homepage
+        // expect(mockSetUser).toHaveBeenCalled();
+
+        // expect(mockRouter).toMatchObject({
+        //     asPath: "/",
+        //     pathname: "/",
+        //     query: {},
+        // });
     });
 
     it("should render a logged-in home page", async () => {

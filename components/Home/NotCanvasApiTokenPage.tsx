@@ -32,10 +32,12 @@ const NotCanvasApiTokenPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const handleTokenSubmit = async (event: any) => {
+        console.log("TOKEN IS BEING SUBMITTED:", token);
         // Update the user's document in Firebase with the Canvas API token
         setIsSubmitting(true);
         event.preventDefault();
 
+        console.log("still here");
         fetch("/api/validation", {
             method: "POST",
             body: JSON.stringify(token),
@@ -58,16 +60,16 @@ const NotCanvasApiTokenPage = () => {
 
                     // Update the hasToken state and redirect to the main page
                     // update the user's state in the auth container
+
                     authCtx.setUser(firebaseUser);
                 } else {
                     console.log("Invalid token");
+                    throw new Error("Invalid token");
                 }
             })
             .catch((e) => {
+                console.log(e);
                 setErrorMessage("Invalid Canvas API Token!");
-            })
-            .finally(() => {
-                setIsSubmitting(false);
             });
     };
     return (
@@ -117,9 +119,7 @@ const NotCanvasApiTokenPage = () => {
                         >
                             <AlertIcon />
                             <Box>
-                                <AlertTitle>
-                                    Invalid Canvas API token!
-                                </AlertTitle>
+                                <AlertTitle>{errorMessage}</AlertTitle>
                                 {/* <AlertDescription>{errorMessage}</AlertDescription> */}
                             </Box>
                         </Alert>
@@ -130,6 +130,7 @@ const NotCanvasApiTokenPage = () => {
                                 isLoading={isSubmitting}
                                 type="submit"
                                 width="120px"
+                                data-testid="token-submit"
                             >
                                 Update token
                             </Button>
