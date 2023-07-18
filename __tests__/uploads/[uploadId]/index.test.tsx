@@ -1,4 +1,4 @@
-import { UserContext } from "@/app/providers";
+import { QuizStorageContext, UserContext } from "@/app/providers";
 import { AppRouterContextProviderMock } from "@/__mocks__/wrappers";
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -11,7 +11,9 @@ import QuizPage from "@/app/uploads/[quizUploadId]/page";
 
 import { useParams } from "next/navigation";
 import { getQuizUpload } from "@/firebase/database/repositories/uploads";
+import QUIZZES from "../../../__mocks__/quizzes.json";
 
+import mockRouter from "next-router-mock";
 jest.mock("next/navigation", () => ({
     ...require("next-router-mock"),
     useParams: () => ({ quizUploadId: "123" }),
@@ -28,6 +30,21 @@ jest.mock("../../../firebase/database/repositories/uploads", () => {
         getQuizUpload: jest.fn(() => Promise.resolve(QUIZ)),
     };
 });
+
+// Mocks next/navigation.
+// see https://github.com/scottrippey/next-router-mock/issues/67#issuecomment-1561164934
+jest.mock("next/router", () => require("next-router-mock"));
+jest.mock("next/navigation", () => ({
+    ...require("next-router-mock"),
+    useSearchParams: () => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const router = require("next-router-mock").useRouter();
+        const path = router.asPath.split("?")?.[1] ?? "";
+        return new URLSearchParams(path);
+    },
+    useParams: () => ({ quizUploadId: "CgBnvGYEayotCQXfrpi7" }),
+}));
+
 describe("View a quiz page", () => {
     const push = jest.fn((url) => {});
 
@@ -41,9 +58,20 @@ describe("View a quiz page", () => {
                     <UserContext.Provider
                         value={{
                             user: USER,
+                            setUser: jest.fn(),
                         }}
                     >
-                        <QuizPage />
+                        <QuizStorageContext.Provider
+                            value={{
+                                quizzes: QUIZZES as any,
+                                searchString: "",
+                                setQuiz: jest.fn(),
+                                setSearchString: jest.fn(),
+                                setQuizzes: jest.fn(),
+                            }}
+                        >
+                            <QuizPage />
+                        </QuizStorageContext.Provider>
                     </UserContext.Provider>
                 </AppRouterContextProviderMock>
             )
@@ -56,11 +84,12 @@ describe("View a quiz page", () => {
     // });
 
     it("should display the quiz information", async () => {
-        // expect(global.fetch).toBeCalled();
         // console.log(getQuizUpload("123").then((res) => console.log(res)));
-
+        act(() => {
+            mockRouter.push("/uploads/CgBnvGYEayotCQXfrpi7");
+        });
         expect(
-            await screen.findByText(`${QUIZ.course}: ${QUIZ.quizName}`)
+            await screen.findByText(/SoC Teaching Workshop/)
         ).toBeInTheDocument();
 
         // both attempts should be there

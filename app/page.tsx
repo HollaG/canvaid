@@ -83,7 +83,7 @@ export default function Page() {
     // get url query params
     const router = useRouter();
     const params = useSearchParams();
-    const showLogIn = params.get("login") === "true";
+    const showLogIn = params && params.get("login") === "true";
     useEffect(() => {
         // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
         console.log("useeffect");
@@ -203,6 +203,7 @@ export default function Page() {
                                         size="md"
                                         ml={3}
                                         onClick={onOpenAddNewQuiz}
+                                        data-testid="add-new-btn"
                                     >
                                         Upload
                                     </Button>
