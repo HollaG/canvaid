@@ -240,6 +240,53 @@ export default function Page() {
     };
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [numQn, setNumQn] = useState("");
+    let numOfAvailableQnsWithCorrectAnswers = 0;
+    let correctAnswerWithQuestions: QuizResponse[] = [];
+    if (quiz.quizInfo.show_correct_answers) {
+        numOfAvailableQnsWithCorrectAnswers = quiz.questions.length;
+        for (let i = 0; i < quiz.questions.length; i++) {
+            const questionID = quiz.questions[i].id;
+            let foundCorrect = false;
+            let j = 0;
+            while (j < quiz.selectedOptions.length && !foundCorrect) {
+                const attempt = quiz.selectedOptions[j]; // jh submission
+                if (attempt[questionID]) {
+                    const questionResponse = attempt[questionID];
+                    questionResponse.selected_answer_ids = [];
+                    questionResponse.your_score = 0; // might need to change to -1
+                    correctAnswerWithQuestions.push({
+                        [questionID]: questionResponse,
+                    });
+                    foundCorrect = true;
+                }
+                j = j + 1;
+            }
+        }
+    } else {
+        for (let i = 0; i < quiz.questions.length; i++) {
+            const questionID = quiz.questions[i].id;
+            // check through all the attempts whether there's a correct answer
+            let j = 0;
+            let foundCorrect = false;
+            while (j < quiz.selectedOptions.length && !foundCorrect) {
+                const attempt = quiz.selectedOptions[j]; // jh submission
+                if (attempt[questionID]) {
+                    const questionResponse = attempt[questionID];
+                    if (
+                        availableQuestionsWithCorrectAnswers(questionResponse)
+                    ) {
+                        numOfAvailableQnsWithCorrectAnswers++;
+                        foundCorrect = true;
+                        correctAnswerWithQuestions.push({
+                            [questionID]: questionResponse,
+                        });
+                    }
+                }
+                j = j + 1;
+            }
+        }
+    }
+
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -637,6 +684,7 @@ const Exam = ({
 }) => {
     const updatedQuestions = [...quiz.questions];
     let updatedSelectedOptions = [...quiz.selectedOptions];
+    // get all the highest SelectedOptions
     if (quiz.questions.length > parseInt(numQn)) {
         let difference = quiz.questions.length - parseInt(numQn);
         // Remove random elements from the copied array
@@ -710,9 +758,9 @@ const Exam = ({
     //     updatedQuestions[i].position = i + 1;
     // }
     // new quiz attempt object
-    const newQuizAttempt: Quiz & { id: string } = {
+    const newQuizAttempt: QuizAttempt & { id: string } = {
         ...quiz,
-        submissions: quiz.submissions,
+        submission: newSubmission,
         selectedOptions: updatedSelectedOptions,
     };
     return <></>;
@@ -1072,6 +1120,18 @@ const AnswerResultTag = ({
     }
 
     return <></>;
+};
+const availableQuestionsWithCorrectAnswers = (
+    questionResponse: QuestionResponse
+) => {
+    // for qns that aren't graded yet
+    if (questionResponse.your_score === -1) {
+        return false;
+    }
+    if (questionResponse.total_score == questionResponse.your_score) {
+        return true; // selected_ans_id would be the correct answer
+    }
+    return false;
 };
 
 type CombinedQuestion = {
