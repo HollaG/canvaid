@@ -241,7 +241,7 @@ export default function Page() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [numQn, setNumQn] = useState("");
     let numOfAvailableQnsWithCorrectAnswers = 0;
-    let correctAnswerWithQuestions: QuizResponse[] = [];
+    let correctAnswerWithQuestions: QuizResponse = {};
     if (quiz.quizInfo.show_correct_answers) {
         numOfAvailableQnsWithCorrectAnswers = quiz.questions.length;
         for (let i = 0; i < quiz.questions.length; i++) {
@@ -254,9 +254,7 @@ export default function Page() {
                     const questionResponse = attempt[questionID];
                     questionResponse.selected_answer_ids = [];
                     questionResponse.your_score = 0; // might need to change to -1
-                    correctAnswerWithQuestions.push({
-                        [questionID]: questionResponse,
-                    });
+                    correctAnswerWithQuestions[questionID] = questionResponse;
                     foundCorrect = true;
                 }
                 j = j + 1;
@@ -277,9 +275,14 @@ export default function Page() {
                     ) {
                         numOfAvailableQnsWithCorrectAnswers++;
                         foundCorrect = true;
-                        correctAnswerWithQuestions.push({
-                            [questionID]: questionResponse,
-                        });
+                        questionResponse.correct_answer_ids =
+                            questionResponse.selected_answer_ids;
+                        questionResponse.correct_answer_text =
+                            questionResponse.answer_text;
+                        questionResponse.selected_answer_ids = [];
+                        questionResponse.answer_text = [];
+                        correctAnswerWithQuestions[questionID] =
+                            questionResponse;
                     }
                 }
                 j = j + 1;
@@ -379,7 +382,11 @@ export default function Page() {
                     />
                     <Heading>{quiz.quizName}</Heading>
                     {isExamMode ? (
-                        <Exam numQn={numQn} quiz={quiz} />
+                        <Exam
+                            numQn={numQn}
+                            quiz={quiz}
+                            quizResponse={correctAnswerWithQuestions}
+                        />
                     ) : (
                         <>
                             <Button onClick={onOpen}>
@@ -399,10 +406,12 @@ export default function Page() {
                                             </FormLabel>
                                             <NumberInput
                                                 defaultValue={
-                                                    quiz.questions.length
+                                                    numOfAvailableQnsWithCorrectAnswers
                                                 }
                                                 min={1}
-                                                max={quiz.questions.length}
+                                                max={
+                                                    numOfAvailableQnsWithCorrectAnswers
+                                                }
                                                 onChange={(value) =>
                                                     setNumQn(value)
                                                 }
@@ -678,25 +687,23 @@ export default function Page() {
 const Exam = ({
     numQn,
     quiz,
+    quizResponse,
 }: {
     numQn: string;
     quiz: Quiz & { id: string };
+    quizResponse: QuizResponse; // the question id :  correct answers with empty selected answers
 }) => {
     const updatedQuestions = [...quiz.questions];
-    let updatedSelectedOptions = [...quiz.selectedOptions];
+    //let updatedSelectedOptions = [...quiz.selectedOptions];
+    const questionIds = Object.keys(quizResponse);
     // get all the highest SelectedOptions
     if (quiz.questions.length > parseInt(numQn)) {
         let difference = quiz.questions.length - parseInt(numQn);
         // Remove random elements from the copied array
         for (let i = 0; i < difference; i++) {
-            const randomIndex = Math.floor(
-                Math.random() * updatedQuestions.length
-            );
-            const removedQn = updatedQuestions.splice(randomIndex, 1);
-            const id = removedQn[0].id;
-            updatedSelectedOptions = updatedSelectedOptions.filter(
-                (option) => !option.hasOwnProperty(id)
-            );
+            const randomIndex = Math.floor(Math.random() * questionIds.length);
+            const removedQnID = questionIds.splice(randomIndex, 1)[0];
+            delete quizResponse[parseInt(removedQnID)];
         }
     }
     let minSubmissionAttempt = -1;
@@ -752,7 +759,7 @@ const Exam = ({
 
         quiz_points_possible: 0,
     };
-    quiz.submissions.push(newSubmission);
+    // quiz.submissions.push(newSubmission);
     // no need to change the question order here
     // for (let i = 0; i < updatedQuestions.length; i++) {
     //     updatedQuestions[i].position = i + 1;
@@ -761,8 +768,99 @@ const Exam = ({
     const newQuizAttempt: QuizAttempt & { id: string } = {
         ...quiz,
         submission: newSubmission,
-        selectedOptions: updatedSelectedOptions,
+        selectedOptions: quizResponse,
     };
+    const updatedQuiz = create(newQuizAttempt, quiz.quizInfo);
+    const qns = quiz.questions.filter((qn) =>
+        questionIds.includes(qn.id.toString())
+    );
+
+    const bgColor = useColorModeValue("gray.50", "gray.900");
+    const questionBgColor = useColorModeValue("white", "gray.800");
+    return (
+        <>
+            <Box mr={2} mb={2}>
+                <Tag colorScheme={"teal"}>
+                    Total questions seen: {quiz.questions.length}
+                </Tag>
+            </Box>
+            <Box
+                dangerouslySetInnerHTML={{
+                    __html: quiz.quizInfo.description,
+                }}
+            />
+            <Grid
+                gridTemplateColumns={{
+                    base: "1fr",
+                    md: "200px 1fr",
+                }}
+            >
+                <GridItem p={5}>
+                    <Stack>
+                        <Flex
+                            justifyContent={"space-between"}
+                            alignItems="center"
+                        >
+                            <Heading fontSize="xl">
+                                Attempt #{newSubmission.attempt * -1}
+                            </Heading>
+                            <Flex></Flex>
+                        </Flex>
+                        <Stack spacing="10">
+                            {qns.map((question, i) => (
+                                <Stack
+                                    key={i}
+                                    alignItems="stretch"
+                                    borderWidth="1px"
+                                    borderRadius="md"
+                                    padding="4"
+                                    bgColor={questionBgColor}
+                                >
+                                    <Heading
+                                        fontSize="lg"
+                                        alignItems={"center"}
+                                        display="flex"
+                                        justifyContent={"space-between"}
+                                    >
+                                        <div>
+                                            {" "}
+                                            Question {i + 1}{" "}
+                                            <QuestionResultTag
+                                                quiz={quiz}
+                                                questionResponse={quizResponse}
+                                            />
+                                        </div>
+                                    </Heading>
+                                    <div
+                                        className="question-text"
+                                        dangerouslySetInnerHTML={{
+                                            __html: question.question_text,
+                                        }}
+                                    />
+                                    <Divider />
+                                    <Box mt={3}>
+                                        <AnswerList
+                                            questionType={
+                                                question.question_type
+                                            }
+                                            answers={question.answers}
+                                            selectedOptions={quizResponse}
+                                            show_correct_answers={
+                                                quiz.quizInfo
+                                                    .show_correct_answers
+                                            }
+                                        />
+                                    </Box>
+                                </Stack>
+                            ))}
+                        </Stack>
+                    </Stack>
+                </GridItem>
+            </Grid>
+        </>
+    );
+};
+const ExamQuestion = () => {
     return <></>;
 };
 const FlaggingButton = ({
