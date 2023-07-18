@@ -21,19 +21,6 @@ jobs:
                   node-version: 18
             - name: Install dependencies
               run: npm install
-              env:
-                  NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-                  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: canvaid-d4c30.firebaseapp.com
-                  NEXT_PUBLIC_FIREBASE_PROJECT_ID: canvaid-d4c30
-                  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: canvaid-d4c30.appspot.com
-                  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: 1035664479962
-                  NEXT_PUBLIC_FIREBASE_APP_ID: 1:1035664479962:web:163f429f10c750d94d37e3
-                  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-FQYYZLPQED
-                  NEXT_PUBLIC_CANVAS_URL: https://canvas.nus.edu.sg/api/v1/
-                  NEXT_PUBLIC_COLLECTION_NAME: uploads_dev
-
-                  NEXT_PUBLIC_ACAD_YEAR: ${{ secrets.NEXT_PUBLIC_ACAD_YEAR }}
-                  NEXT_PUBLIC_SEM: ${{ secrets.NEXT_PUBLIC_SEM }}
             - name: 'Create env file'
                 run: |
                   echo "${{ secrets.ENV_FILE }}" > .env
