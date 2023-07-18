@@ -558,7 +558,7 @@ const FlaggingButton = ({
     };
     return (
         <IconButton
-            aria-label="flag question"
+            aria-label={`${isFlagged ? "Unflag" : "Flag"} question`}
             onClick={() => {
                 handleFlagQuestion(question.id);
             }}

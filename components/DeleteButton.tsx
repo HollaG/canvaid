@@ -6,6 +6,7 @@ import { Quiz, QuizSubmissionQuestion } from "../types/canvas";
 import { Dispatch, SetStateAction } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { TbTrashX } from "react-icons/tb";
+import { deleteQuizQuestionAnnotation } from "@/firebase/database/repositories/uploads";
 const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
 
 type DeleteButtonProps = {
@@ -47,26 +48,11 @@ export function DeleteAnnotationButton({
 }) {
     const handleDelete = async () => {
         try {
-            console.log("Attempting delete of ");
-            const existingQuiz = doc(db, COLLECTION_NAME, ID);
-            const existingQuizData = (
-                await getDoc(existingQuiz)
-            ).data() as Quiz;
-            const existingQuestions = existingQuizData.questions;
-            const newQuestions = existingQuestions.map((qn) => {
-                if (qn.id === question.id) {
-                    qn.annotations = qn.annotations.filter(
-                        (ann) => ann.annotationID !== annotationID
-                    );
-                }
-                return qn;
-            });
-            existingQuizData.questions = newQuestions;
-            await updateDoc(existingQuiz, existingQuizData);
-            const updatedQuiz = {
-                ...existingQuizData,
-                id: ID,
-            };
+            const updatedQuiz = await deleteQuizQuestionAnnotation(
+                ID,
+                annotationID,
+                question
+            );
             setQuiz(updatedQuiz);
             return updatedQuiz;
         } catch (error) {
@@ -76,7 +62,7 @@ export function DeleteAnnotationButton({
 
     return (
         <IconButton
-            aria-label="delete"
+            aria-label={"Delete annotation"}
             icon={<TbTrashX />}
             size="sm"
             onClick={() => handleDelete()}

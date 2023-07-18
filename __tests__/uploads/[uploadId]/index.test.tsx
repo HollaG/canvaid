@@ -1,17 +1,31 @@
 import { QuizStorageContext, UserContext } from "@/app/providers";
 import { AppRouterContextProviderMock } from "@/__mocks__/wrappers";
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+    render,
+    screen,
+    fireEvent,
+    waitFor,
+    RenderResult,
+} from "@testing-library/react";
 
 import { act } from "react-dom/test-utils";
+
+// Clean
 import QUIZ from "../../../__mocks__/quiz.json";
+
+// "dirty" - has an annotation and has a flag
+import QUIZZES from "../../../__mocks__/quizzes.json";
 import USER from "../../../__mocks__/user.json";
 
 import QuizPage from "@/app/uploads/[quizUploadId]/page";
 
 import { useParams } from "next/navigation";
-import { getQuizUpload } from "@/firebase/database/repositories/uploads";
-import QUIZZES from "../../../__mocks__/quizzes.json";
+import {
+    deleteQuizQuestionAnnotation,
+    getQuizUpload,
+    updateQuizQuestionFlag,
+} from "@/firebase/database/repositories/uploads";
 
 import mockRouter from "next-router-mock";
 jest.mock("next/navigation", () => ({
@@ -19,6 +33,7 @@ jest.mock("next/navigation", () => ({
     useParams: () => ({ quizUploadId: "123" }),
 }));
 
+// mock the firebase upload functions so we don't call firebase
 jest.mock("../../../firebase/database/repositories/uploads", () => {
     const originalModule = jest.requireActual(
         "../../../firebase/database/repositories/uploads"
@@ -28,6 +43,8 @@ jest.mock("../../../firebase/database/repositories/uploads", () => {
         __esModule: true,
         ...originalModule,
         getQuizUpload: jest.fn(() => Promise.resolve(QUIZ)),
+        updateQuizQuestionFlag: jest.fn(() => Promise.resolve(QUIZ)),
+        deleteQuizQuestionAnnotation: jest.fn(() => Promise.resolve(QUIZ)),
     };
 });
 
@@ -46,35 +63,60 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("View a quiz page", () => {
+    let renderResult: RenderResult;
     const push = jest.fn((url) => {});
-
-    beforeEach(() => {
-        // Mock the fetch request
-
-        // Mock the page
-        return act(() =>
-            render(
-                <AppRouterContextProviderMock router={{ push }}>
-                    <UserContext.Provider
+    const setQuizMock = jest.fn((quiz) => {
+        renderResult.rerender(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
                         value={{
-                            user: USER,
-                            setUser: jest.fn(),
+                            // rerender with the updated quiz
+                            quizzes: [quiz],
+                            searchString: "",
+                            setQuiz: jest.fn(),
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
                         }}
                     >
-                        <QuizStorageContext.Provider
-                            value={{
-                                quizzes: QUIZZES as any,
-                                searchString: "",
-                                setQuiz: jest.fn(),
-                                setSearchString: jest.fn(),
-                                setQuizzes: jest.fn(),
-                            }}
-                        >
-                            <QuizPage />
-                        </QuizStorageContext.Provider>
-                    </UserContext.Provider>
-                </AppRouterContextProviderMock>
-            )
+                        <QuizPage />
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
+        );
+    });
+    beforeEach(() => {
+        // Mock the fetch request
+        act(() => {
+            mockRouter.push("/uploads/CgBnvGYEayotCQXfrpi7");
+        });
+        // Mock the page
+        renderResult = render(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
+                        value={{
+                            quizzes: QUIZZES as any,
+                            searchString: "",
+                            setQuiz: setQuizMock,
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
+                        }}
+                    >
+                        <QuizPage />
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
         );
     });
 
@@ -85,9 +127,7 @@ describe("View a quiz page", () => {
 
     it("should display the quiz information", async () => {
         // console.log(getQuizUpload("123").then((res) => console.log(res)));
-        act(() => {
-            mockRouter.push("/uploads/CgBnvGYEayotCQXfrpi7");
-        });
+
         expect(
             await screen.findByText(/SoC Teaching Workshop/)
         ).toBeInTheDocument();
@@ -111,5 +151,36 @@ describe("View a quiz page", () => {
                 }/${QUIZ.quizInfo.points_possible})`
             )
         ).toBeInTheDocument();
+    });
+
+    it("should display a question as flagged", async () => {
+        const flaggedButton = await screen.findByLabelText("Unflag question");
+        expect(flaggedButton).toBeInTheDocument();
+
+        flaggedButton.click();
+
+        expect(updateQuizQuestionFlag).toHaveBeenCalled();
+
+        // no longer found (unflagged)
+        expect(
+            await screen.findByLabelText("Unflag question")
+        ).not.toBeInTheDocument();
+    });
+
+    it("should display a comment", async () => {
+        const comment = await screen.findByText(/testing/);
+        expect(comment).toBeInTheDocument();
+
+        // try to remove it
+        const removeButton = await screen.findByLabelText("Delete annotation");
+        // should only have one
+        expect(removeButton).toBeInTheDocument();
+
+        removeButton.click();
+
+        expect(deleteQuizQuestionAnnotation).toHaveBeenCalled();
+
+        // no longer found (deleted)
+        expect(await screen.findByText(/testing/)).not.toBeInTheDocument();
     });
 });
