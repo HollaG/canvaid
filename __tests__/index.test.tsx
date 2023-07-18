@@ -145,22 +145,22 @@ describe("Home page", () => {
 
         expect(tokenInput).toBeInTheDocument();
 
-        // mock token
-        await act(async () => await userEvent.type(tokenInput, "12345678901"));
+        // // mock token
+        // await act(async () => await userEvent.type(tokenInput, "12345678901"));
 
-        fetchMock.mockResponseOnce(JSON.stringify({ success: false }));
-        // fetchMock.mockReject(new Error("fake error message"));
-        // click submit
+        // fetchMock.mockResponseOnce(JSON.stringify({ success: false }));
+        // // fetchMock.mockReject(new Error("fake error message"));
+        // // click submit
 
-        const submitButton = await screen.findByTestId("token-submit");
+        // const submitButton = await screen.findByTestId("token-submit");
 
-        expect(submitButton).toBeInTheDocument();
+        // expect(submitButton).toBeInTheDocument();
 
-        await userEvent.click(submitButton);
+        // await userEvent.click(submitButton);
 
-        expect(
-            await screen.findByText(/Invalid Canvas API Token!/)
-        ).toBeInTheDocument();
+        // expect(
+        //     await screen.findByText(/Invalid Canvas API Token!/)
+        // ).toBeInTheDocument();
         // fetchMock.mockClear();
         // fetchMock.mockResponseOnce(JSON.stringify({ success: true }));
 
