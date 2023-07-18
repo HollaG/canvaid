@@ -1,42 +1,42 @@
 name: Workflow for Codecov example-javascript
-on: 
-  push:
-    branches: [main, m3-dev, tests]
-    paths-ignore:
-        - "*.md"
+on:
+    push:
+        branches: [main, m3-dev, tests]
+        paths-ignore:
+            - "*.md"
 
-  pull_request:
-    branches: [main, m3-dev]
-    paths-ignore:
-        - "*.md"
+    pull_request:
+        branches: [main, m3-dev]
+        paths-ignore:
+            - "*.md"
 jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up Node 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install dependencies
-        run: npm install
-        env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          NEXT_PUBLIC_CANVAS_URL: https://canvas.nus.edu.sg/api/v1/
-          NEXT_PUBLIC_COLLECTION_NAME: uploads_dev
+    run:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Set up Node 18
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - name: Install dependencies
+              run: npm install
+              env:
+                  NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+                  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: canvaid-d4c30.firebaseapp.com
+                  NEXT_PUBLIC_FIREBASE_PROJECT_ID: canvaid-d4c30
+                  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: canvaid-d4c30.appspot.com
+                  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: 1035664479962
+                  NEXT_PUBLIC_FIREBASE_APP_ID: 1:1035664479962:web:163f429f10c750d94d37e3
+                  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-FQYYZLPQED
+                  NEXT_PUBLIC_CANVAS_URL: https://canvas.nus.edu.sg/api/v1/
+                  NEXT_PUBLIC_COLLECTION_NAME: uploads_dev
 
-          NEXT_PUBLIC_ACAD_YEAR: 2023-2024
-          NEXT_PUBLIC_SEM: 1
-      - name: Run tests and collect coverage
-        run: npm run test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+                  NEXT_PUBLIC_ACAD_YEAR: ${{ secrets.NEXT_PUBLIC_ACAD_YEAR }}
+                  NEXT_PUBLIC_SEM: ${{ secrets.NEXT_PUBLIC_SEM }}
+            - name: Run tests and collect coverage
+              run: npm run test
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
