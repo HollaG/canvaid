@@ -944,6 +944,7 @@ const ExamAnswerList = ({
                 <RadioGroup
                     value={selectedAnswer?.toString() ?? ""}
                     onChange={(value) => {
+                        console.log(value);
                         setSelectedAnswer(value);
                         selectedOptions.selected_answer_ids = [
                             parseInt(selectedAnswer),

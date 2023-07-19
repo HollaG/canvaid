@@ -92,6 +92,10 @@ export const create = async (
                     quizAnswers[assessment_question_id].correct_answer_text =
                         response.correct_answer_text;
                 }
+                if (response.total_score) {
+                    quizAnswers[assessment_question_id].total_score =
+                        response.total_score;
+                }
             }
         }
 
@@ -178,6 +182,10 @@ export const create = async (
                     existingQuizAnswers[
                         assessment_question_id
                     ].correct_answer_text = response.correct_answer_text;
+                }
+                if (response.total_score) {
+                    existingQuizAnswers[assessment_question_id].total_score =
+                        response.total_score;
                 }
             }
         }

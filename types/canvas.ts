@@ -159,6 +159,7 @@ export type QuizAnswers = {
     [assessment_question_id: number]: {
         correct_answer_text?: string[]; // for text input
         correct_answer_ids?: number[];
+        total_score?: number;
     };
 };
 
