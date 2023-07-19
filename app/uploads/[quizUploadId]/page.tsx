@@ -5,19 +5,13 @@ import {
     updateQuizQuestionFlag,
     deleteAttempt,
     deleteQuiz,
-    individualExamUpdate,
 } from "@/firebase/database/repositories/uploads";
-import {
-    NAVBAR_HEIGHT,
-    PAGE_CONTAINER_SIZE,
-    SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
 import {
     Answer,
     QuestionResponse,
     Quiz,
     QuizResponse,
-    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
     QuizAttempt,
     CanvasQuizSubmission,
@@ -30,7 +24,6 @@ import {
     Button,
     Checkbox,
     CheckboxGroup,
-    Container,
     Divider,
     Flex,
     Grid,
@@ -46,7 +39,6 @@ import {
     Tabs,
     Tag,
     Text,
-    FormErrorMessageProps,
     useColorModeValue,
     Tooltip,
     useDisclosure,
@@ -70,31 +62,21 @@ import {
     NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import {
-    useParams,
-    useRouter,
-    useSelectedLayoutSegment,
-} from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     useEffect,
     useState,
     FormEvent,
     Dispatch,
     SetStateAction,
-    useMemo,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
-import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { useAuthContainer, useQuizContainer } from "@/app/providers";
-import useSidebar from "@/hooks/useSidebar";
-import { getUploads } from "@/lib/functions";
-import QuizContainer from "@/components/PageWrappers/Quiz";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
-import { parse } from "path";
 import { create } from "@/firebase/database/repositories/uploads";
 // export default async function Page({
 //     params,
@@ -117,22 +99,15 @@ import { create } from "@/firebase/database/repositories/uploads";
 export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
-
     const { quizzes, setQuiz } = useQuizContainer();
-    const [questionInputs, setQuestionInputs] = useState<string>("");
-
     const authCtx = useAuthContainer();
     const user = authCtx.user;
-
     const router = useRouter();
     const quiz = quizzes.filter((quiz) => quiz.id === dataId)[0];
-
     const toast = useToast();
-
     const [pageQuiz, setPageQuiz] = useState(
         quizzes.filter((quiz) => quiz.id === dataId)[0]
     );
-
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
         if (!quiz) {
@@ -904,13 +879,9 @@ const Exam = ({
                 </Stack>
                 <Button
                     onClick={() => {
-                        // individualExamUpdate(
-                        //     quiz.selectedOptions.length - 1,
-                        //     quizResponse,
-                        //     quiz.quizName,
-                        //     quiz.userUid
-                        // );
+                        // TODO : calculate total marks
                         create(newQuizAttempt, quiz.quizInfo);
+
                         setIsExamMode(false);
                         router.refresh();
                     }}
