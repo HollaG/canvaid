@@ -244,9 +244,16 @@ export default function Page() {
     let numOfAvailableQnsWithCorrectAnswers = 0;
     const correctAnswerWithQuestions: QuizResponse = {};
     const numOfAttempts = quiz?.selectedOptions.length;
+    const availableQuestionTypes = [
+        "essay_question",
+        "short_answer_question",
+        "numerical_question",
+        "multiple_choice_question",
+        "true_false_question",
+        "multiple_answers_question",
+    ];
 
     if (quiz?.quizInfo.show_correct_answers) {
-        numOfAvailableQnsWithCorrectAnswers = quiz.questions.length;
         for (let i = 0; i < quiz.questions.length; i++) {
             const questionID = quiz.questions[i].id;
             let foundCorrect = false;
@@ -254,7 +261,13 @@ export default function Page() {
             while (j < numOfAttempts && !foundCorrect) {
                 // loop thru the selectedOptions array
                 const attempt = quiz.selectedOptions[j]; // jh submission
-                if (attempt[questionID]) {
+                if (
+                    attempt[questionID] &&
+                    availableQuestionTypes.includes(
+                        quiz.questions[i].question_type
+                    )
+                ) {
+                    numOfAvailableQnsWithCorrectAnswers++;
                     const questionResponse = JSON.parse(
                         JSON.stringify(attempt[questionID])
                     );
@@ -274,7 +287,12 @@ export default function Page() {
             let foundCorrect = false;
             while (j < numOfAttempts && !foundCorrect) {
                 const attempt = quiz.selectedOptions[j]; // jh submission
-                if (attempt[questionID]) {
+                if (
+                    attempt[questionID] &&
+                    availableQuestionTypes.includes(
+                        quiz.questions[i].question_type
+                    )
+                ) {
                     const questionResponse = JSON.parse(
                         JSON.stringify(attempt[questionID]) // deepcloning
                     );
@@ -457,9 +475,10 @@ export default function Page() {
                                             0 && (
                                             <Button
                                                 variant="ghost"
-                                                onClick={() =>
-                                                    setIsExamMode(true)
-                                                }
+                                                onClick={() => {
+                                                    onClose();
+                                                    setIsExamMode(true);
+                                                }}
                                             >
                                                 Start Exam Mode
                                             </Button>
@@ -823,56 +842,51 @@ const Exam = ({
                     __html: quiz.quizInfo.description,
                 }}
             />
-            <Grid
+            {/* <Grid
                 gridTemplateColumns={{
                     base: "1fr",
                     md: "200px 1fr",
                 }}
             >
-                <GridItem p={5}>
-                    <Stack>
-                        <Flex
-                            justifyContent={"space-between"}
-                            alignItems="center"
+                <GridItem p={5}> */}
+            <Stack>
+                <Flex justifyContent={"space-between"} alignItems="center">
+                    <Heading fontSize="xl">
+                        Attempt #{newSubmission.attempt * -1}
+                    </Heading>
+                    <Flex></Flex>
+                </Flex>
+                <Stack spacing="10">
+                    {qns.map((question, i) => (
+                        <Stack
+                            key={i}
+                            alignItems="stretch"
+                            borderWidth="1px"
+                            borderRadius="md"
+                            padding="4"
+                            bgColor={questionBgColor}
                         >
-                            <Heading fontSize="xl">
-                                Attempt #{newSubmission.attempt * -1}
+                            <Heading
+                                fontSize="lg"
+                                alignItems={"center"}
+                                display="flex"
+                                justifyContent={"space-between"}
+                            >
+                                <div> Question {i + 1} </div>
                             </Heading>
-                            <Flex></Flex>
-                        </Flex>
-                        <Stack spacing="10">
-                            {qns.map((question, i) => (
-                                <Stack
-                                    key={i}
-                                    alignItems="stretch"
-                                    borderWidth="1px"
-                                    borderRadius="md"
-                                    padding="4"
-                                    bgColor={questionBgColor}
-                                >
-                                    <Heading
-                                        fontSize="lg"
-                                        alignItems={"center"}
-                                        display="flex"
-                                        justifyContent={"space-between"}
-                                    >
-                                        <div> Question {i + 1} </div>
-                                    </Heading>
-                                    <div
-                                        className="question-text"
-                                        dangerouslySetInnerHTML={{
-                                            __html: question.question_text,
-                                        }}
-                                    />
-                                    <Divider />
-                                    <ExamAnswerList // this is the correct answer
-                                        questionType={question.question_type}
-                                        answers={question.answers}
-                                        selectedOptions={
-                                            quizResponse[question.id]
-                                        }
-                                    />
-                                    {/* <Box mt={3}>
+                            <div
+                                className="question-text"
+                                dangerouslySetInnerHTML={{
+                                    __html: question.question_text,
+                                }}
+                            />
+                            <Divider />
+                            <ExamAnswerList // this is the correct answer
+                                questionType={question.question_type}
+                                answers={question.answers}
+                                selectedOptions={quizResponse[question.id]}
+                            />
+                            {/* <Box mt={3}>
                                          <AnswerList
                                             questionType={
                                                 question.question_type
@@ -885,28 +899,28 @@ const Exam = ({
                                             }
                                         /> *
                                     </Box> */}
-                                </Stack>
-                            ))}
                         </Stack>
-                        <Button
-                            onClick={() => {
-                                // individualExamUpdate(
-                                //     quiz.selectedOptions.length - 1,
-                                //     quizResponse,
-                                //     quiz.quizName,
-                                //     quiz.userUid
-                                // );
-                                create(newQuizAttempt, quiz.quizInfo);
-                                setIsExamMode(false);
-                                router.refresh();
-                            }}
-                            colorScheme="teal"
-                        >
-                            Submit Quiz
-                        </Button>
-                    </Stack>
-                </GridItem>
-            </Grid>
+                    ))}
+                </Stack>
+                <Button
+                    onClick={() => {
+                        // individualExamUpdate(
+                        //     quiz.selectedOptions.length - 1,
+                        //     quizResponse,
+                        //     quiz.quizName,
+                        //     quiz.userUid
+                        // );
+                        create(newQuizAttempt, quiz.quizInfo);
+                        setIsExamMode(false);
+                        router.refresh();
+                    }}
+                    colorScheme="teal"
+                >
+                    Submit Quiz
+                </Button>
+            </Stack>
+            {/* </GridItem>
+            </Grid> */}
         </>
     );
 };
