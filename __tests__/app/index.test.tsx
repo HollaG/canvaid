@@ -7,8 +7,8 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import USER from "../__mocks__/user.json";
-import QUIZZES from "../__mocks__/quizzes.json";
+import USER from "@/__mocks__/user.json";
+import QUIZZES from "@/__mocks__/quizzes.json";
 
 import { AppUser } from "@/types/user";
 import { AppRouterContextProviderMock } from "@/__mocks__/wrappers";
@@ -23,25 +23,6 @@ import { ChakraProvider } from "@chakra-ui/react";
 // ) as jest.Mock;
 // global.fetch = validateToken;
 jest.mock("next/navigation");
-
-Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: jest.fn(), // Deprecated
-        removeListener: jest.fn(), // Deprecated
-        addEventListener: jest.fn(),
-        removeEventListener: jest.fn(),
-        dispatchEvent: jest.fn(),
-    })),
-});
-
-Object.defineProperty(window, "scrollTo", {
-    writable: true,
-    value: jest.fn(),
-});
 
 // hacky workaround for structuredClone
 global.structuredClone = (val: any) => JSON.parse(JSON.stringify(val));

@@ -12,12 +12,12 @@ import {
 import { act } from "react-dom/test-utils";
 
 // Clean
-import QUIZ from "../../../__mocks__/quiz.json";
+import QUIZ from "@/__mocks__/quiz.json";
 
 // "dirty" - has an annotation and has a flag
-import DIRTY_QUIZ from "../../../__mocks__/dirtyQuiz.json";
-import QUIZZES from "../../../__mocks__/quizzes.json";
-import USER from "../../../__mocks__/user.json";
+import DIRTY_QUIZ from "@/__mocks__/dirtyQuiz.json";
+import QUIZZES from "@/__mocks__/quizzes.json";
+import USER from "@/__mocks__/user.json";
 
 import QuizPage from "@/app/uploads/[quizUploadId]/page";
 
@@ -34,8 +34,6 @@ jest.mock("next/navigation", () => ({
     useParams: () => ({ quizUploadId: "123" }),
 }));
 
-jest.setTimeout(16000);
-
 // mock the firebase upload functions so we don't call firebase
 // let mockDeleteAttempt: jest.Mock<any, any, any> = jest
 //     .fn()
@@ -47,9 +45,9 @@ jest.setTimeout(16000);
 //     )
 //     .mockImplementationOnce(() => Promise.resolve({ status: "deleted" }));
 
-jest.mock("../../../firebase/database/repositories/uploads", () => {
+jest.mock("../../../../firebase/database/repositories/uploads", () => {
     const originalModule = jest.requireActual(
-        "../../../firebase/database/repositories/uploads"
+        "../../../../firebase/database/repositories/uploads"
     );
 
     return {
