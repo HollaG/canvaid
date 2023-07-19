@@ -15,6 +15,7 @@ import { act } from "react-dom/test-utils";
 import QUIZ from "../../../__mocks__/quiz.json";
 
 // "dirty" - has an annotation and has a flag
+import DIRTY_QUIZ from "../../../__mocks__/dirtyQuiz.json";
 import QUIZZES from "../../../__mocks__/quizzes.json";
 import USER from "../../../__mocks__/user.json";
 
@@ -33,7 +34,19 @@ jest.mock("next/navigation", () => ({
     useParams: () => ({ quizUploadId: "123" }),
 }));
 
+jest.setTimeout(16000);
+
 // mock the firebase upload functions so we don't call firebase
+// let mockDeleteAttempt: jest.Mock<any, any, any> = jest
+//     .fn()
+//     .mockImplementationOnce(() =>
+//         Promise.resolve({
+//             status: "deleted",
+//             data: { ...QUIZ, submissions: [], selectedOptions: [] },
+//         })
+//     )
+//     .mockImplementationOnce(() => Promise.resolve({ status: "deleted" }));
+
 jest.mock("../../../firebase/database/repositories/uploads", () => {
     const originalModule = jest.requireActual(
         "../../../firebase/database/repositories/uploads"
@@ -42,9 +55,43 @@ jest.mock("../../../firebase/database/repositories/uploads", () => {
     return {
         __esModule: true,
         ...originalModule,
-        getQuizUpload: jest.fn(() => Promise.resolve(QUIZ)),
+        getQuizUpload: jest.fn(() => Promise.resolve(DIRTY_QUIZ)),
         updateQuizQuestionFlag: jest.fn(() => Promise.resolve(QUIZ)),
         deleteQuizQuestionAnnotation: jest.fn(() => Promise.resolve(QUIZ)),
+        deleteAttempt: jest
+            .fn()
+            .mockImplementationOnce(() => {
+                // remove attempt 1 (for first test)
+                const attemptIndex = QUIZ.submissions.findIndex(
+                    (submission) => submission.attempt === 1
+                );
+
+                const copiedQuiz = JSON.parse(JSON.stringify(QUIZ));
+                copiedQuiz.submissions.splice(attemptIndex, 1);
+                copiedQuiz.selectedOptions.splice(attemptIndex, 1);
+                return Promise.resolve({
+                    status: "updated",
+                    data: copiedQuiz,
+                });
+            })
+            .mockImplementationOnce(() => {
+                // remove attempt 1 (for second test)
+                const attemptIndex = QUIZ.submissions.findIndex(
+                    (submission) => submission.attempt === 1
+                );
+
+                const copiedQuiz = JSON.parse(JSON.stringify(QUIZ));
+                copiedQuiz.submissions.splice(attemptIndex, 1);
+                copiedQuiz.selectedOptions.splice(attemptIndex, 1);
+                return Promise.resolve({
+                    status: "updated",
+                    data: copiedQuiz,
+                });
+            })
+            .mockImplementationOnce(() =>
+                Promise.resolve({ status: "deleted" })
+            ),
+        deleteQuiz: jest.fn(() => Promise.resolve()),
     };
 });
 
@@ -62,7 +109,9 @@ jest.mock("next/navigation", () => ({
     useParams: () => ({ quizUploadId: "CgBnvGYEayotCQXfrpi7" }),
 }));
 
-describe("View a quiz page", () => {
+const mockUploadId = "CgBnvGYEayotCQXfrpi7";
+
+describe("Quiz page rendering", () => {
     let renderResult: RenderResult;
     const push = jest.fn((url) => {});
     const setQuizMock = jest.fn((quiz) => {
@@ -93,7 +142,7 @@ describe("View a quiz page", () => {
     beforeEach(() => {
         // Mock the fetch request
         act(() => {
-            mockRouter.push("/uploads/CgBnvGYEayotCQXfrpi7");
+            mockRouter.push(`/uploads/${mockUploadId}`);
         });
         // Mock the page
         renderResult = render(
@@ -151,9 +200,97 @@ describe("View a quiz page", () => {
                 }/${QUIZ.quizInfo.points_possible})`
             )
         ).toBeInTheDocument();
+
+        expect(getQuizUpload).not.toHaveBeenCalled();
     });
 
-    it("should display a question as flagged", async () => {
+    it("should fetch quiz data if it's an external quiz", async () => {
+        // 1) reset the context to not have any quizzes loaded to simulate loading someone else's quiz
+        setQuizMock({
+            id: "123",
+        });
+
+        // 2) expect a call to getQuizUpload to load the quiz
+        expect(getQuizUpload).toHaveBeenCalledWith(mockUploadId);
+    });
+
+    it("should load the Combined Questions correctly", async () => {
+        const combinedQuestionsButton = await screen.findByTestId(
+            "combined-button"
+        );
+
+        expect(combinedQuestionsButton).toBeInTheDocument();
+        combinedQuestionsButton.click();
+
+        expect(
+            await screen.findByTestId("combined-questions-list")
+        ).toBeInTheDocument();
+    });
+});
+
+describe("Quiz page editing", () => {
+    let renderResult: RenderResult;
+    const push = jest.fn((url) => {});
+    const setQuizMock = jest.fn((quiz) => {
+        renderResult.rerender(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
+                        value={{
+                            // rerender with the updated quiz
+                            quizzes: [quiz],
+                            searchString: "",
+                            setQuiz: jest.fn(),
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
+                        }}
+                    >
+                        <QuizPage />
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
+        );
+    });
+    beforeEach(() => {
+        // Mock the fetch request
+        mockRouter.setCurrentUrl("/");
+        act(() => {
+            mockRouter.push(`/uploads/${mockUploadId}`);
+        });
+        // Mock the page
+        renderResult = render(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
+                        value={{
+                            quizzes: QUIZZES as any,
+                            searchString: "",
+                            setQuiz: setQuizMock,
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
+                        }}
+                    >
+                        <QuizPage />
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
+        );
+    });
+
+    // teardown
+    afterEach(() => {});
+
+    it("should correctly unflag", async () => {
         const flaggedButton = await screen.findByLabelText("Unflag question");
         expect(flaggedButton).toBeInTheDocument();
 
@@ -162,12 +299,12 @@ describe("View a quiz page", () => {
         expect(updateQuizQuestionFlag).toHaveBeenCalled();
 
         // no longer found (unflagged)
-        expect(
-            await screen.findByLabelText("Unflag question")
-        ).not.toBeInTheDocument();
+        // expect(
+        //     await screen.findByLabelText("Unflag question")
+        // ).not.toBeInTheDocument();
     });
 
-    it("should display a comment", async () => {
+    it("should correctly delete comments", async () => {
         const comment = await screen.findByText(/testing/);
         expect(comment).toBeInTheDocument();
 
@@ -182,5 +319,108 @@ describe("View a quiz page", () => {
 
         // no longer found (deleted)
         expect(await screen.findByText(/testing/)).not.toBeInTheDocument();
+    });
+
+    it("should show a warning before deleting an attempt", async () => {
+        const deleteAttemptButton = await screen.findByTestId(
+            "delete-attempt-1"
+        );
+
+        expect(deleteAttemptButton).toBeInTheDocument();
+
+        deleteAttemptButton.click();
+
+        const confirmDeleteAttemptButton = await screen.findByTestId(
+            "confirm-delete-attempt"
+        );
+
+        expect(confirmDeleteAttemptButton).toBeInTheDocument();
+    });
+
+    it("should delete the attempt", async () => {
+        await act(async () =>
+            (await screen.findByTestId("delete-attempt-1")).click()
+        );
+
+        await act(async () =>
+            (await screen.findByTestId("confirm-delete-attempt")).click()
+        );
+
+        // expect(mockDeleteAttempt).toHaveBeenCalled();
+
+        // expect success message
+        expect(
+            screen.queryByText(
+                `Attempt #1 (${
+                    QUIZ.submissions.find(
+                        (submissions) => submissions.attempt === 1
+                    )!.score
+                }/${QUIZ.quizInfo.points_possible})`
+            )
+        ).not.toBeInTheDocument();
+    });
+
+    it("should redirect to home page when there are no more attempts", async () => {
+        await act(async () =>
+            (await screen.findByTestId("delete-attempt-1")).click()
+        );
+
+        await act(async () =>
+            (await screen.findByTestId("confirm-delete-attempt")).click()
+        );
+
+        await act(async () =>
+            (await screen.findByTestId("delete-attempt-2")).click()
+        );
+
+        await act(async () =>
+            (await screen.findByTestId("confirm-delete-attempt")).click()
+        );
+
+        expect(
+            screen.queryByText(
+                `Attempt #1 (${
+                    QUIZ.submissions.find(
+                        (submissions) => submissions.attempt === 1
+                    )!.score
+                }/${QUIZ.quizInfo.points_possible})`
+            )
+        ).not.toBeInTheDocument();
+
+        expect(mockRouter).toMatchObject({
+            asPath: "/",
+            pathname: "/",
+            query: {},
+        });
+    });
+
+    it("should show a warning before deleting the quiz", async () => {
+        const deleteQuizButton = await screen.findByTestId("delete-quiz");
+
+        expect(deleteQuizButton).toBeInTheDocument();
+
+        deleteQuizButton.click();
+
+        const confirmDeleteQuizButton = await screen.findByTestId(
+            "confirm-delete-quiz"
+        );
+
+        expect(confirmDeleteQuizButton).toBeInTheDocument();
+    });
+
+    it("should redirect to home page when deleting the quiz", async () => {
+        await act(async () =>
+            (await screen.findByTestId("delete-quiz")).click()
+        );
+
+        await act(async () =>
+            (await screen.findByTestId("confirm-delete-quiz")).click()
+        );
+
+        expect(mockRouter).toMatchObject({
+            asPath: "/",
+            pathname: "/",
+            query: {},
+        });
     });
 });

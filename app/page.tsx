@@ -221,10 +221,7 @@ export default function Page() {
                             Add a new quiz
                         </Link>
                         <Input placeholder="Search for a quiz..." /> */}
-                        <Courses
-                            deletion={handleDeleteItem}
-                            onAddNew={onOpenAddNewQuiz}
-                        />
+                        <Courses onAddNew={onOpenAddNewQuiz} />
                     </Stack>
                 </Flex>
             )}

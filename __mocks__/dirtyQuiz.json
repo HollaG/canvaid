@@ -305,8 +305,13 @@
                     "text": "Caters to every student in the class."
                 }
             ],
-            "annotations": [],
-            "isFlagged": false,
+            "annotations": [
+                {
+                    "annotationID": 1,
+                    "annotation": "testing"
+                }
+            ],
+            "isFlagged": true,
             "question_text": "Which of the following counters the teacher's role as facilitator of learning?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
             "assessment_question_id": 63798,
             "flagged": false,
