@@ -6,7 +6,13 @@ import {
     getQuizUpload,
 } from "@/firebase/database/repositories/uploads";
 import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
-import { calculateTotalScore, hydrateSelectedOptions } from "@/lib/functions";
+import {
+    calculateTotalScore,
+    convertCustomAttemptNumber,
+    getExaminableQuestions,
+    hydrateSelectedOptions,
+} from "@/lib/functions";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
     CanvasQuizSubmission,
     QuestionResponse,
@@ -23,9 +29,10 @@ import {
     Button,
     Box,
     useColorModeValue,
+    useToast,
 } from "@chakra-ui/react";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import router from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -40,6 +47,9 @@ export default function Page() {
     const searchParams = useSearchParams();
     const params = useParams();
     const { quizzes, setQuiz } = useQuizContainer();
+
+    const toast = useToast();
+    const router = useRouter();
 
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const questionBgColor = useColorModeValue("white", "gray.800");
@@ -71,11 +81,12 @@ export default function Page() {
     }, [quizUploadId, quiz, setQuiz]);
 
     // TODO: ensure error handling
+    const examinableQuestions = getExaminableQuestions(examQuiz);
     const numQuestions =
         parseInt(
-            searchParams.get("num") || examQuiz?.questions.length.toString()
-        ) || examQuiz?.questions.length;
-    const timeLimit = searchParams.get("timelimit") || -1;
+            searchParams.get("num") || examinableQuestions.length.toString()
+        ) || examinableQuestions.length;
+    const timeLimit = searchParams.get("length") || 0;
 
     const answers = examQuiz?.quizAnswers;
 
@@ -85,11 +96,7 @@ export default function Page() {
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
 
-    // const newQuizAttempt: QuizAttempt &{id: string} = structuredClone({
-    //     ...quiz,
-    // })
-
-    const allQuestions = examQuiz?.questions || [];
+    const allQuestions = examinableQuestions || [];
 
     // given the number of questions, get a random subset of questions
     const qns = useMemo(
@@ -140,6 +147,15 @@ export default function Page() {
         create(quizAttempt, examQuiz.quizInfo)
             .then(() => {
                 console.log("created quiz");
+
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: "Quiz submitted!",
+                });
+
+                router.push(
+                    `/uploads/${quizUploadId}?attemptNum=${newSubmissionAttemptNumber}`
+                );
             })
             .catch((e) => {
                 console.log(e);
@@ -182,7 +198,10 @@ export default function Page() {
                 <Stack>
                     <Flex justifyContent={"space-between"} alignItems="center">
                         <Heading fontSize="xl">
-                            Attempt #{newSubmissionAttemptNumber}
+                            Attempt #
+                            {convertCustomAttemptNumber(
+                                newSubmissionAttemptNumber
+                            )}
                         </Heading>
                         <Flex></Flex>
                     </Flex>

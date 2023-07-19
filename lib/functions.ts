@@ -5,7 +5,7 @@
 // < 1 week: "x days ago"
 // < 1 month: "x weeks ago"
 
-import { QuizAnswers, QuizResponse } from "@/types/canvas";
+import { Quiz, QuizAnswers, QuizResponse } from "@/types/canvas";
 
 export const formatTimeElapsed = (date: Date) => {
     const timeElapsed = Math.abs(
@@ -180,4 +180,17 @@ export const convertCustomAttemptNumber = (attempt: number) => {
     a = a - 9;
 
     return `C${a}`;
+};
+
+export const getExaminableQuestions = (quiz?: Quiz & { id: string }) => {
+    if (!quiz) return [];
+    const answers = quiz.quizAnswers;
+    const questions = quiz.questions;
+
+    const examinableQuestions = questions.filter((qn) => {
+        // this qn id must be present in answers
+        return answers[qn.id];
+    });
+
+    return examinableQuestions;
 };

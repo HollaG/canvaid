@@ -155,7 +155,7 @@ export default function QuizUploadCard({
                                 index={activeStep}
                                 orientation="vertical"
                             >
-                                {sortedSubmissions.map((submission, i) => (
+                                {lastThreeSubmissions.map((submission, i) => (
                                     <Step key={i}>
                                         <StepIndicator fontSize={"xs"}>
                                             <StepStatus
