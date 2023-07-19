@@ -4,6 +4,7 @@ import {
     QuizAttempt,
     QuizResponse,
     annotations,
+    QuizAnswers,
 } from "@/types/canvas";
 import {
     addDoc,
@@ -71,6 +72,29 @@ export const create = async (
         // first, get the quiz data from canvas
         // const res = await fetch(`${CANVAS_URL}courses/${}`)
 
+        const quizAnswers: QuizAnswers = {};
+        for (const assessment_question_id in quizAttempt.selectedOptions) {
+            const response =
+                quizAttempt.selectedOptions[assessment_question_id];
+
+            if (
+                response.your_score === response.total_score ||
+                response.correct_answer_ids ||
+                response.correct_answer_text
+            ) {
+                // we know the correct answers
+                quizAnswers[assessment_question_id] = {};
+                if (response.correct_answer_ids) {
+                    quizAnswers[assessment_question_id].correct_answer_ids =
+                        response.correct_answer_ids;
+                }
+                if (response.correct_answer_text) {
+                    quizAnswers[assessment_question_id].correct_answer_text =
+                        response.correct_answer_text;
+                }
+            }
+        }
+
         const newQuiz: Quiz = {
             // maybe use inheritance for types instead for mutliple quiz attempt
             submissions: [quizAttempt.submission],
@@ -81,6 +105,8 @@ export const create = async (
             userUid: quizAttempt.userUid,
             lastUpdated: new Date(),
             quizInfo: quizInformation,
+
+            quizAnswers,
         };
         // recursivelyReplaceNullToZero(newQuiz);
         console.log(JSON.stringify(newQuiz, null, 2));
@@ -128,11 +154,40 @@ export const create = async (
         fieldDataSubmissions.push(quizAttempt.submission);
         fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
 
+        // for all of the selected options, generate the new quiz answers
+        const existingQuizAnswers = existingData.quizAnswers || {};
+        for (const assessment_question_id in quizAttempt.selectedOptions) {
+            const response =
+                quizAttempt.selectedOptions[assessment_question_id];
+
+            if (
+                response.your_score === response.total_score ||
+                response.correct_answer_ids ||
+                response.correct_answer_text
+            ) {
+                // we know the correct answers
+                // add only if undefined
+
+                existingQuizAnswers[assessment_question_id] = {};
+                if (response.correct_answer_ids) {
+                    existingQuizAnswers[
+                        assessment_question_id
+                    ].correct_answer_ids = response.correct_answer_ids;
+                }
+                if (response.correct_answer_text) {
+                    existingQuizAnswers[
+                        assessment_question_id
+                    ].correct_answer_text = response.correct_answer_text;
+                }
+            }
+        }
+
         await updateDoc(latestDoc.ref, {
             submissions: fieldDataSubmissions,
             selectedOptions: fieldDataSelectedOptions,
             questions: mergedQuestions,
             lastUpdated: new Date(),
+            quizAnswers: existingQuizAnswers,
         });
 
         return {

@@ -138,6 +138,8 @@ export type Quiz = {
     lastUpdated: Date;
 
     quizInfo: CanvasQuiz;
+
+    quizAnswers: QuizAnswers;
 };
 
 export type QuizResponse = {
@@ -151,6 +153,13 @@ export type QuestionResponse = {
     correct_answer_ids?: number[]; // for multiple answer / mcq
     total_score?: number;
     your_score?: number;
+};
+
+export type QuizAnswers = {
+    [assessment_question_id: number]: {
+        correct_answer_text?: string[]; // for text input
+        correct_answer_ids?: number[];
+    };
 };
 
 export type CanvasQuiz = {
