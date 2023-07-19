@@ -146,3 +146,38 @@ export const arraysEqual = (arr1: any[], arr2: any[]) => {
 
     return true;
 };
+
+/**
+ * Calculates the total score of a custom quiz.
+ *
+ * @param selectedOptions
+ * @returns
+ */
+export const calculateTotalScore = (selectedOptions: QuizResponse) => {
+    let totalScore = 0;
+
+    for (const qnId in selectedOptions) {
+        const questionResponse = selectedOptions[qnId];
+
+        totalScore += questionResponse.your_score || 0;
+    }
+
+    return Math.round(totalScore * 100) / 100;
+};
+
+/**
+ * Convert a custom attempt number to a string.
+ * A custom attempt number is negative and starts from -10, going down.
+ *
+ * Does nothing if the attempt number if positive (not custom)
+ *
+ * @param attempt
+ * @returns formatted string
+ */
+export const convertCustomAttemptNumber = (attempt: number) => {
+    if (attempt > 0) return attempt.toString();
+    let a = -1 * attempt;
+    a = a - 9;
+
+    return `C${a}`;
+};

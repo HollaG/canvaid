@@ -38,7 +38,7 @@ import { Timestamp } from "firebase/firestore";
 import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
-import { formatTimeElapsed } from "@/lib/functions";
+import { convertCustomAttemptNumber, formatTimeElapsed } from "@/lib/functions";
 import { TimeIcon } from "@chakra-ui/icons";
 
 import styles from "./QuizUploadCard.module.css";
@@ -159,9 +159,15 @@ export default function QuizUploadCard({
                                     <Step key={i}>
                                         <StepIndicator fontSize={"xs"}>
                                             <StepStatus
-                                                complete={submission.attempt}
-                                                incomplete={submission.attempt}
-                                                active={submission.attempt}
+                                                complete={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
+                                                incomplete={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
+                                                active={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
                                             />
                                         </StepIndicator>
                                         <Box flexShrink={0} minH="48px">

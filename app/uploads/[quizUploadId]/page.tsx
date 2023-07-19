@@ -78,6 +78,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import { create } from "@/firebase/database/repositories/uploads";
+import { convertCustomAttemptNumber } from "@/lib/functions";
 // export default async function Page({
 //     params,
 //     searchParams,
@@ -319,10 +320,14 @@ export default function Page() {
             />
             <CustomAlertDialog
                 {...attemptDeleteDisclosure}
-                bodyText={`Are you sure you want to delete Attempt #${attemptNumberToDelete}?  
+                bodyText={`Are you sure you want to delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}?  
                 
                 This action is not reversible.`}
-                headerText={`Delete Attempt #${attemptNumberToDelete}`}
+                headerText={`Delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}`}
                 ConfirmButton={
                     <Button
                         onClick={confirmDeleteAttempt}
@@ -531,11 +536,9 @@ export default function Page() {
                                                     fontSize="sm"
                                                 >
                                                     Attempt #
-                                                    {submission.attempt < -10
-                                                        ? -1 *
-                                                          (submission.attempt +
-                                                              10)
-                                                        : submission.attempt}{" "}
+                                                    {convertCustomAttemptNumber(
+                                                        submission.attempt
+                                                    )}{" "}
                                                     (
                                                     {Math.round(
                                                         submission.score * 100
@@ -564,11 +567,11 @@ export default function Page() {
                                             >
                                                 <Heading fontSize="xl">
                                                     Attempt #
-                                                    {
+                                                    {convertCustomAttemptNumber(
                                                         quiz.submissions[
                                                             selectedAttemptIndex
                                                         ].attempt
-                                                    }
+                                                    )}
                                                 </Heading>
                                                 <Flex>
                                                     <Button
@@ -827,7 +830,8 @@ const Exam = ({
             <Stack>
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Heading fontSize="xl">
-                        Attempt #{(newSubmission.attempt + 10) * -1}
+                        Attempt #
+                        {convertCustomAttemptNumber(newSubmission.attempt)}
                     </Heading>
                     <Flex></Flex>
                 </Flex>
