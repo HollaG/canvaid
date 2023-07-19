@@ -1,4 +1,10 @@
-import { CanvasQuiz, Quiz, QuizAttempt, annotations } from "@/types/canvas";
+import {
+    CanvasQuiz,
+    Quiz,
+    QuizAttempt,
+    QuizResponse,
+    annotations,
+} from "@/types/canvas";
 import {
     addDoc,
     collection,
@@ -20,6 +26,26 @@ const CANVAS_HTTP_OPTIONS = {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN}`,
         Accept: "application/json",
     }),
+};
+export const individualExamUpdate = async (
+    index: number,
+    examAnswers: QuizResponse,
+    quizName: string,
+    userUid: string
+) => {
+    const dbRef = collection(db, COLLECTION_NAME);
+    const existingQuizQuery = query(
+        dbRef,
+        where("quizName", "==", quizName),
+        where("userUid", "==", userUid)
+    );
+
+    const existingSnapshot = await getDocs(existingQuizQuery);
+    const latestDoc = existingSnapshot.docs[0];
+    const existingData = latestDoc.data() as Quiz;
+    console.log("Existing Data:", existingData);
+    existingData.selectedOptions[index] = examAnswers;
+    await updateDoc(latestDoc.ref, existingData);
 };
 
 export const create = async (

@@ -5,6 +5,7 @@ import {
     updateQuizQuestionFlag,
     deleteAttempt,
     deleteQuiz,
+    individualExamUpdate,
 } from "@/firebase/database/repositories/uploads";
 import {
     NAVBAR_HEIGHT,
@@ -242,7 +243,7 @@ export default function Page() {
     const [numQn, setNumQn] = useState("");
     let numOfAvailableQnsWithCorrectAnswers = 0;
     const correctAnswerWithQuestions: QuizResponse = {};
-    const numOfAttempts = quiz.selectedOptions.length;
+    const numOfAttempts = quiz?.selectedOptions.length;
 
     if (quiz?.quizInfo.show_correct_answers) {
         numOfAvailableQnsWithCorrectAnswers = quiz.questions.length;
@@ -396,6 +397,7 @@ export default function Page() {
                             numQn={numQn}
                             quiz={quiz}
                             quizResponse={correctAnswerWithQuestions}
+                            setIsExamMode={setIsExamMode}
                         />
                     ) : (
                         <>
@@ -407,32 +409,40 @@ export default function Page() {
                             <Modal isOpen={isOpen} onClose={onClose}>
                                 <ModalOverlay />
                                 <ModalContent>
-                                    <ModalHeader>Modal Title</ModalHeader>
+                                    <ModalHeader>Exam Mode</ModalHeader>
                                     <ModalCloseButton />
                                     <ModalBody>
-                                        <FormControl>
-                                            <FormLabel>
-                                                Number of Questions
-                                            </FormLabel>
-                                            <NumberInput
-                                                defaultValue={
-                                                    numOfAvailableQnsWithCorrectAnswers
-                                                }
-                                                min={1}
-                                                max={
-                                                    numOfAvailableQnsWithCorrectAnswers
-                                                }
-                                                onChange={(value) =>
-                                                    setNumQn(value)
-                                                }
-                                            >
-                                                <NumberInputField />
-                                                <NumberInputStepper>
-                                                    <NumberIncrementStepper />
-                                                    <NumberDecrementStepper />
-                                                </NumberInputStepper>
-                                            </NumberInput>
-                                        </FormControl>
+                                        {numOfAvailableQnsWithCorrectAnswers !==
+                                        0 ? (
+                                            <FormControl>
+                                                <FormLabel>
+                                                    Number of Questions
+                                                </FormLabel>
+                                                <NumberInput
+                                                    defaultValue={
+                                                        numOfAvailableQnsWithCorrectAnswers
+                                                    }
+                                                    min={1}
+                                                    max={
+                                                        numOfAvailableQnsWithCorrectAnswers
+                                                    }
+                                                    onChange={(value) =>
+                                                        setNumQn(value)
+                                                    }
+                                                >
+                                                    <NumberInputField />
+                                                    <NumberInputStepper>
+                                                        <NumberIncrementStepper />
+                                                        <NumberDecrementStepper />
+                                                    </NumberInputStepper>
+                                                </NumberInput>
+                                            </FormControl>
+                                        ) : (
+                                            <Text>
+                                                There are no available questions
+                                                with correct answers
+                                            </Text>
+                                        )}
                                     </ModalBody>
 
                                     <ModalFooter>
@@ -443,12 +453,17 @@ export default function Page() {
                                         >
                                             Go Back
                                         </Button>
-                                        <Button
-                                            variant="ghost"
-                                            onClick={() => setIsExamMode(true)}
-                                        >
-                                            Start Exam Mode
-                                        </Button>
+                                        {numOfAvailableQnsWithCorrectAnswers !==
+                                            0 && (
+                                            <Button
+                                                variant="ghost"
+                                                onClick={() =>
+                                                    setIsExamMode(true)
+                                                }
+                                            >
+                                                Start Exam Mode
+                                            </Button>
+                                        )}
                                     </ModalFooter>
                                 </ModalContent>
                             </Modal>
@@ -522,7 +537,12 @@ export default function Page() {
                                                     fontSize="sm"
                                                 >
                                                     Attempt #
-                                                    {submission.attempt} (
+                                                    {submission.attempt < -10
+                                                        ? -1 *
+                                                          (submission.attempt +
+                                                              10)
+                                                        : submission.attempt}{" "}
+                                                    (
                                                     {Math.round(
                                                         submission.score * 100
                                                     ) / 100}
@@ -698,11 +718,14 @@ const Exam = ({
     numQn,
     quiz,
     quizResponse,
+    setIsExamMode,
 }: {
     numQn: string;
+    setIsExamMode: Dispatch<SetStateAction<boolean>>;
     quiz: Quiz & { id: string };
     quizResponse: QuizResponse; // the question id :  correct answers with empty selected answers
 }) => {
+    const router = useRouter();
     const updatedQuestions = [...quiz.questions];
     //let updatedSelectedOptions = [...quiz.selectedOptions];
     const questionIds = Object.keys(quizResponse);
@@ -716,12 +739,13 @@ const Exam = ({
             delete quizResponse[parseInt(removedQnID)];
         }
     }
-    let minSubmissionAttempt = -1;
+    let minSubmissionAttempt = -11;
     for (let i = 0; i < quiz.submissions.length; i++) {
-        if (quiz.submissions[i].attempt < minSubmissionAttempt) {
+        if (quiz.submissions[i].attempt <= minSubmissionAttempt) {
             minSubmissionAttempt = quiz.submissions[i].attempt;
         }
     }
+    minSubmissionAttempt = minSubmissionAttempt - 1;
     const newSubmission: CanvasQuizSubmission = {
         id: minSubmissionAttempt,
         // The ID of the Quiz the quiz submission belongs to.
@@ -780,7 +804,7 @@ const Exam = ({
         submission: newSubmission,
         selectedOptions: quizResponse,
     };
-    const updatedQuiz = create(newQuizAttempt, quiz.quizInfo);
+    // const updatedQuiz = create(newQuizAttempt, quiz.quizInfo);
     const qns = quiz.questions.filter((qn) =>
         questionIds.includes(qn.id.toString())
     );
@@ -791,7 +815,7 @@ const Exam = ({
         <>
             <Box mr={2} mb={2}>
                 <Tag colorScheme={"teal"}>
-                    Total questions seen: {quiz.questions.length}
+                    Total questions: {questionIds.length}
                 </Tag>
             </Box>
             <Box
@@ -841,6 +865,13 @@ const Exam = ({
                                         }}
                                     />
                                     <Divider />
+                                    <ExamAnswerList // this is the correct answer
+                                        questionType={question.question_type}
+                                        answers={question.answers}
+                                        selectedOptions={
+                                            quizResponse[question.id]
+                                        }
+                                    />
                                     {/* <Box mt={3}>
                                          <AnswerList
                                             questionType={
@@ -857,46 +888,89 @@ const Exam = ({
                                 </Stack>
                             ))}
                         </Stack>
+                        <Button
+                            onClick={() => {
+                                // individualExamUpdate(
+                                //     quiz.selectedOptions.length - 1,
+                                //     quizResponse,
+                                //     quiz.quizName,
+                                //     quiz.userUid
+                                // );
+                                create(newQuizAttempt, quiz.quizInfo);
+                                setIsExamMode(false);
+                                router.refresh();
+                            }}
+                            colorScheme="teal"
+                        >
+                            Submit Quiz
+                        </Button>
                     </Stack>
                 </GridItem>
             </Grid>
         </>
     );
 };
+// const endExam = (quizReponse: QuizResponse, setIsExamMode:Dispatch<SetStateAction<boolean>>) => {
+//     individualExamUpdate(quizReponse);
+//         setIsExamMode(false);
+//         // update the quiz attempt
+//         // update the quiz
+
+// }
 const ExamAnswerList = ({
     questionType,
     answers,
     selectedOptions,
-    show_correct_answers,
 }: {
     questionType: string;
     answers: Answer[];
-    selectedOptions: QuestionResponse;
-    show_correct_answers: boolean;
+    selectedOptions: QuestionResponse; // a single question
 }) => {
-    // console.log("reredner");
+    // const [selectedAnswers, setSelectedAnswers] = useState([]);
+    // const [selectedAnswer, setSelectedAnswer] = useState('');
+
+    // const handleAnswerChange = (value: (string)) => {
+    //   const answerIds = value
+
+    // //   if (isChecked) {
+    // //     setSelectedAnswers((prevSelectedAnswers) => [
+    // //       ...prevSelectedAnswers,
+    // //       ...answerIds,
+    // //     ]);
+    // //   } else {
+    // //     setSelectedAnswers((prevSelectedAnswers) =>
+    // //       prevSelectedAnswers.filter((id) => !answerIds.includes(id))
+    // //     );
+    // //   }
+
+    // //   if (questionType === "multiple_choice_question" || questionType === "true_false_question") {
+    // //     setSelectedAnswer(answerIds[0] ?? null);
+    // //     selectedOptions.selected_answer_ids = answerIds.slice(0, 1);
+    // //   } else {
+    // //     selectedOptions.selected_answer_ids = selectedAnswers;
+    // //   }
+    // };
+
     switch (questionType) {
         case "multiple_choice_question":
         case "true_false_question":
+            const [selectedAnswer, setSelectedAnswer] = useState("");
             return (
                 <RadioGroup
-                    value={
-                        selectedOptions.selected_answer_ids?.[0].toString() ??
-                        "0"
-                        // onChange = {handleAnswerChange}
-                    }
+                    value={selectedAnswer?.toString() ?? ""}
+                    onChange={(value) => {
+                        setSelectedAnswer(value);
+                        selectedOptions.selected_answer_ids = [
+                            parseInt(selectedAnswer),
+                        ];
+                    }}
                 >
                     <Stack>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"} key={i}>
-                                <Box
-                                    width="100px"
-                                    textAlign={"end"}
-                                    mr={3}
-                                ></Box>
+                            <Flex alignItems="center" key={i}>
+                                <Box width="100px" textAlign="end" mr={3}></Box>
                                 <Radio key={i} value={answer.id.toString()}>
-                                    {" "}
-                                    {answer.text ?? answer.html}{" "}
+                                    {answer.text ?? answer.html}
                                 </Radio>
                             </Flex>
                         ))}
@@ -905,30 +979,32 @@ const ExamAnswerList = ({
             );
 
         case "multiple_answers_question":
-            const userSelected = selectedOptions.selected_answer_ids?.map((s) =>
-                s.toString()
-            ) || [""];
+            const [selectedAnswers, setSelectedAnswers] = useState<
+                (string | number)[]
+            >([]);
+            // const userSelected = selectedAnswers.map((id) => id.toString());
+            // const handleSelectedAnswers = (value: string | number) => {
+            //     //value = value?.toLocaleString();
+            //     setSelectedAnswers([...selectedAnswers, value]);
+            // };
             return (
-                <CheckboxGroup value={userSelected}>
+                <CheckboxGroup
+                    value={selectedAnswers}
+                    onChange={(e) => {
+                        setSelectedAnswers(e.map((e) => e));
+                        selectedOptions.selected_answer_ids =
+                            selectedAnswers.map((id) =>
+                                parseInt(id.toString())
+                            );
+                        //console.log("selectedAns" + selectedAnswers);
+                    }}
+                >
                     <Stack spacing={4}>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"} key={i}>
-                                <Box width="100px" textAlign={"end"} mr={3}>
-                                    <AnswerResultTag
-                                        answer={answer}
-                                        selectedOptions={selectedOptions}
-                                        show_correct_answers={
-                                            show_correct_answers
-                                        }
-                                    />
-                                </Box>
-                                <Checkbox
-                                    key={i}
-                                    value={answer.id.toString()}
-                                    isReadOnly
-                                >
-                                    {" "}
-                                    {answer.text ?? answer.html}{" "}
+                            <Flex alignItems="center" key={i}>
+                                <Box width="100px" textAlign="end" mr={3}></Box>
+                                <Checkbox key={i} value={answer.id.toString()}>
+                                    {answer.text ?? answer.html}
                                 </Checkbox>
                             </Flex>
                         ))}
@@ -939,55 +1015,32 @@ const ExamAnswerList = ({
         case "essay_question":
         case "short_answer_question":
         case "numerical_question":
+            const [selectedNumber, setSelectedNumber] = useState("");
             return (
                 <Stack spacing={4}>
-                    <Flex alignItems={"center"}>
-                        {" "}
-                        <Box width="100px" textAlign="end" mr={3}>
-                            <AnswerResultTag
-                                selectedOptions={selectedOptions}
-                                show_correct_answers={show_correct_answers}
-                            />
-                        </Box>{" "}
+                    <Flex alignItems="center">
+                        <Box width="100px" textAlign="end" mr={3}></Box>
                         <Box>
                             <Stack spacing={1}>
                                 <Text
                                     fontWeight="semibold"
-                                    textDecoration={"underline"}
+                                    textDecoration="underline"
                                 >
                                     Your answer
-                                </Text>{" "}
-                                <Text>{selectedOptions.answer_text}</Text>
+                                </Text>
+                                <Input
+                                    placeholder="Insert Answer Here"
+                                    value={selectedNumber}
+                                    onChange={(e) => {
+                                        setSelectedNumber(e.target.value);
+                                        selectedOptions.answer_text = [
+                                            e.target.value,
+                                        ];
+                                    }}
+                                />
                             </Stack>
                         </Box>
                     </Flex>
-                    {selectedOptions?.correct_answer_text && (
-                        <Flex alignItems={"center"}>
-                            {" "}
-                            <Box width="100px" textAlign="end" mr={3}>
-                                {/* <Badge colorScheme="green">Correct!</Badge> */}
-                            </Box>{" "}
-                            <Box>
-                                <Stack spacing={1}>
-                                    <Text
-                                        fontWeight="semibold"
-                                        textDecoration={"underline"}
-                                    >
-                                        Correct answer
-                                        {selectedOptions?.correct_answer_text
-                                            ?.length > 1
-                                            ? "s"
-                                            : ""}
-                                    </Text>{" "}
-                                    {selectedOptions.correct_answer_text?.map(
-                                        (ans, i) => (
-                                            <Text key={i}>{ans}</Text>
-                                        )
-                                    )}
-                                </Stack>
-                            </Box>
-                        </Flex>
-                    )}
                 </Stack>
             );
 
@@ -995,6 +1048,7 @@ const ExamAnswerList = ({
             return <>--- UNSUPPORTED QUESTION TYPE ---</>;
     }
 };
+
 const FlaggingButton = ({
     question,
     quiz,
