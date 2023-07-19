@@ -222,8 +222,7 @@ export default function Page() {
                 attemptDeleteDisclosure.onClose();
             });
     };
-    console.log("HELLO QUIZ");
-    console.log(quiz);
+
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -242,6 +241,7 @@ export default function Page() {
                         onClick={confirmDelete}
                         isLoading={isDeleting}
                         colorScheme="red"
+                        data-testid="confirm-delete-quiz"
                     >
                         Delete
                     </Button>
@@ -258,6 +258,7 @@ export default function Page() {
                         onClick={confirmDeleteAttempt}
                         isLoading={isDeletingAttempt}
                         colorScheme="red"
+                        data-testid="confirm-delete-attempt"
                     >
                         Delete
                     </Button>
@@ -299,6 +300,7 @@ export default function Page() {
                                     onClick={alertDeleteDisclosure.onOpen}
                                     isLoading={isDeleting}
                                     size="sm"
+                                    data-testid="delete-quiz"
                                 >
                                     <TbTrashX />
                                     <Text
@@ -355,6 +357,7 @@ export default function Page() {
                                     }
                                     colorScheme="teal"
                                     onClick={() => setSelectedAttemptIndex(-1)}
+                                    data-testid="combined-button"
                                 >
                                     Combined
                                 </Button>
@@ -414,6 +417,7 @@ export default function Page() {
                                                         ].attempt
                                                     );
                                                 }}
+                                                data-testid={`delete-attempt-${quiz.submissions[selectedAttemptIndex].attempt}`}
                                             >
                                                 <TbTrashX />
                                             </Button>
@@ -530,27 +534,29 @@ const FlaggingButton = ({
     quiz: Quiz & { id: string };
     setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
-    const [isFlagged, setIsFlagged] = useState(question.isFlagged);
     const toast = useToast();
     const handleFlagQuestion = async (questionId: number) => {
         try {
             const updatedQuizData = await updateQuizQuestionFlag(
                 quiz,
                 questionId,
-                !isFlagged
+                !question.isFlagged
             );
             setQuiz(updatedQuizData);
-            setIsFlagged(!isFlagged);
+
             toast({
                 ...SUCCESS_TOAST_OPTIONS,
-                title: `Question ${!isFlagged ? "flagged" : "unflagged"}`,
+                title: `Question ${
+                    !question.isFlagged ? "flagged" : "unflagged"
+                }`,
             });
         } catch (e: any) {
             console.log(e);
+            console.log("Error unflagging");
             toast({
                 ...ERROR_TOAST_OPTIONS,
                 title: `Error ${
-                    !isFlagged ? "flagging" : "unflagging"
+                    !question.isFlagged ? "flagging" : "unflagging"
                 } question`,
                 description: e.toString(),
             });
@@ -558,7 +564,7 @@ const FlaggingButton = ({
     };
     return (
         <IconButton
-            aria-label="flag question"
+            aria-label={`${question.isFlagged ? "Unflag" : "Flag"} question`}
             onClick={() => {
                 handleFlagQuestion(question.id);
             }}
@@ -959,7 +965,7 @@ const CombinedQuestionList = ({
     const questionBgColor = useColorModeValue("white", "gray.800");
 
     return (
-        <Stack>
+        <Stack data-testid="combined-questions-list">
             <Heading fontSize="xl">
                 {" "}
                 Showing best results for each question{" "}

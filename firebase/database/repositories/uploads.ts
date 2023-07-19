@@ -1,6 +1,12 @@
 import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
 import { getRandomColor } from "@/lib/functions";
-import { CanvasQuiz, Quiz, QuizAttempt, annotations } from "@/types/canvas";
+import {
+    CanvasQuiz,
+    Quiz,
+    QuizAttempt,
+    annotations,
+    QuizSubmissionQuestion,
+} from "@/types/canvas";
 import {
     addDoc,
     collection,
@@ -275,6 +281,37 @@ export const addQuizQuestionAnnotation = async (
         };
     } catch (e) {
         console.log("ERROR:", e);
+        throw e;
+    }
+};
+
+export const deleteQuizQuestionAnnotation = async (
+    ID: string,
+    annotationID: number,
+    question: QuizSubmissionQuestion
+) => {
+    try {
+        const existingQuiz = doc(db, COLLECTION_NAME, ID);
+        const existingQuizData = (await getDoc(existingQuiz)).data() as Quiz;
+        const existingQuestions = existingQuizData.questions;
+        const newQuestions = existingQuestions.map((qn) => {
+            if (qn.id === question.id) {
+                qn.annotations = qn.annotations.filter(
+                    (ann) => ann.annotationID !== annotationID
+                );
+            }
+            return qn;
+        });
+        existingQuizData.questions = newQuestions;
+        await updateDoc(existingQuiz, existingQuizData);
+        const updatedQuiz = {
+            ...existingQuizData,
+            id: ID,
+        };
+
+        return updatedQuiz;
+    } catch (e) {
+        console.log(e);
         throw e;
     }
 };

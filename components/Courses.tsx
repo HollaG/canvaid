@@ -31,10 +31,9 @@ export type QuizUploadProps = {
     id: number;
 };
 type CourseProps = {
-    deletion: (itemid: string) => void;
     onAddNew: () => void;
 };
-const Courses = ({ deletion, onAddNew }: CourseProps) => {
+const Courses = ({ onAddNew }: CourseProps) => {
     const { quizzes, searchString } = useQuizContainer();
     const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
     const filteredQuizzes = quizzes.filter((quiz) => {
@@ -45,37 +44,6 @@ const Courses = ({ deletion, onAddNew }: CourseProps) => {
     });
 
     const helperColor = useColorModeValue("gray.600", "gray.400");
-    // const modules = [
-    //     {
-    //         id: 1,
-    //         name: "CS2040s",
-    //         quizzes: [
-    //             { id: 1, name: "Quiz 1" },
-    //             { id: 2, name: "Quiz 2" },
-    //             { id: 3, name: "Quiz 3" },
-    //             { id: 4, name: "Quiz 4" },
-    //             { id: 5, name: "Quiz 5" },
-    //             // Add more quizzes as needed
-    //         ],
-    //         maxQuizzesToShow: 3,
-    //     },
-    //     {
-    //         id: 2,
-    //         name: "GEA1000",
-    //         quizzes: [
-    //             { id: 1, name: "Quiz 1" },
-    //             { id: 2, name: "Quiz 2" },
-    //             { id: 3, name: "Quiz 3" },
-    //         ],
-    //     },
-    //     // Add more modules as needed
-    // ];
-
-    const showAllQuizzes = (moduleIndex: number) => {
-        // Implement logic to handle "See All Quizzes" button click
-        // Set state or perform an action to show all quizzes for the module
-        console.log("Showing all quizzes for module", moduleIndex + 1);
-    };
 
     return (
         <Box p={4}>
