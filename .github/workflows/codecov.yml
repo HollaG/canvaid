@@ -6,7 +6,7 @@ on:
             - "*.md"
 
     pull_request:
-        branches: [main, m3-dev]
+        branches: ["*"]
         paths-ignore:
             - "*.md"
 jobs:

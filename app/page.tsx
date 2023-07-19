@@ -205,6 +205,13 @@ export default function Page() {
                                     >
                                         Upload
                                     </Button>
+                                    <Button
+                                        size="lg"
+                                        ml={3}
+                                        onClick={() => router.push("/exam")}
+                                    >
+                                        Exam
+                                    </Button>
                                 </Center>
                             </Box>
                         </Center>

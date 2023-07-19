@@ -5,6 +5,8 @@
 // < 1 week: "x days ago"
 // < 1 month: "x weeks ago"
 
+import { Quiz, QuizAnswers, QuizResponse } from "@/types/canvas";
+
 export const formatTimeElapsed = (date: Date) => {
     const timeElapsed = Math.abs(
         new Date().getTime() - new Date(date).getTime()
@@ -30,6 +32,169 @@ export const getUploads = async (uid: string) => {
     return res.json();
 };
 
+/**
+<<<<<<< HEAD
+ * Generate the final score for an exam.
+ *
+ * @param selectedOptions
+ * @param quizAnswers
+ * @returns
+ */
+export const hydrateSelectedOptions = (
+    selectedOptions: QuizResponse,
+    quizAnswers: QuizAnswers
+) => {
+    // copy the selectedOptions
+    const calculated = structuredClone(selectedOptions);
+
+    console.log({ calculated, quizAnswers });
+
+    for (const qnId in calculated) {
+        const questionResponse = calculated[qnId];
+
+        // try to find the answer
+        const answer = quizAnswers[qnId];
+        if (!answer) continue;
+
+        questionResponse.correct_answer_ids = answer.correct_answer_ids;
+        questionResponse.correct_answer_text = answer.correct_answer_text;
+        questionResponse.total_score = answer.total_score;
+
+        // text input
+        // TODO: support for more than 1
+        if (
+            questionResponse.answer_text &&
+            questionResponse.answer_text[0] &&
+            questionResponse.correct_answer_text?.[0] ===
+                questionResponse.answer_text?.[0]
+        ) {
+            questionResponse.your_score = answer.total_score;
+        }
+
+        // selection input
+
+        questionResponse.your_score = calculateScore(
+            questionResponse.selected_answer_ids,
+            questionResponse.correct_answer_ids,
+            questionResponse.total_score
+        );
+    }
+
+    return calculated;
+};
+
+/**
+ * Given the correct answers and the selected answers, calculate the score.
+ *
+ * Each correct answer is given a score of 1/total_correct_answers.
+ * Selecting an answer that is not in the correct answers will deduct the marks by 1/total_correct_answers.
+ * Not selecting an answer that is in the correct answers will deduct the marks by 1/total_correct_answers.
+ *
+ * @param selectedAnswerIds
+ * @param correctAnswerIds
+ * @param totalScore
+ */
+export const calculateScore = (
+    selectedAnswerIds: number[] | undefined,
+    correctAnswerIds: number[] | undefined,
+    totalScore: number | undefined
+) => {
+    let score = 0;
+
+    if (!selectedAnswerIds || !correctAnswerIds || !totalScore) return score;
+    if (correctAnswerIds.length === 0 && selectedAnswerIds.length === 0)
+        return totalScore;
+
+    // no correct answers
+    if (correctAnswerIds.length === 0) return score;
+
+    // no selected answers
+    if (selectedAnswerIds.length === 0) return score;
+
+    // correct answer
+    if (arraysEqual(selectedAnswerIds, correctAnswerIds)) {
+        return totalScore;
+    }
+
+    // for every correct answer in selectedAnswers, add 1/totalScore
+    const scorePerCorrectAnswer = 1 / correctAnswerIds.length;
+    for (const selectedAnswerId of selectedAnswerIds) {
+        if (correctAnswerIds.includes(selectedAnswerId)) {
+            score += scorePerCorrectAnswer;
+        } else {
+            score -= scorePerCorrectAnswer;
+        }
+    }
+
+    return Math.max(0, score);
+};
+
+/**
+ * Function to check if two arrays contain the same values.
+ * Not necessarily in order.
+ *
+ * @param arr1
+ * @param arr2
+ *
+ * @returns boolean
+ */
+export const arraysEqual = (arr1: any[], arr2: any[]) => {
+    if (arr1.length !== arr2.length) return false;
+
+    for (const item of arr1) {
+        if (!arr2.includes(item)) return false;
+    }
+
+    return true;
+};
+
+/**
+ * Calculates the total score of a custom quiz.
+ *
+ * @param selectedOptions
+ * @returns
+ */
+export const calculateTotalScore = (selectedOptions: QuizResponse) => {
+    let totalScore = 0;
+
+    for (const qnId in selectedOptions) {
+        const questionResponse = selectedOptions[qnId];
+
+        totalScore += questionResponse.your_score || 0;
+    }
+
+    return Math.round(totalScore * 100) / 100;
+};
+
+/**
+ * Convert a custom attempt number to a string.
+ * A custom attempt number is negative and starts from -10, going down.
+ *
+ * Does nothing if the attempt number if positive (not custom)
+ *
+ * @param attempt
+ * @returns formatted string
+ */
+export const convertCustomAttemptNumber = (attempt: number) => {
+    if (attempt > 0) return attempt.toString();
+    let a = -1 * attempt;
+    a = a - 9;
+
+    return `C${a}`;
+};
+
+export const getExaminableQuestions = (quiz?: Quiz & { id: string }) => {
+    if (!quiz) return [];
+    const answers = quiz.quizAnswers;
+    const questions = quiz.questions;
+
+    const examinableQuestions = questions.filter((qn) => {
+        // this qn id must be present in answers
+        return answers[qn.id];
+    });
+
+    return examinableQuestions;
+};
 /**
  * Generate the academic year and semester display.
  *

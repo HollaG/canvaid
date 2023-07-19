@@ -1,10 +1,13 @@
 import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
 import { getRandomColor } from "@/lib/functions";
+
 import {
     CanvasQuiz,
     Quiz,
     QuizAttempt,
+    QuizResponse,
     annotations,
+    QuizAnswers,
     QuizSubmissionQuestion,
 } from "@/types/canvas";
 import {
@@ -28,6 +31,26 @@ const CANVAS_HTTP_OPTIONS = {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_CANVAS_TEST_TOKEN}`,
         Accept: "application/json",
     }),
+};
+export const individualExamUpdate = async (
+    index: number,
+    examAnswers: QuizResponse,
+    quizName: string,
+    userUid: string
+) => {
+    const dbRef = collection(db, COLLECTION_NAME);
+    const existingQuizQuery = query(
+        dbRef,
+        where("quizName", "==", quizName),
+        where("userUid", "==", userUid)
+    );
+
+    const existingSnapshot = await getDocs(existingQuizQuery);
+    const latestDoc = existingSnapshot.docs[0];
+    const existingData = latestDoc.data() as Quiz;
+    console.log("Existing Data:", existingData);
+    existingData.selectedOptions[index] = examAnswers;
+    await updateDoc(latestDoc.ref, existingData);
 };
 
 export const create = async (
@@ -73,6 +96,33 @@ export const create = async (
         // first, get the quiz data from canvas
         // const res = await fetch(`${CANVAS_URL}courses/${}`)
 
+        const quizAnswers: QuizAnswers = {};
+        for (const assessment_question_id in quizAttempt.selectedOptions) {
+            const response =
+                quizAttempt.selectedOptions[assessment_question_id];
+
+            if (
+                response.your_score === response.total_score ||
+                response.correct_answer_ids ||
+                response.correct_answer_text
+            ) {
+                // we know the correct answers
+                quizAnswers[assessment_question_id] = {};
+                if (response.correct_answer_ids) {
+                    quizAnswers[assessment_question_id].correct_answer_ids =
+                        response.correct_answer_ids;
+                }
+                if (response.correct_answer_text) {
+                    quizAnswers[assessment_question_id].correct_answer_text =
+                        response.correct_answer_text;
+                }
+                if (response.total_score) {
+                    quizAnswers[assessment_question_id].total_score =
+                        response.total_score;
+                }
+            }
+        }
+
         const newQuiz: Quiz = {
             // maybe use inheritance for types instead for mutliple quiz attempt
             submissions: [quizAttempt.submission],
@@ -83,6 +133,8 @@ export const create = async (
             userUid: quizAttempt.userUid,
             lastUpdated: new Date(),
             quizInfo: quizInformation,
+
+            quizAnswers,
 
             quizSettings: {
                 academicYear: ACADEMIC_YEAR,
@@ -136,11 +188,44 @@ export const create = async (
         fieldDataSubmissions.push(quizAttempt.submission);
         fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
 
+        // for all of the selected options, generate the new quiz answers
+        const existingQuizAnswers = existingData.quizAnswers || {};
+        for (const assessment_question_id in quizAttempt.selectedOptions) {
+            const response =
+                quizAttempt.selectedOptions[assessment_question_id];
+
+            if (
+                response.your_score === response.total_score ||
+                response.correct_answer_ids ||
+                response.correct_answer_text
+            ) {
+                // we know the correct answers
+                // add only if undefined
+
+                existingQuizAnswers[assessment_question_id] = {};
+                if (response.correct_answer_ids) {
+                    existingQuizAnswers[
+                        assessment_question_id
+                    ].correct_answer_ids = response.correct_answer_ids;
+                }
+                if (response.correct_answer_text) {
+                    existingQuizAnswers[
+                        assessment_question_id
+                    ].correct_answer_text = response.correct_answer_text;
+                }
+                if (response.total_score) {
+                    existingQuizAnswers[assessment_question_id].total_score =
+                        response.total_score;
+                }
+            }
+        }
+
         await updateDoc(latestDoc.ref, {
             submissions: fieldDataSubmissions,
             selectedOptions: fieldDataSelectedOptions,
             questions: mergedQuestions,
             lastUpdated: new Date(),
+            quizAnswers: existingQuizAnswers,
         });
 
         return {
