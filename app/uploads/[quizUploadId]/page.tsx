@@ -810,7 +810,7 @@ const Exam = ({
         // Indicates whether the quiz submission is overdue and needs submission
         overdue_and_needs_submission: false,
 
-        quiz_points_possible: 0,
+        quiz_points_possible: questionIds.length,
     };
     // quiz.submissions.push(newSubmission);
     // no need to change the question order here
@@ -852,7 +852,7 @@ const Exam = ({
             <Stack>
                 <Flex justifyContent={"space-between"} alignItems="center">
                     <Heading fontSize="xl">
-                        Attempt #{newSubmission.attempt * -1}
+                        Attempt #{(newSubmission.attempt + 10) * -1}
                     </Heading>
                     <Flex></Flex>
                 </Flex>
