@@ -26,18 +26,17 @@ import {
 const NotCanvasApiTokenPage = () => {
     const [token, setToken] = useState("");
     //const history = useHistory();
-    const authCtx = useAuthContainer();
-    const user = authCtx.user as AppUser;
+    const { user, setUser } = useAuthContainer();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const handleTokenSubmit = async (event: any) => {
-        console.log("TOKEN IS BEING SUBMITTED:", token);
+        if (!user) return;
+
         // Update the user's document in Firebase with the Canvas API token
         setIsSubmitting(true);
         event.preventDefault();
 
-        console.log("still here");
         fetch("/api/validation", {
             method: "POST",
             body: JSON.stringify(token),
@@ -61,14 +60,14 @@ const NotCanvasApiTokenPage = () => {
                     // Update the hasToken state and redirect to the main page
                     // update the user's state in the auth container
 
-                    authCtx.setUser(firebaseUser);
+                    setUser(firebaseUser);
                 } else {
-                    console.log("Invalid token");
                     throw new Error("Invalid token");
                 }
             })
             .catch((e) => {
                 console.log(e);
+
                 setErrorMessage("Invalid Canvas API Token!");
             });
     };

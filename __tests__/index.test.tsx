@@ -65,66 +65,57 @@ jest.mock("firebase/firestore", () => ({
     updateDoc: jest.fn(),
 }));
 
+jest.setTimeout(16000);
+
 describe("Home page", () => {
     it("should render a not-logged in home page", async () => {
-        const push = jest.fn((url) => {});
-        const searchParams = {
-            get: jest.fn(() => ""),
-        };
-
-        jest.mock("next/navigation", () => ({
-            ...(jest.requireActual("next/navigation") as object),
-            useSearchParams: () => [searchParams],
-        }));
-
-        render(
-            <AppRouterContextProviderMock router={{ push }}>
-                <HomePage />
-            </AppRouterContextProviderMock>
-        );
+        render(<HomePage />);
 
         const getStartedBtn = await screen.findByTestId("cta-btn");
         expect(getStartedBtn).toBeInTheDocument();
     });
 
-    it("should render a input Canvas token page", async () => {
-        const searchParams = {
-            get: jest.fn(() => ""),
-            login: true,
-        };
+    it("should render a login / signup page", async () => {
+        await act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: false,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
 
-        const mockSetUser = jest.fn((user: AppUser | false | undefined) => {
-            console.log({ user });
-            rerender(
-                <AppRouterContextProviderMock router={{}}>
-                    <UserContext.Provider
-                        value={{
-                            user: USER,
-                            setUser: jest.fn(),
-                        }}
-                    >
-                        <ChakraProvider theme={customTheme}>
-                            <HomePage />
-                        </ChakraProvider>
-                    </UserContext.Provider>
-                </AppRouterContextProviderMock>
-            );
+        const getStartedBtn = await screen.findByTestId("cta-btn");
+        await act(async () => {
+            await userEvent.click(getStartedBtn);
         });
 
-        const { rerender } = await act(() =>
+        await act(async () => {
+            mockRouter.push("/?login=true");
+        });
+        const emailSignInInput = await screen.findByTestId("email-signin");
+        expect(emailSignInInput).toBeInTheDocument();
+    });
+
+    it("should render a input Canvas token page", async () => {
+        await act(() =>
             render(
-                <AppRouterContextProviderMock router={{}}>
-                    <UserContext.Provider
-                        value={{
-                            user: { ...USER, canvasApiToken: "" },
-                            setUser: mockSetUser as any,
-                        }}
-                    >
-                        <ChakraProvider theme={customTheme}>
-                            <HomePage />
-                        </ChakraProvider>
-                    </UserContext.Provider>
-                </AppRouterContextProviderMock>
+                <UserContext.Provider
+                    value={{
+                        user: { ...USER, canvasApiToken: "" },
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
             )
         );
 
@@ -140,42 +131,92 @@ describe("Home page", () => {
             pathname: "/",
             query: { login: "true" },
         });
+    });
+
+    it("should display an error when an invalid token is entered", async () => {
+        act(() =>
+            render(
+                // <AppRouterContextProviderMock router={{}}>
+                <UserContext.Provider
+                    value={{
+                        user: { ...USER, canvasApiToken: "" },
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+                // </AppRouterContextProviderMock>
+            )
+        );
 
         const tokenInput = await screen.findByTestId("token-input");
 
         expect(tokenInput).toBeInTheDocument();
 
-        // // mock token
-        // await act(async () => await userEvent.type(tokenInput, "12345678901"));
+        // mock token
+        await act(async () => await userEvent.type(tokenInput, "12345678901"));
+        const submitButton = await screen.findByTestId("token-submit");
+        fetchMock.mockResponseOnce(JSON.stringify({ success: false }));
+        // fetchMock.mockReject(new Error("fake error message"));
+        // click submit
 
-        // fetchMock.mockResponseOnce(JSON.stringify({ success: false }));
-        // // fetchMock.mockReject(new Error("fake error message"));
-        // // click submit
+        expect(submitButton).toBeInTheDocument();
 
-        // const submitButton = await screen.findByTestId("token-submit");
+        await userEvent.click(submitButton);
 
-        // expect(submitButton).toBeInTheDocument();
+        expect(
+            await screen.findByText(/Invalid Canvas API Token!/)
+        ).toBeInTheDocument();
+    });
 
-        // await userEvent.click(submitButton);
+    it("should redirect to home page if correct token", async () => {
+        const mockSetUser = jest.fn((user: AppUser | false | undefined) => {
+            rerender(
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+            );
+        });
 
-        // expect(
-        //     await screen.findByText(/Invalid Canvas API Token!/)
-        // ).toBeInTheDocument();
-        // fetchMock.mockClear();
-        // fetchMock.mockResponseOnce(JSON.stringify({ success: true }));
+        const { rerender } = await act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: { ...USER, canvasApiToken: "" },
+                        setUser: mockSetUser as any,
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
+        const tokenInput = await screen.findByTestId("token-input");
 
-        // await userEvent.click(submitButton);
+        await act(async () => await userEvent.type(tokenInput, "12345678901"));
+        const submitButton = await screen.findByTestId("token-submit");
 
-        // userEvent.click(await screen.findByTestId("token-submit"));
+        fetchMock.mockResponseOnce(JSON.stringify({ success: true }));
+        await act(async () => await userEvent.click(submitButton));
 
         // expect a redirect to the homepage
-        // expect(mockSetUser).toHaveBeenCalled();
+        expect(mockSetUser).toHaveBeenCalled();
 
-        // expect(mockRouter).toMatchObject({
-        //     asPath: "/",
-        //     pathname: "/",
-        //     query: {},
-        // });
+        expect(mockRouter).toMatchObject({
+            asPath: "/",
+            pathname: "/",
+            query: {},
+        });
     });
 
     it("should render a logged-in home page", async () => {

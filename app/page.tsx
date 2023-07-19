@@ -86,14 +86,12 @@ export default function Page() {
     const showLogIn = params && params.get("login") === "true";
     useEffect(() => {
         // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
-        console.log("useeffect");
-        console.log({ showLogIn, user });
+
         if (showLogIn && (!user || !user.canvasApiToken)) {
-            console.log("onopen");
             onOpen();
         } else {
-            console.log("Closing modal!");
             onClose();
+            router.replace("/");
         }
     }, [showLogIn, user]);
 
