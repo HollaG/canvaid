@@ -77,11 +77,15 @@ import { useAuthContainer, useQuizContainer } from "@/app/providers";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+
 import { create } from "@/firebase/database/repositories/uploads";
 import {
     convertCustomAttemptNumber,
     getExaminableQuestions,
 } from "@/lib/functions";
+
+import { TbTrashX } from "react-icons/tb";
+
 // export default async function Page({
 //     params,
 //     searchParams,
@@ -218,6 +222,7 @@ export default function Page() {
                 attemptDeleteDisclosure.onClose();
             });
     };
+
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [examinableQuestionNumber, setExaminableQuestionNumber] = useState(0);
@@ -245,6 +250,7 @@ export default function Page() {
                         onClick={confirmDelete}
                         isLoading={isDeleting}
                         colorScheme="red"
+                        data-testid="confirm-delete-quiz"
                     >
                         Delete
                     </Button>
@@ -265,6 +271,7 @@ export default function Page() {
                         onClick={confirmDeleteAttempt}
                         isLoading={isDeletingAttempt}
                         colorScheme="red"
+                        data-testid="confirm-delete-attempt"
                     >
                         Delete
                     </Button>
@@ -343,8 +350,8 @@ export default function Page() {
                     ml={{ base: 0, md: SIDEBAR_WIDTH }}
                     p={4}
                     bgColor={bgColor}
-                    borderRadius="xl"
-                    mt={6}
+                    borderRadius={{ base: 0, md: "xl" }}
+                    mt={{ base: 0, md: 6 }}
                 >
                     {/* <Box>
                     <Text
@@ -364,7 +371,7 @@ export default function Page() {
                     <CourseInfo
                         courseCode={quiz.course.split(" ")[0]}
                         courseName={quiz.course.split(" ").slice(1).join(" ")}
-                        DeleteButton={
+                        Button={
                             <Tooltip label="Delete this quiz">
                                 <Button
                                     colorScheme={"red"}
@@ -372,8 +379,9 @@ export default function Page() {
                                     onClick={alertDeleteDisclosure.onOpen}
                                     isLoading={isDeleting}
                                     size="sm"
+                                    data-testid="delete-quiz"
                                 >
-                                    <DeleteIcon />
+                                    <TbTrashX />
                                     <Text
                                         display={{
                                             md: "unset",
@@ -436,6 +444,7 @@ export default function Page() {
                                     }
                                     colorScheme="teal"
                                     onClick={() => setSelectedAttemptIndex(-1)}
+                                    data-testid="combined-button"
                                 >
                                     Combined
                                 </Button>
@@ -499,8 +508,9 @@ export default function Page() {
                                                         ].attempt
                                                     );
                                                 }}
+                                                data-testid={`delete-attempt-${quiz.submissions[selectedAttemptIndex].attempt}`}
                                             >
-                                                <DeleteIcon />
+                                                <TbTrashX />
                                             </Button>
                                         </Flex>
                                     </Flex>
@@ -616,23 +626,37 @@ const FlaggingButton = ({
     quiz: Quiz & { id: string };
     setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
-    const [isFlagged, setIsFlagged] = useState(question.isFlagged);
+    const toast = useToast();
     const handleFlagQuestion = async (questionId: number) => {
         try {
             const updatedQuizData = await updateQuizQuestionFlag(
                 quiz,
                 questionId,
-                !isFlagged
+                !question.isFlagged
             );
             setQuiz(updatedQuizData);
-            setIsFlagged(!isFlagged);
-        } catch (e) {
+
+            toast({
+                ...SUCCESS_TOAST_OPTIONS,
+                title: `Question ${
+                    !question.isFlagged ? "flagged" : "unflagged"
+                }`,
+            });
+        } catch (e: any) {
             console.log(e);
+            console.log("Error unflagging");
+            toast({
+                ...ERROR_TOAST_OPTIONS,
+                title: `Error ${
+                    !question.isFlagged ? "flagging" : "unflagging"
+                } question`,
+                description: e.toString(),
+            });
         }
     };
     return (
         <IconButton
-            aria-label="flag question"
+            aria-label={`${question.isFlagged ? "Unflag" : "Flag"} question`}
             onClick={() => {
                 handleFlagQuestion(question.id);
             }}
@@ -703,15 +727,18 @@ const QuestionExtras = ({
                 {question.annotations.length &&
                     question.annotations.map((annotation, i) => {
                         return (
-                            <>
-                                <Text key={i}> {annotation.annotation}</Text>
+                            <Flex key={i}>
+                                <Text flexGrow={1}>
+                                    {" "}
+                                    {annotation.annotation}
+                                </Text>
                                 <DeleteAnnotationButton
                                     ID={quiz.id}
                                     annotationID={annotation.annotationID}
                                     setQuiz={setQuiz}
                                     question={question}
                                 />
-                            </>
+                            </Flex>
                         );
                     })}
             </Stack>
@@ -1043,7 +1070,7 @@ const CombinedQuestionList = ({
     const questionBgColor = useColorModeValue("white", "gray.800");
 
     return (
-        <Stack>
+        <Stack data-testid="combined-questions-list">
             <Heading fontSize="xl">
                 {" "}
                 Showing best results for each question{" "}

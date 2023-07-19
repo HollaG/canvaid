@@ -185,7 +185,7 @@ export default function LoginComponent() {
         // redirect back to home page
         // close the modal then redirect
         // redirect("/");
-        router.replace("/");
+        // router.replace("/");
     }
 
     return (
@@ -258,6 +258,7 @@ export default function LoginComponent() {
                                                 // variant="flushed"
                                                 placeholder=" "
                                                 size={"lg"}
+                                                data-testid="email-signin"
                                             />
                                             <FormLabel>Email</FormLabel>
 

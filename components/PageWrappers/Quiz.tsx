@@ -45,6 +45,7 @@ import {
     Text,
     FormErrorMessageProps,
     useColorModeValue,
+    useToast,
 } from "@chakra-ui/react";
 
 import {
@@ -62,7 +63,6 @@ import {
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 
 import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import { BsTrash } from "react-icons/bs";
 
 import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
@@ -70,6 +70,8 @@ import { useAuthContainer } from "@/app/providers";
 import useSidebar from "@/hooks/useSidebar";
 import { getUploads } from "@/lib/functions";
 import { db } from "@/firebase/database";
+import { TbTrashX } from "react-icons/tb";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 
 /**
  * @deprecated
@@ -372,6 +374,7 @@ const FlaggingButton = ({
     >;
 }) => {
     const [isFlagged, setIsFlagged] = useState(question.isFlagged);
+    const toast = useToast();
     const handleFlagQuestion = async (questionId: number) => {
         try {
             const updatedQuizData = await updateQuizQuestionFlag(
@@ -381,8 +384,19 @@ const FlaggingButton = ({
             );
             setQuiz(updatedQuizData);
             setIsFlagged(!isFlagged);
-        } catch (e) {
+            toast({
+                ...SUCCESS_TOAST_OPTIONS,
+                title: `Question ${!isFlagged ? "flagged" : "unflagged"}`,
+            });
+        } catch (e: any) {
             console.log(e);
+            toast({
+                ...ERROR_TOAST_OPTIONS,
+                title: `Error ${
+                    !isFlagged ? "flagging" : "unflagging"
+                } question`,
+                description: e.toString(),
+            });
         }
     };
     return (
@@ -940,7 +954,7 @@ function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
         }
     };
 
-    return <BsTrash fontSize={"24px"} onClick={() => handleDelete()} />;
+    return <TbTrashX fontSize={"24px"} onClick={() => handleDelete()} />;
 }
 
 function DeleteAnnotationButton({
@@ -992,7 +1006,7 @@ function DeleteAnnotationButton({
     return (
         <IconButton
             aria-label="delete"
-            icon={<BsTrash />}
+            icon={<TbTrashX />}
             size="sm"
             onClick={() => handleDelete()}
         />

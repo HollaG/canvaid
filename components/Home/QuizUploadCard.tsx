@@ -24,39 +24,48 @@ import {
     useSteps,
     StepSeparator,
     useMediaQuery,
+    Divider,
+    useToast,
+    useDisclosure,
+    Button,
+    Icon,
 } from "@chakra-ui/react";
-import {
-    BsArrowUpRight,
-    BsHeartFill,
-    BsHeart,
-    BsTrash,
-    BsThreeDotsVertical,
-} from "react-icons/bs";
+
 import { QuizUploadProps } from "../Courses";
 import { Quiz } from "@/types/canvas";
 import { Timestamp } from "firebase/firestore";
 import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
-import { convertCustomAttemptNumber, formatTimeElapsed } from "@/lib/functions";
-import { TimeIcon } from "@chakra-ui/icons";
+
+import {
+    convertCustomAttemptNumber,
+    formatTimeElapsed,
+    getAcademicYearAndSemester,
+} from "@/lib/functions";
+import { DeleteIcon, TimeIcon } from "@chakra-ui/icons";
 
 import styles from "./QuizUploadCard.module.css";
 import Link from "next/link";
 import CourseInfo from "../Display/CourseInfo";
+import { TbPin, TbPinnedFilled, TbTrash, TbTrashX } from "react-icons/tb";
+import {
+    deleteQuiz,
+    togglePinQuiz,
+} from "@/firebase/database/repositories/uploads";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import CustomAlertDialog from "../Alert/CustomAlertDialog";
+import { useAuthContainer } from "@/app/providers";
+import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
 
 export default function QuizUploadCard({
     quiz,
-    onDelete,
 }: {
     quiz: Quiz & { id: string };
-    onDelete: (itemid: string) => void;
 }) {
-    const [liked, setLiked] = useState(false);
-    const handleDelete = () => {
-        onDelete(quiz.id);
-    };
-
+    const toast = useToast();
+    const authCtx = useAuthContainer();
+    const user = authCtx.user;
     // order the submissions according to the attempt number in reverse order
     const sortedSubmissions = structuredClone(quiz.submissions).sort(
         (a, b) => b.attempt - a.attempt
@@ -74,12 +83,83 @@ export default function QuizUploadCard({
     // Custom size
     const [shouldNotBeFullWidth] = useMediaQuery("(min-width: 1033px)");
 
+    // pin
+    const pinQuiz = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // It's nested in a link, so the default action is actually to go to the URL.
+        // e.stopPropagation doesn't do anything
+        e.preventDefault();
+        togglePinQuiz(quiz.id)
+            .then((res) => {
+                // alert
+
+                const pinned = res.isPinned;
+                if (pinned) {
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Pinned quiz!",
+                    });
+                } else {
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Unpinned quiz!",
+                    });
+                }
+            })
+            .catch((e) => {
+                // alert
+                console.log("unpinned");
+            });
+    };
+
+    // delete
+    const alertDeleteDisclosure = useDisclosure();
+
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+    const confirmDelete = () => {
+        // delete quiz
+        // delete all attempts
+        if (!user) return;
+        setIsDeleting(true);
+        deleteQuiz(quiz.id, user.uid)
+            .then(() => {
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: "Quiz deleted!",
+                });
+            })
+            .catch((e) => {
+                setDeleteErrorMessage(e);
+            })
+            .finally(() => {
+                setIsDeleting(false);
+                alertDeleteDisclosure.onClose();
+            });
+    };
+
+    const helperColor = useColorModeValue("gray.600", "gray.400");
     return (
         <Box
             flexGrow={1}
             maxWidth={!shouldNotBeFullWidth ? "full" : "400px"}
             mb={4}
         >
+            <CustomAlertDialog
+                {...alertDeleteDisclosure}
+                bodyText={`Are you sure you want to delete this quiz? All attempts will be deleted. 
+                
+                This action is not reversible.`}
+                headerText="Delete quiz"
+                ConfirmButton={
+                    <Button
+                        onClick={confirmDelete}
+                        isLoading={isDeleting}
+                        colorScheme="red"
+                    >
+                        Delete
+                    </Button>
+                }
+            />
             <Box
                 cursor="pointer"
                 flexGrow={1}
@@ -109,24 +189,6 @@ export default function QuizUploadCard({
                 <Link href={`/uploads/${quiz.id}`}>
                     <Card boxShadow="0">
                         <CardHeader>
-                            {/* <Flex justifyContent={"space-between"} alignItems="center">
-                    <Box>
-                        <Badge fontSize="lg">
-                            {" "}
-                            {quiz.course.split(" ")[0]}{" "}
-                        </Badge>
-                        <Text fontSize={"sm"} fontWeight="light">
-                            {quiz.course.split(" ").slice(1).join(" ")}
-                        </Text>
-                    </Box>
-                    <IconButton
-                        variant="ghost"
-                        colorScheme="gray"
-                        aria-label="See menu"
-                        icon={<BsThreeDotsVertical />}
-                    />
-                </Flex> */}
-
                             <CourseInfo
                                 courseCode={quiz.course.split(" ")[0]}
                                 courseName={quiz.course
@@ -196,7 +258,79 @@ export default function QuizUploadCard({
                             </Stepper>
                         </CardBody>
 
-                        <CardFooter>
+                        <CardFooter w="full">
+                            <Flex
+                                justifyContent={"space-between"}
+                                alignItems="center"
+                                w="full"
+                            >
+                                <Text
+                                    textColor={helperColor}
+                                    fontWeight="bold"
+                                    fontSize="sm"
+                                    display="flex"
+                                    alignItems={"center"}
+                                >
+                                    <Icon
+                                        viewBox="0 0 200 200"
+                                        color={
+                                            quiz.quizSettings.academicYear ===
+                                                ACADEMIC_YEAR &&
+                                            quiz.quizSettings.semester ===
+                                                ACADEMIC_SEMESTER
+                                                ? "green.500"
+                                                : "gray.500"
+                                        }
+                                        mr={1}
+                                    >
+                                        <path
+                                            fill="currentColor"
+                                            d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                        />
+                                    </Icon>
+                                    {getAcademicYearAndSemester(
+                                        quiz.quizSettings.academicYear,
+                                        quiz.quizSettings.semester
+                                    )}
+                                </Text>
+                                <Flex
+                                    justifyContent={"end"}
+                                    gap={2}
+                                    flexGrow={1}
+                                    alignItems="center"
+                                >
+                                    <IconButton
+                                        icon={
+                                            quiz.quizSettings.isPinned ? (
+                                                <TbPinnedFilled />
+                                            ) : (
+                                                <TbPin />
+                                            )
+                                        }
+                                        aria-label="Pin quiz"
+                                        size="sm"
+                                        variant="ghost"
+                                        colorScheme="gray"
+                                        onClick={pinQuiz}
+                                    />
+
+                                    <Divider
+                                        orientation="vertical"
+                                        height="28px"
+                                    />
+                                    <IconButton
+                                        icon={<TbTrashX />}
+                                        aria-label="Delete quiz"
+                                        size="sm"
+                                        variant="ghost"
+                                        colorScheme={"red"}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            alertDeleteDisclosure.onOpen();
+                                        }}
+                                    />
+                                </Flex>
+                            </Flex>
                             {/* <Text alignItems={"center"} display="flex">
                     <TimeIcon mr={2} />
 

@@ -33,6 +33,7 @@ export const getUploads = async (uid: string) => {
 };
 
 /**
+<<<<<<< HEAD
  * Generate the final score for an exam.
  *
  * @param selectedOptions
@@ -193,4 +194,71 @@ export const getExaminableQuestions = (quiz?: Quiz & { id: string }) => {
     });
 
     return examinableQuestions;
+};
+/**
+ * Generate the academic year and semester display.
+ *
+ * e.g. 23/24 S1
+ * e.g. 24/25 ST1
+ */
+export const getAcademicYearAndSemester = (
+    academicYear: number,
+    semester: number
+) => {
+    if (semester === 3 || semester === 4) {
+        return `${academicYear - 2000}/${academicYear - 1999} ST${
+            semester - 2
+        }`;
+    } else {
+        return `${academicYear - 2000}/${academicYear - 1999} S${semester}`;
+    }
+};
+
+const CHAKRA_COLORS = [
+    "red.700",
+    "teal.300",
+    "cyan.700",
+    "orange.300",
+    "yellow.700",
+    "blue.300",
+    "purple.700",
+    "pink.300",
+    "green.700",
+    "red.300",
+    "teal.700",
+    "cyan.300",
+    "orange.700",
+    "yellow.300",
+    "blue.700",
+    "purple.300",
+    "pink.700",
+    "green.300",
+];
+
+const COLORS = [
+    "#9B2C2C",
+    "#4FD1C5",
+    "#0987A0",
+    "#F6AD55",
+    "#975A16",
+    "#63B3ED",
+    "#553C9A",
+    "#F687B3",
+    "#276749",
+    "#FC8181",
+    "#285E61",
+    "#76E4F7",
+    "#9C4221",
+    "#F6E05E",
+    "#2C5282",
+    "#B794F4",
+    "#97266D",
+    "#68D391",
+];
+
+/**
+ * Get a random color.
+ */
+export const getRandomColor = () => {
+    return COLORS[Math.floor(Math.random() * COLORS.length)];
 };

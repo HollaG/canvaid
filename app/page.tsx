@@ -52,10 +52,12 @@ import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
+import { TbSearch } from "react-icons/tb";
 
 export default function Page() {
     const authCtx = useAuthContainer();
-    const { quizzes, setQuizzes } = useQuizContainer();
+    const { quizzes, setQuizzes, searchString, setSearchString } =
+        useQuizContainer();
 
     const user = authCtx?.user;
 
@@ -81,17 +83,15 @@ export default function Page() {
     // get url query params
     const router = useRouter();
     const params = useSearchParams();
-    const showLogIn = params.get("login") === "true";
+    const showLogIn = params && params.get("login") === "true";
     useEffect(() => {
         // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
-        console.log("useeffect");
-        console.log({ showLogIn, user });
+
         if (showLogIn && (!user || !user.canvasApiToken)) {
-            console.log("onopen");
             onOpen();
         } else {
-            console.log("Closing modal!");
             onClose();
+            router.replace("/");
         }
     }, [showLogIn, user]);
 
@@ -110,6 +110,7 @@ export default function Page() {
         onClose: onCloseAddNewQuiz,
     } = useDisclosure();
 
+    // for searching
     return (
         <>
             <DrawerContainer
@@ -136,7 +137,7 @@ export default function Page() {
                 >
                     <Stack
                         flexGrow={1}
-                        mt={6}
+                        mt={{ base: 0, md: 6 }}
                         ml={{ base: 0, md: SIDEBAR_WIDTH }}
                         pt={6}
                         bgColor={useColorModeValue("gray.50", "gray.900")}
@@ -145,7 +146,7 @@ export default function Page() {
                             "url(/assets/background-dark.svg)"
                         )}
                         backgroundSize={"200%"}
-                        borderRadius="xl"
+                        borderRadius={{ base: 0, md: "xl" }}
                     >
                         <Center px={12}>
                             <Box
@@ -172,11 +173,11 @@ export default function Page() {
                                     What will you study today?{" "}
                                 </Heading>
                                 <Center px={6} mt={6}>
-                                    <InputGroup size={"lg"} maxWidth="750px">
+                                    <InputGroup size={"md"} maxWidth="750px">
                                         <InputLeftElement
                                             pointerEvents={"none"}
                                         >
-                                            <SearchIcon />
+                                            <TbSearch />
                                         </InputLeftElement>
                                         <Input
                                             placeholder="Search for a quiz..."
@@ -189,13 +190,18 @@ export default function Page() {
                                             }}
                                             type="search"
                                             bgColor={inputBackgroundColor}
+                                            value={searchString}
+                                            onChange={(e) =>
+                                                setSearchString(e.target.value)
+                                            }
                                         />
                                     </InputGroup>
 
                                     <Button
-                                        size="lg"
+                                        size="md"
                                         ml={3}
                                         onClick={onOpenAddNewQuiz}
+                                        data-testid="add-new-btn"
                                     >
                                         Upload
                                     </Button>
@@ -222,10 +228,7 @@ export default function Page() {
                             Add a new quiz
                         </Link>
                         <Input placeholder="Search for a quiz..." /> */}
-                        <Courses
-                            quizzes={quizzes}
-                            deletion={handleDeleteItem}
-                        />
+                        <Courses onAddNew={onOpenAddNewQuiz} />
                     </Stack>
                 </Flex>
             )}

@@ -126,6 +126,15 @@ export type QuizAttempt = {
     userUid: string;
 };
 
+export type QuizSettings = {
+    // semester
+    semester: 1 | 2 | 3 | 4;
+    academicYear: number; // 2022-2023 --> 2022, 2023-2024 --> 2024
+
+    // pinned
+    isPinned: boolean;
+};
+
 export type Quiz = {
     submissions: CanvasQuizSubmission[];
     questions: QuizSubmissionQuestion[];
@@ -140,6 +149,8 @@ export type Quiz = {
     quizInfo: CanvasQuiz;
 
     quizAnswers: QuizAnswers;
+
+    quizSettings: QuizSettings;
 };
 
 export type QuizResponse = {
