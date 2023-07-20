@@ -182,6 +182,14 @@ export const convertCustomAttemptNumber = (attempt: number) => {
 
     return `C${a}`;
 };
+const availableQuestionTypes = [
+    "essay_question",
+    "short_answer_question",
+    "numerical_question",
+    "multiple_choice_question",
+    "true_false_question",
+    "multiple_answers_question",
+];
 
 export const getExaminableQuestions = (quiz?: Quiz & { id: string }) => {
     if (!quiz) return [];
@@ -190,7 +198,9 @@ export const getExaminableQuestions = (quiz?: Quiz & { id: string }) => {
 
     const examinableQuestions = questions.filter((qn) => {
         // this qn id must be present in answers
-        return answers[qn.id];
+        if (availableQuestionTypes.includes(qn.question_type)) {
+            return answers[qn.id];
+        }
     });
 
     return examinableQuestions;
@@ -261,4 +271,11 @@ const COLORS = [
  */
 export const getRandomColor = () => {
     return COLORS[Math.floor(Math.random() * COLORS.length)];
+};
+
+/**
+ * Remove all letters from a string.
+ */
+export const removeLetters = (str: string) => {
+    return str.replace(/[a-zA-Z]/g, "");
 };

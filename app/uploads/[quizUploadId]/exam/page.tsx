@@ -1,5 +1,6 @@
 "use client";
 import { useQuizContainer } from "@/app/providers";
+import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamComponent";
 import {
     create,
@@ -19,6 +20,7 @@ import {
     Quiz,
     QuizAttempt,
     QuizResponse,
+    QuizSubmissionQuestion,
 } from "@/types/canvas";
 import {
     Tag,
@@ -68,7 +70,7 @@ export default function Page() {
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
-        if (!quiz) {
+        if (!examQuiz) {
             getQuizUpload(quizUploadId)
                 .then((data) => {
                     setQuiz(data);
@@ -78,15 +80,33 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [quizUploadId, quiz, setQuiz]);
+    }, [quizUploadId, examQuiz, setQuiz]);
+
+    // calculate the questions to be examined
+    const [numQuestions, setNumQuestions] = useState<number>(
+        parseInt(searchParams.get("num") || "0")
+    );
+    const [qns, setQns] = useState<QuizSubmissionQuestion[]>([]);
+
+    const [enableRandom, setEnableRandom] = useState<boolean>(false);
+    const timeLimit = searchParams.get("length") || 0;
+
+    useEffect(() => {
+        if (!examQuiz) return;
+        const examinableQuestions = getExaminableQuestions(examQuiz);
+        setQns(
+            examinableQuestions
+                .sort(() => (!enableRandom ? 0 : Math.random() - Math.random()))
+                .slice(
+                    0,
+                    numQuestions !== 0
+                        ? numQuestions
+                        : examinableQuestions.length
+                )
+        );
+    }, [examQuiz, numQuestions]);
 
     // TODO: ensure error handling
-    const examinableQuestions = getExaminableQuestions(examQuiz);
-    const numQuestions =
-        parseInt(
-            searchParams.get("num") || examinableQuestions.length.toString()
-        ) || examinableQuestions.length;
-    const timeLimit = searchParams.get("length") || 0;
 
     const answers = examQuiz?.quizAnswers;
 
@@ -95,19 +115,6 @@ export default function Page() {
         examQuiz?.submissions.filter((submission) => submission.attempt < 0)
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
-
-    const allQuestions = examinableQuestions || [];
-
-    // given the number of questions, get a random subset of questions
-    const qns = useMemo(
-        () =>
-            allQuestions
-                .sort(() => Math.random() - Math.random())
-                .slice(0, numQuestions),
-        [allQuestions, numQuestions]
-    );
-
-    console.log({ selectedOptions });
 
     const submitCustomQuiz = async () => {
         const hydratedSelectedOptions = hydrateSelectedOptions(
@@ -135,7 +142,7 @@ export default function Page() {
             has_seen_results: false,
             workflow_state: "untaken",
             overdue_and_needs_submission: false,
-            quiz_points_possible: numQuestions,
+            quiz_points_possible: numQuestions || qns.length,
         };
         const quizAttempt: QuizAttempt = {
             ...examQuiz,
@@ -162,7 +169,7 @@ export default function Page() {
             });
     };
 
-    if (!quiz) return <>Loading...</>;
+    if (!examQuiz) return <>Loading...</>;
     return (
         <Flex
             minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
@@ -178,14 +185,19 @@ export default function Page() {
                 borderRadius="xl"
                 mt={6}
             >
+                <CourseInfo
+                    courseCode={quiz.course.split(" ")[0]}
+                    courseName={quiz.course.split(" ").slice(1).join(" ")}
+                />
+                <Heading> {quiz.quizName} </Heading>
                 <Box mr={2} mb={2}>
                     <Tag colorScheme={"teal"}>
-                        Total questions: {numQuestions}
+                        Total questions: {numQuestions || qns.length}
                     </Tag>
                 </Box>
                 <Box
                     dangerouslySetInnerHTML={{
-                        __html: quiz.quizInfo.description,
+                        __html: examQuiz.quizInfo.description,
                     }}
                 />
                 {/* <Grid

@@ -375,7 +375,6 @@ export default function Page() {
                             <Tooltip label="Delete this quiz">
                                 <Button
                                     colorScheme={"red"}
-                                    aria-role="Delete"
                                     onClick={alertDeleteDisclosure.onOpen}
                                     isLoading={isDeleting}
                                     size="sm"

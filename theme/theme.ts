@@ -44,6 +44,52 @@ const components: Record<string, StyleConfig> = {
                 },
             }),
             // @ts-ignore
+            floating_alt: ({ colorMode }) => ({
+                container: {
+                    _focusWithin: {
+                        label: {
+                            ...activeLabelStyles,
+                        },
+                    },
+                    "input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label":
+                        {
+                            ...activeLabelStyles,
+                        },
+                    label: {
+                        top: 0,
+                        left: 0,
+                        zIndex: 2,
+                        position: "absolute",
+                        backgroundColor:
+                            colorMode === "dark" ? "#171923" : "#f7fafc",
+                        pointerEvents: "none",
+                        mx: 3,
+                        px: 1,
+                        my: 2,
+                        transformOrigin: "left top",
+                    },
+                },
+            }),
+            // @ts-ignore
+            floating_alt_perm: ({ colorMode }) => ({
+                container: {
+                    label: {
+                        top: 0,
+                        left: 0,
+                        zIndex: 2,
+                        position: "absolute",
+                        backgroundColor:
+                            colorMode === "dark" ? "#171923" : "#f7fafc",
+                        pointerEvents: "none",
+                        mx: 3,
+                        px: 1,
+                        my: 2,
+                        transformOrigin: "left top",
+                        ...activeLabelStyles,
+                    },
+                },
+            }),
+            // @ts-ignore
             floating_lg: ({ colorMode }) => ({
                 container: {
                     _focusWithin: {

@@ -21,6 +21,7 @@ import {
     updateDoc,
     orderBy,
     deleteDoc,
+    setDoc,
 } from "firebase/firestore";
 import { db } from "..";
 import { auth } from "../../config";
@@ -494,6 +495,20 @@ export const togglePinQuiz = async (quizId: string) => {
         };
     } catch (e: any) {
         return e.toString();
+    }
+};
+
+export const uploadExamTemplate = async (quiz: Quiz) => {
+    try {
+        const docRef = await addDoc(collection(db, COLLECTION_NAME), quiz);
+
+        return {
+            ...quiz,
+            id: docRef.id,
+        } as Quiz & { id: string };
+    } catch (e) {
+        console.log("ERROR:", e);
+        throw e;
     }
 };
 
