@@ -37,7 +37,12 @@ import { Timestamp } from "firebase/firestore";
 import DeleteButton from "../DeleteButton";
 
 import NextLink from "next/link";
-import { formatTimeElapsed, getAcademicYearAndSemester } from "@/lib/functions";
+
+import {
+    convertCustomAttemptNumber,
+    formatTimeElapsed,
+    getAcademicYearAndSemester,
+} from "@/lib/functions";
 import { DeleteIcon, TimeIcon } from "@chakra-ui/icons";
 
 import styles from "./QuizUploadCard.module.css";
@@ -212,13 +217,19 @@ export default function QuizUploadCard({
                                 index={activeStep}
                                 orientation="vertical"
                             >
-                                {sortedSubmissions.map((submission, i) => (
+                                {lastThreeSubmissions.map((submission, i) => (
                                     <Step key={i}>
                                         <StepIndicator fontSize={"xs"}>
                                             <StepStatus
-                                                complete={submission.attempt}
-                                                incomplete={submission.attempt}
-                                                active={submission.attempt}
+                                                complete={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
+                                                incomplete={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
+                                                active={convertCustomAttemptNumber(
+                                                    submission.attempt
+                                                )}
                                             />
                                         </StepIndicator>
                                         <Box flexShrink={0} minH="48px">

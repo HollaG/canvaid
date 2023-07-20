@@ -83,17 +83,15 @@ export default function Page() {
     // get url query params
     const router = useRouter();
     const params = useSearchParams();
-    const showLogIn = params.get("login") === "true";
+    const showLogIn = params && params.get("login") === "true";
     useEffect(() => {
         // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
-        console.log("useeffect");
-        console.log({ showLogIn, user });
+
         if (showLogIn && (!user || !user.canvasApiToken)) {
-            console.log("onopen");
             onOpen();
         } else {
-            console.log("Closing modal!");
             onClose();
+            router.replace("/");
         }
     }, [showLogIn, user]);
 
@@ -203,8 +201,15 @@ export default function Page() {
                                         size="md"
                                         ml={3}
                                         onClick={onOpenAddNewQuiz}
+                                        data-testid="add-new-btn"
                                     >
                                         Upload
+                                    </Button>
+                                    <Button
+                                        ml={3}
+                                        onClick={() => router.push("/exam")}
+                                    >
+                                        Exam
                                     </Button>
                                 </Center>
                             </Box>
@@ -222,10 +227,7 @@ export default function Page() {
                             Add a new quiz
                         </Link>
                         <Input placeholder="Search for a quiz..." /> */}
-                        <Courses
-                            deletion={handleDeleteItem}
-                            onAddNew={onOpenAddNewQuiz}
-                        />
+                        <Courses onAddNew={onOpenAddNewQuiz} />
                     </Stack>
                 </Flex>
             )}

@@ -6,19 +6,15 @@ import {
     deleteAttempt,
     deleteQuiz,
 } from "@/firebase/database/repositories/uploads";
-import {
-    NAVBAR_HEIGHT,
-    PAGE_CONTAINER_SIZE,
-    SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
 import {
     Answer,
     QuestionResponse,
     Quiz,
     QuizResponse,
-    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
     QuizAttempt,
+    CanvasQuizSubmission,
 } from "@/types/canvas";
 import {
     Input,
@@ -28,7 +24,6 @@ import {
     Button,
     Checkbox,
     CheckboxGroup,
-    Container,
     Divider,
     Flex,
     Grid,
@@ -44,7 +39,6 @@ import {
     Tabs,
     Tag,
     Text,
-    FormErrorMessageProps,
     useColorModeValue,
     Tooltip,
     useDisclosure,
@@ -52,32 +46,44 @@ import {
     AlertIcon,
     AlertTitle,
     useToast,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    FormControl,
+    FormLabel,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
 } from "@chakra-ui/react";
 
-import {
-    useParams,
-    useRouter,
-    useSelectedLayoutSegment,
-} from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     useEffect,
     useState,
     FormEvent,
     Dispatch,
     SetStateAction,
-    useMemo,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
-import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { useAuthContainer, useQuizContainer } from "@/app/providers";
-import useSidebar from "@/hooks/useSidebar";
-import { getUploads } from "@/lib/functions";
-import QuizContainer from "@/components/PageWrappers/Quiz";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+
+import { create } from "@/firebase/database/repositories/uploads";
+import {
+    convertCustomAttemptNumber,
+    getExaminableQuestions,
+} from "@/lib/functions";
+
 import { TbTrashX } from "react-icons/tb";
 
 // export default async function Page({
@@ -101,22 +107,15 @@ import { TbTrashX } from "react-icons/tb";
 export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
-
     const { quizzes, setQuiz } = useQuizContainer();
-    const [questionInputs, setQuestionInputs] = useState<string>("");
-
     const authCtx = useAuthContainer();
     const user = authCtx.user;
-
     const router = useRouter();
     const quiz = quizzes.filter((quiz) => quiz.id === dataId)[0];
-
     const toast = useToast();
-
     const [pageQuiz, setPageQuiz] = useState(
         quizzes.filter((quiz) => quiz.id === dataId)[0]
     );
-
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
         if (!quiz) {
@@ -182,6 +181,7 @@ export default function Page() {
     // For deleting an attempt
     const attemptDeleteDisclosure = useDisclosure();
     const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
+    const [isExamMode, setIsExamMode] = useState(false);
 
     const [attemptNumberToDelete, setAttemptNumberToDelete] = useState(-1);
     const confirmDeleteAttempt = () => {
@@ -222,6 +222,16 @@ export default function Page() {
                 attemptDeleteDisclosure.onClose();
             });
     };
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const [examinableQuestionNumber, setExaminableQuestionNumber] = useState(0);
+    const [examLength, setExamLength] = useState(0);
+
+    useEffect(() => {
+        setExaminableQuestionNumber(getExaminableQuestions(quiz).length);
+    }, [quiz]);
+
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -240,6 +250,7 @@ export default function Page() {
                         onClick={confirmDelete}
                         isLoading={isDeleting}
                         colorScheme="red"
+                        data-testid="confirm-delete-quiz"
                     >
                         Delete
                     </Button>
@@ -247,20 +258,91 @@ export default function Page() {
             />
             <CustomAlertDialog
                 {...attemptDeleteDisclosure}
-                bodyText={`Are you sure you want to delete Attempt #${attemptNumberToDelete}?  
+                bodyText={`Are you sure you want to delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}?  
                 
                 This action is not reversible.`}
-                headerText={`Delete Attempt #${attemptNumberToDelete}`}
+                headerText={`Delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}`}
                 ConfirmButton={
                     <Button
                         onClick={confirmDeleteAttempt}
                         isLoading={isDeletingAttempt}
                         colorScheme="red"
+                        data-testid="confirm-delete-attempt"
                     >
                         Delete
                     </Button>
                 }
             />
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Exam Mode</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <FormControl>
+                            <FormLabel>Number of Questions</FormLabel>
+                            <NumberInput
+                                value={examinableQuestionNumber}
+                                onChange={(e) =>
+                                    setExaminableQuestionNumber(parseInt(e))
+                                }
+                                min={1}
+                                max={getExaminableQuestions(quiz).length}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
+                        </FormControl>
+                        <FormControl mt={3}>
+                            <FormLabel>
+                                Length of exam in minutes (optional)
+                            </FormLabel>
+                            <NumberInput
+                                value={examLength}
+                                onChange={(e) => setExamLength(parseInt(e))}
+                                min={0}
+                            >
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
+                        </FormControl>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button
+                            colorScheme="gray"
+                            variant="ghost"
+                            mr={3}
+                            onClick={onClose}
+                        >
+                            Go Back
+                        </Button>
+                        {examinableQuestionNumber !== 0 && (
+                            <Button
+                                onClick={() => {
+                                    onClose();
+                                    // setIsExamMode(true);
+                                    router.push(
+                                        `/uploads/${quiz.id}/exam?num=${examinableQuestionNumber}&length=${examLength}`
+                                    );
+                                }}
+                            >
+                                Start Exam
+                            </Button>
+                        )}
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
             {quiz ? (
                 <Stack
                     spacing={6}
@@ -293,10 +375,10 @@ export default function Page() {
                             <Tooltip label="Delete this quiz">
                                 <Button
                                     colorScheme={"red"}
-                                    aria-role="Delete"
                                     onClick={alertDeleteDisclosure.onOpen}
                                     isLoading={isDeleting}
                                     size="sm"
+                                    data-testid="delete-quiz"
                                 >
                                     <TbTrashX />
                                     <Text
@@ -313,6 +395,11 @@ export default function Page() {
                         }
                     />
                     <Heading>{quiz.quizName}</Heading>
+
+                    <Button onClick={onOpen}>
+                        {isExamMode ? "Exit Exam Mode" : "Enter Exam Mode"}
+                    </Button>
+
                     <Flex flexDir={"row"} flexWrap="wrap">
                         {quiz.quizInfo.show_correct_answers ? (
                             <Box mr={2} mb={2}>
@@ -341,7 +428,10 @@ export default function Page() {
                     <Divider />
 
                     <Grid
-                        gridTemplateColumns={{ base: "1fr", md: "200px 1fr" }}
+                        gridTemplateColumns={{
+                            base: "1fr",
+                            md: "200px 1fr",
+                        }}
                     >
                         <GridItem p={5}>
                             <Stack>
@@ -353,6 +443,7 @@ export default function Page() {
                                     }
                                     colorScheme="teal"
                                     onClick={() => setSelectedAttemptIndex(-1)}
+                                    data-testid="combined-button"
                                 >
                                     Combined
                                 </Button>
@@ -372,7 +463,11 @@ export default function Page() {
                                         }
                                         fontSize="sm"
                                     >
-                                        Attempt #{submission.attempt} (
+                                        Attempt #
+                                        {convertCustomAttemptNumber(
+                                            submission.attempt
+                                        )}{" "}
+                                        (
                                         {Math.round(submission.score * 100) /
                                             100}
                                         /{submission.quiz_points_possible})
@@ -394,11 +489,11 @@ export default function Page() {
                                     >
                                         <Heading fontSize="xl">
                                             Attempt #
-                                            {
+                                            {convertCustomAttemptNumber(
                                                 quiz.submissions[
                                                     selectedAttemptIndex
                                                 ].attempt
-                                            }
+                                            )}
                                         </Heading>
                                         <Flex>
                                             <Button
@@ -412,6 +507,7 @@ export default function Page() {
                                                         ].attempt
                                                     );
                                                 }}
+                                                data-testid={`delete-attempt-${quiz.submissions[selectedAttemptIndex].attempt}`}
                                             >
                                                 <TbTrashX />
                                             </Button>
@@ -519,6 +615,7 @@ export default function Page() {
         // </Container>
     );
 }
+
 const FlaggingButton = ({
     question,
     quiz,
@@ -528,27 +625,29 @@ const FlaggingButton = ({
     quiz: Quiz & { id: string };
     setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
-    const [isFlagged, setIsFlagged] = useState(question.isFlagged);
     const toast = useToast();
     const handleFlagQuestion = async (questionId: number) => {
         try {
             const updatedQuizData = await updateQuizQuestionFlag(
                 quiz,
                 questionId,
-                !isFlagged
+                !question.isFlagged
             );
             setQuiz(updatedQuizData);
-            setIsFlagged(!isFlagged);
+
             toast({
                 ...SUCCESS_TOAST_OPTIONS,
-                title: `Question ${!isFlagged ? "flagged" : "unflagged"}`,
+                title: `Question ${
+                    !question.isFlagged ? "flagged" : "unflagged"
+                }`,
             });
         } catch (e: any) {
             console.log(e);
+            console.log("Error unflagging");
             toast({
                 ...ERROR_TOAST_OPTIONS,
                 title: `Error ${
-                    !isFlagged ? "flagging" : "unflagging"
+                    !question.isFlagged ? "flagging" : "unflagging"
                 } question`,
                 description: e.toString(),
             });
@@ -556,7 +655,7 @@ const FlaggingButton = ({
     };
     return (
         <IconButton
-            aria-label="flag question"
+            aria-label={`${question.isFlagged ? "Unflag" : "Flag"} question`}
             onClick={() => {
                 handleFlagQuestion(question.id);
             }}
@@ -890,6 +989,18 @@ const AnswerResultTag = ({
 
     return <></>;
 };
+const availableQuestionsWithCorrectAnswers = (
+    questionResponse: QuestionResponse
+) => {
+    // for qns that aren't graded yet
+    if (questionResponse.your_score === -1) {
+        return false;
+    }
+    if (questionResponse.total_score == questionResponse.your_score) {
+        return true; // selected_ans_id would be the correct answer
+    }
+    return false;
+};
 
 type CombinedQuestion = {
     question_id: number;
@@ -919,6 +1030,7 @@ const CombinedQuestionList = ({
         let bestResult: QuestionResponse = {};
         let bestAttemptNumber = 0;
         const attempts: QuestionResponse[] = [];
+        // use selectedOptions to get the answers in the attempt which has the corresponding quesiton id
 
         quiz.selectedOptions.forEach((selectedOptions, submissionIndex) => {
             // each selectedOptions is each attempt
@@ -957,7 +1069,7 @@ const CombinedQuestionList = ({
     const questionBgColor = useColorModeValue("white", "gray.800");
 
     return (
-        <Stack>
+        <Stack data-testid="combined-questions-list">
             <Heading fontSize="xl">
                 {" "}
                 Showing best results for each question{" "}

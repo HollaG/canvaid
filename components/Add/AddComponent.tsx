@@ -58,51 +58,9 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
     const authObj = useAuthContainer();
     const router = useRouter();
     const user = authObj?.user;
-    const onSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (!user) return;
-
-        // @ts-ignore
-        console.log({ e: e.target[2].files[0] });
-
-        // @ts-ignore
-        if (!e.target[2].files[0]) return;
-
-        // @ts-ignore
-        const file = e.target[2].files[0];
-        // body.append("file", file);
-
-        if (file instanceof File) {
-            file.text().then((txt: string) => {
-                const body: IAddBody = {
-                    html: txt,
-                    quizName: name,
-                    course,
-                    uid: user.uid,
-                };
-                fetch("/api/add", {
-                    method: "POST",
-                    body: JSON.stringify(body),
-                })
-                    .then((res) => {
-                        console.log(res);
-                        return res.json();
-                    })
-                    .then((data) => {
-                        console.log("Submitted!");
-                        // router.push("/");
-                    })
-                    .catch(console.error);
-            });
-        }
-        // form.append("file", file);
-
-        // console.log({ file });
-    };
 
     // 0: not uploading
     // 1: uploading
-
     const [isUploading, setIsUploading] = useState(0);
 
     const [uploadedData, setUploadedData] = useState<ResponseData>();
@@ -133,6 +91,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                         course,
                         uid: user.uid,
                     };
+
                     fetch("/api/add", {
                         method: "POST",
                         body: JSON.stringify(body),
@@ -141,20 +100,19 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             if (!res.ok) {
                                 return Promise.reject(res);
                             }
-                            console.log(res);
+
                             return res.json();
                         })
                         .then((data: ResponseData) => {
-                            console.log("Submitted!");
-                            console.log(data);
-                            setIsUploading(2);
+                            console.log("Received finished data");
+                            setIsUploading(0);
                             // router.push(`/uploads/${data.quiz?.id}`);
                             setUploadedData(data);
                             setActiveStep(1);
                             setErrorMessage("");
                         })
                         .catch((e) => {
-                            console.error(e);
+                            console.error(e.statusText);
                             setIsUploading(0);
 
                             setErrorMessage(e.statusText);
@@ -209,13 +167,8 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                 uploadedData.quizAttempt.submission.attempt
             );
 
-            if (res) {
-                // error
-                console.error(res);
-            } else {
-                setActiveStep(0);
-                setIsUploading(0);
-            }
+            setActiveStep(0);
+            setIsUploading(0);
         } catch (e: any) {
             toast({
                 ...ERROR_TOAST_OPTIONS,
@@ -229,9 +182,8 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
 
     const acceptUpload = () => {
         onClose();
-        setTimeout(() => {
-            router.push(`/uploads/${uploadedData?.quiz?.id}`);
-        }, 300);
+
+        router.push(`/uploads/${uploadedData?.quiz?.id}`);
     };
     return (
         <>
@@ -272,7 +224,11 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             ))}
                         </Stepper>
                     </Box>
-                    <Collapse in={activeStep === 0}>
+                    <Collapse
+                        in={activeStep === 0}
+                        unmountOnExit
+                        data-testid="step-1"
+                    >
                         <Flex mt={8} direction="column">
                             <Flex alignItems={"center"}>
                                 <Heading fontWeight={"semibold"} fontSize="5xl">
@@ -359,7 +315,11 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             </Flex>
                         </Flex>
                     </Collapse>
-                    <Collapse in={activeStep === 1}>
+                    <Collapse
+                        in={activeStep === 1}
+                        unmountOnExit
+                        data-testid="step-2"
+                    >
                         <Flex mt={8} direction="column">
                             <Flex alignItems={"center"}>
                                 <Heading fontWeight={"semibold"} fontSize="5xl">
@@ -443,15 +403,21 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                     mb={3}
                                     onClick={undoUpload}
                                     isLoading={isUndoing}
+                                    data-testid="undo-btn"
                                 >
                                     Go back
                                 </Button>
-                                <Button onClick={acceptUpload}>Add quiz</Button>
+                                <Button
+                                    onClick={acceptUpload}
+                                    data-testid="accept-btn"
+                                >
+                                    Add quiz
+                                </Button>
                             </Flex>
                         </Flex>
                     </Collapse>
                     {errorMessage && (
-                        <Alert status="error" mt={6}>
+                        <Alert status="error" mt={6} data-testid="alert-error">
                             <AlertIcon />
                             <Box>
                                 <AlertTitle>Error uploading file!</AlertTitle>

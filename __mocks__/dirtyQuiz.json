@@ -259,122 +259,6 @@
                 ],
                 "your_score": 0
             }
-        },
-        {
-            "63091": {
-                "total_score": 1,
-                "selected_answer_ids": [
-                    50037
-                ],
-                "your_score": 1,
-                "correct_answer_ids": [
-                    50037
-                ]
-            },
-            "63092": {
-                "correct_answer_ids": [
-                    49804
-                ],
-                "your_score": 1,
-                "total_score": 1,
-                "selected_answer_ids": [
-                    49804
-                ]
-            },
-            "63093": {
-                "selected_answer_ids": [
-                    62703
-                ],
-                "total_score": 1,
-                "correct_answer_ids": [
-                    62703
-                ],
-                "your_score": 1
-            },
-            "63094": {
-                "total_score": 1,
-                "correct_answer_ids": [
-                    16048
-                ],
-                "your_score": 1,
-                "selected_answer_ids": [
-                    16048
-                ]
-            },
-            "63095": {
-                "correct_answer_ids": [
-                    7057
-                ],
-                "selected_answer_ids": [
-                    7057
-                ],
-                "total_score": 1,
-                "your_score": 1
-            },
-            "63096": {
-                "your_score": 1,
-                "selected_answer_ids": [
-                    90910
-                ],
-                "total_score": 1,
-                "correct_answer_ids": [
-                    90910
-                ]
-            },
-            "63097": {
-                "total_score": 1,
-                "correct_answer_ids": [
-                    28896,
-                    74598
-                ],
-                "your_score": 1,
-                "selected_answer_ids": [
-                    28896,
-                    74598
-                ]
-            },
-            "63098": {
-                "correct_answer_ids": [
-                    26723,
-                    93021,
-                    53906,
-                    78975
-                ],
-                "selected_answer_ids": [
-                    26723,
-                    93021,
-                    53906,
-                    78975
-                ],
-                "your_score": 1,
-                "total_score": 1
-            },
-            "63099": {
-                "selected_answer_ids": [
-                    65984,
-                    68870,
-                    57741
-                ],
-                "correct_answer_ids": [
-                    65984,
-                    68870,
-                    57741
-                ],
-                "your_score": 1,
-                "total_score": 1
-            },
-            "63100": {
-                "selected_answer_ids": [
-                    35245,
-                    8819
-                ],
-                "total_score": 1,
-                "your_score": 1,
-                "correct_answer_ids": [
-                    35245,
-                    8819
-                ]
-            }
         }
     ],
     "submissions": [
@@ -397,27 +281,6 @@
             "finished_at": "2023-06-25T06:36:47Z",
             "quiz_id": 7744,
             "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=1"
-        },
-        {
-            "quiz_version": 4,
-            "quiz_id": 7744,
-            "attempts_left": -1,
-            "overdue_and_needs_submission": false,
-            "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submissions/778671",
-            "end_at": "2023-06-29T15:59:00Z",
-            "quiz_points_possible": 10,
-            "validation_token": "1af068deaa34fca6ea78aa47dca6f8165857dd9899c5f661fcbd88a7087bf800",
-            "workflow_state": "complete",
-            "time_spent": 130,
-            "finished_at": "2023-06-25T06:39:28Z",
-            "kept_score": 10,
-            "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=2",
-            "id": 778671,
-            "user_id": 79438,
-            "started_at": "2023-06-25T06:37:17Z",
-            "attempt": 2,
-            "has_seen_results": false,
-            "score": 10
         }
     ],
     "questions": [
@@ -443,14 +306,19 @@
             ],
             "quiz_group_id": 8204,
             "question_type": "multiple_choice_question",
-            "isFlagged": false,
+            "isFlagged": true,
             "flagged": false,
             "question_name": "Question 1",
             "id": 63095,
             "correct": true,
             "position": 1,
             "quiz_id": 7744,
-            "annotations": [],
+            "annotations": [
+                {
+                    "annotationID": 1,
+                    "annotation": "testing"
+                }
+            ],
             "question_text": "Which of the following counters the teacher's role as facilitator of learning?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>"
         },
         {
