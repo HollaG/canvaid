@@ -255,6 +255,7 @@ const Sidebar = () => {
                                                 textAlign="left"
                                                 alignItems={"center"}
                                                 display="flex"
+                                                className="sidebar-link"
                                             >
                                                 {/* <Icon
                                                     viewBox="0 0 200 200"
@@ -279,8 +280,8 @@ const Sidebar = () => {
                                                             courseCode
                                                         ] || "gray.500"
                                                     }
-                                                    data-help={courseCode}
                                                     mr={2}
+                                                    flexShrink={0}
                                                 ></Box>
                                                 {courseCode}
                                             </Box>
@@ -337,6 +338,7 @@ const Sidebar = () => {
                                                     textAlign="left"
                                                     alignItems={"center"}
                                                     display="flex"
+                                                    className="sidebar-link"
                                                 >
                                                     {/* <Icon
                                                     viewBox="0 0 200 200"
@@ -362,6 +364,7 @@ const Sidebar = () => {
                                                             ] || "gray.500"
                                                         }
                                                         data-help={courseCode}
+                                                        flexShrink={0}
                                                         mr={2}
                                                     ></Box>
                                                     {courseCode}
