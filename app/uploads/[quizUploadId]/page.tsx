@@ -85,6 +85,7 @@ import {
 } from "@/lib/functions";
 
 import { TbTrashX } from "react-icons/tb";
+import ExamSettings from "@/components/Exam/ExamSettings";
 
 // export default async function Page({
 //     params,
@@ -225,11 +226,16 @@ export default function Page() {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const [examinableQuestionNumber, setExaminableQuestionNumber] = useState(0);
-    const [examLength, setExamLength] = useState(0);
+    const [examinableQuestionNumber, setExaminableQuestionNumber] = useState<
+        number | undefined
+    >();
+    const [numQns, setNumQns] = useState<number | undefined>();
+    const [examLength, setExamLength] = useState<number | undefined>();
+    const [isRandom, setIsRandom] = useState(false);
 
     useEffect(() => {
         setExaminableQuestionNumber(getExaminableQuestions(quiz).length);
+        setNumQns(getExaminableQuestions(quiz).length);
     }, [quiz]);
 
     return (
@@ -283,39 +289,15 @@ export default function Page() {
                     <ModalHeader>Exam Mode</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <FormControl>
-                            <FormLabel>Number of Questions</FormLabel>
-                            <NumberInput
-                                value={examinableQuestionNumber}
-                                onChange={(e) =>
-                                    setExaminableQuestionNumber(parseInt(e))
-                                }
-                                min={1}
-                                max={getExaminableQuestions(quiz).length}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </FormControl>
-                        <FormControl mt={3}>
-                            <FormLabel>
-                                Length of exam in minutes (optional)
-                            </FormLabel>
-                            <NumberInput
-                                value={examLength}
-                                onChange={(e) => setExamLength(parseInt(e))}
-                                min={0}
-                            >
-                                <NumberInputField />
-                                <NumberInputStepper>
-                                    <NumberIncrementStepper />
-                                    <NumberDecrementStepper />
-                                </NumberInputStepper>
-                            </NumberInput>
-                        </FormControl>
+                        <ExamSettings
+                            examLength={examLength}
+                            setExamLength={setExamLength}
+                            maxQns={examinableQuestionNumber}
+                            isRandom={isRandom}
+                            setIsRandom={setIsRandom}
+                            numQns={numQns}
+                            setNumQns={setNumQns}
+                        />
                     </ModalBody>
 
                     <ModalFooter>
@@ -333,7 +315,7 @@ export default function Page() {
                                     onClose();
                                     // setIsExamMode(true);
                                     router.push(
-                                        `/uploads/${quiz.id}/exam?num=${examinableQuestionNumber}&length=${examLength}`
+                                        `/uploads/${quiz.id}/exam?num=${numQns}&length=${examLength}&random=${isRandom}`
                                     );
                                 }}
                                 colorScheme="orange"

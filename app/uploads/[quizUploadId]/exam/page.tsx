@@ -84,27 +84,45 @@ export default function Page() {
     }, [quizUploadId, examQuiz, setQuiz]);
 
     // calculate the questions to be examined
+    // we expect `num` to ALWAYS be in the URL. if not in URL, default to all qns
     const [numQuestions, setNumQuestions] = useState<number>(
         parseInt(searchParams.get("num") || "0")
     );
     const [qns, setQns] = useState<QuizSubmissionQuestion[]>([]);
 
-    const [enableRandom, setEnableRandom] = useState<boolean>(false);
-    const timeLimit = searchParams.get("length") || 0;
+    const [isRandom, setIsRandom] = useState<boolean>(
+        searchParams.get("random") === "true" || false
+    );
+
+    const [examLength, setExamLength] = useState<number>(
+        parseInt(searchParams.get("length") || "0")
+    );
+
+    console.log({
+        isRandom,
+        examLength,
+        numQuestions,
+    });
 
     useEffect(() => {
         if (!examQuiz) return;
         const examinableQuestions = getExaminableQuestions(examQuiz);
-        setQns(
-            examinableQuestions
-                .sort(() => (!enableRandom ? 0 : Math.random() - Math.random()))
-                .slice(
-                    0,
-                    numQuestions !== 0
-                        ? numQuestions
-                        : examinableQuestions.length
+
+        if (numQuestions === 0) {
+            // all qns
+            setQns(
+                examinableQuestions.sort(() =>
+                    !isRandom ? 0 : Math.random() - Math.random()
                 )
-        );
+            );
+        } else {
+            // randomize
+            setQns(
+                examinableQuestions
+                    .sort(() => (!isRandom ? 0 : Math.random() - Math.random()))
+                    .slice(0, numQuestions)
+            );
+        }
     }, [examQuiz, numQuestions]);
 
     // TODO: ensure error handling

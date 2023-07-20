@@ -70,6 +70,8 @@ const components: Record<string, StyleConfig> = {
                     },
                 },
             }),
+
+            // for inputs with a gray background and permanent label
             // @ts-ignore
             floating_alt_perm: ({ colorMode }) => ({
                 container: {
@@ -80,6 +82,26 @@ const components: Record<string, StyleConfig> = {
                         position: "absolute",
                         backgroundColor:
                             colorMode === "dark" ? "#171923" : "#f7fafc",
+                        pointerEvents: "none",
+                        mx: 3,
+                        px: 1,
+                        my: 2,
+                        transformOrigin: "left top",
+                        ...activeLabelStyles,
+                    },
+                },
+            }),
+            // for inputs with a white background and permanent label
+            // @ts-ignore
+            floating_perm: ({ colorMode }) => ({
+                container: {
+                    label: {
+                        top: 0,
+                        left: 0,
+                        zIndex: 2,
+                        position: "absolute",
+                        backgroundColor:
+                            colorMode === "dark" ? "#171923" : "white",
                         pointerEvents: "none",
                         mx: 3,
                         px: 1,
