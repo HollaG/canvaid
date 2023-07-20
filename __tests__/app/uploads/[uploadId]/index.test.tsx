@@ -29,6 +29,8 @@ import {
 } from "@/firebase/database/repositories/uploads";
 
 import mockRouter from "next-router-mock";
+import { customTheme } from "@/theme/theme";
+import { ChakraProvider } from "@chakra-ui/react";
 jest.mock("next/navigation", () => ({
     ...require("next-router-mock"),
     useParams: () => ({ quizUploadId: "123" }),
@@ -131,7 +133,9 @@ describe("Quiz page rendering", () => {
                             setQuizzes: jest.fn(),
                         }}
                     >
-                        <QuizPage />
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             </AppRouterContextProviderMock>
@@ -160,7 +164,9 @@ describe("Quiz page rendering", () => {
                             setQuizzes: jest.fn(),
                         }}
                     >
-                        <QuizPage />
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             </AppRouterContextProviderMock>
@@ -248,7 +254,9 @@ describe("Quiz page editing", () => {
                             setQuizzes: jest.fn(),
                         }}
                     >
-                        <QuizPage />
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             </AppRouterContextProviderMock>
@@ -278,7 +286,9 @@ describe("Quiz page editing", () => {
                             setQuizzes: jest.fn(),
                         }}
                     >
-                        <QuizPage />
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             </AppRouterContextProviderMock>

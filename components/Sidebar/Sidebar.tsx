@@ -26,6 +26,7 @@ import {
     useDisclosure,
     Link,
     useColorMode,
+    useMediaQuery,
 } from "@chakra-ui/react";
 
 import React, { ReactNode, useEffect, useState } from "react";
@@ -80,12 +81,33 @@ const Sidebar = () => {
     const { quizzes } = useQuizContainer();
 
     // group the quiz by course name
-    const quizzesByCourse = quizzes.reduce(
+    const quizzesByCourse = quizzes
+        .filter((quiz) => !quiz.quizSettings.isCustom)
+        .reduce(
+            (acc, quiz) => {
+                if (!acc[quiz.course.split(" ")[0]]) {
+                    acc[quiz.course.split(" ")[0]] = [];
+                }
+                acc[quiz.course.split(" ")[0]].push(quiz);
+                return acc;
+            },
+            {} as Record<
+                string,
+                (Quiz & {
+                    id: string;
+                })[]
+            >
+        );
+
+    const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
+    const customQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isCustom);
+
+    const customQuizzesByCourse = customQuizzes.reduce(
         (acc, quiz) => {
-            if (!acc[quiz.course.split(" ")[0]]) {
-                acc[quiz.course.split(" ")[0]] = [];
+            if (!acc[quiz.course]) {
+                acc[quiz.course] = [];
             }
-            acc[quiz.course.split(" ")[0]].push(quiz);
+            acc[quiz.course].push(quiz);
             return acc;
         },
         {} as Record<
@@ -96,12 +118,13 @@ const Sidebar = () => {
         >
     );
 
-    const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
-
     const { colorMode, toggleColorMode } = useColorMode();
     const helperColor = useColorModeValue("gray.600", "gray.400");
-    if (!user) return null;
     const sidebarColor = useColorModeValue("white", "gray.900");
+
+    // hide the welcome back and avatar if height is below 700px
+    const [hideWelcome] = useMediaQuery("(max-height: 700px)");
+    if (!user) return null;
 
     console.log(user.courseColors);
     return (
@@ -130,21 +153,34 @@ const Sidebar = () => {
                             />
                         </Link>
                     </Flex>
-                    <Center>
-                        <Avatar
-                            size="2xl"
-                            src={user?.photoURL}
-                            name={user?.displayName}
-                        />
-                    </Center>
-                    <Text mt={3} textAlign="center">
-                        {" "}
-                        Welcome back,{" "}
-                    </Text>
-                    <Heading fontSize="xl" textAlign={"center"}>
-                        {user?.displayName}!
-                    </Heading>
-                    <Divider my={6} />
+                    {!hideWelcome ? (
+                        <>
+                            <Center>
+                                <Avatar
+                                    size="2xl"
+                                    src={user?.photoURL}
+                                    name={user?.displayName}
+                                />
+                            </Center>
+                            <Text mt={3} textAlign="center">
+                                {" "}
+                                Welcome back,{" "}
+                            </Text>
+                            <Heading fontSize="xl" textAlign={"center"}>
+                                {user?.displayName}!
+                            </Heading>
+                            <Divider my={6} />
+                        </>
+                    ) : (
+                        <Text mb={3}>
+                            {" "}
+                            Hi,{" "}
+                            <span style={{ fontWeight: "semibold" }}>
+                                {" "}
+                                {user?.displayName}!{" "}
+                            </span>
+                        </Text>
+                    )}
                     <Text
                         textColor={helperColor}
                         fontWeight="bold"
@@ -206,7 +242,7 @@ const Sidebar = () => {
                     >
                         Quick Access
                     </Text>
-                    <Accordion flexGrow={1} overflowY="auto">
+                    <Accordion overflowY="auto">
                         {Object.keys(quizzesByCourse).map((courseCode) => {
                             const quizzes = quizzesByCourse[courseCode];
                             return (
@@ -277,6 +313,89 @@ const Sidebar = () => {
                                 </AccordionItem>
                             );
                         })}
+                    </Accordion>
+                    <Text
+                        textColor={helperColor}
+                        fontWeight="bold"
+                        fontSize="sm"
+                        mb={3}
+                    >
+                        Custom
+                    </Text>
+                    <Accordion overflowY="auto" flexGrow={1}>
+                        {Object.keys(customQuizzesByCourse).map(
+                            (courseCode) => {
+                                const quizzes =
+                                    customQuizzesByCourse[courseCode];
+                                return (
+                                    <AccordionItem key={courseCode} border={0}>
+                                        <h2>
+                                            <AccordionButton>
+                                                <Box
+                                                    as="span"
+                                                    flex="1"
+                                                    textAlign="left"
+                                                    alignItems={"center"}
+                                                    display="flex"
+                                                >
+                                                    {/* <Icon
+                                                    viewBox="0 0 200 200"
+                                                    color={
+                                                        user?.courseColors[
+                                                            courseCode
+                                                        ] || "gray.500"
+                                                    }
+                                                    mr={1}
+                                                >
+                                                    <path
+                                                        fill="currentColor"
+                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                    />
+                                                </Icon> */}
+                                                    <Box
+                                                        w="12px"
+                                                        h="12px"
+                                                        borderRadius="4px"
+                                                        bgColor={
+                                                            user?.courseColors[
+                                                                courseCode
+                                                            ] || "gray.500"
+                                                        }
+                                                        data-help={courseCode}
+                                                        mr={2}
+                                                    ></Box>
+                                                    {courseCode}
+                                                </Box>
+                                                <AccordionIcon />
+                                            </AccordionButton>
+                                        </h2>
+                                        <AccordionPanel pb={4} px={1}>
+                                            <Stack>
+                                                {quizzes.map((quiz, i) => (
+                                                    <Button
+                                                        size="sm"
+                                                        colorScheme={"gray"}
+                                                        variant="ghost"
+                                                        textAlign={"left"}
+                                                        justifyContent="left"
+                                                        pl={2}
+                                                        textDecor="none"
+                                                        key={i}
+                                                    >
+                                                        <NextLink
+                                                            href={`/uploads/${quiz.id}`}
+                                                            className="sidebar-link"
+                                                        >
+                                                            {quiz.quizName}
+                                                        </NextLink>
+                                                    </Button>
+                                                ))}
+                                            </Stack>
+                                        </AccordionPanel>
+                                    </AccordionItem>
+                                );
+                            }
+                        )}
                     </Accordion>
                     <Flex alignItems={"center"} justifyContent="space-between">
                         <Button
