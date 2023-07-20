@@ -82,10 +82,10 @@ const Sidebar = () => {
     // group the quiz by course name
     const quizzesByCourse = quizzes.reduce(
         (acc, quiz) => {
-            if (!acc[quiz.course.split(" ")[0].toUpperCase()]) {
-                acc[quiz.course.split(" ")[0].toUpperCase()] = [];
+            if (!acc[quiz.course.split(" ")[0]]) {
+                acc[quiz.course.split(" ")[0]] = [];
             }
-            acc[quiz.course.split(" ")[0].toUpperCase()].push(quiz);
+            acc[quiz.course.split(" ")[0]].push(quiz);
             return acc;
         },
         {} as Record<
@@ -102,6 +102,8 @@ const Sidebar = () => {
     const helperColor = useColorModeValue("gray.600", "gray.400");
     if (!user) return null;
     const sidebarColor = useColorModeValue("white", "gray.900");
+
+    console.log(user.courseColors);
     return (
         <>
             <Box display={{ base: "block", md: "none" }} height={NAVBAR_HEIGHT}>
@@ -241,6 +243,7 @@ const Sidebar = () => {
                                                             courseCode
                                                         ] || "gray.500"
                                                     }
+                                                    data-help={courseCode}
                                                     mr={2}
                                                 ></Box>
                                                 {courseCode}
