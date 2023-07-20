@@ -1,7 +1,7 @@
 "use client";
 import { useQuizContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
-import { ExamAnswerList } from "@/components/Exam/ExamComponent";
+import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
 import {
     create,
     getQuizUpload,

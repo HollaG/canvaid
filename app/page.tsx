@@ -55,6 +55,7 @@ import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
 import { TbSearch } from "react-icons/tb";
+import ExamComponent from "@/components/Exam/ExamComponent";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -113,7 +114,14 @@ export default function Page() {
     } = useDisclosure();
 
     const borderRightColor = useColorModeValue("teal.700", "teal.700");
-    // for searching
+
+    // for go exam mode
+    const {
+        isOpen: isOpenExam,
+        onOpen: onOpenExam,
+        onClose: onCloseExam,
+    } = useDisclosure();
+
     return (
         <>
             <DrawerContainer
@@ -131,7 +139,9 @@ export default function Page() {
             >
                 <AddComponent onClose={onCloseAddNewQuiz} />
             </DrawerContainer>
-
+            <DrawerContainer onClose={onCloseExam} isOpen={isOpenExam}>
+                <ExamComponent onClose={onCloseExam} />
+            </DrawerContainer>
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
                 <Flex
@@ -213,7 +223,8 @@ export default function Page() {
                                             </Button>
                                             <Button
                                                 onClick={() =>
-                                                    router.push("/exam")
+                                                    // router.push("/exam")
+                                                    onOpenExam()
                                                 }
                                             >
                                                 Exam
