@@ -19,6 +19,7 @@ import {
     Quiz,
     QuizAttempt,
     QuizResponse,
+    QuizSubmissionQuestion,
 } from "@/types/canvas";
 import {
     Tag,
@@ -68,7 +69,7 @@ export default function Page() {
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
-        if (!quiz) {
+        if (!examQuiz) {
             getQuizUpload(quizUploadId)
                 .then((data) => {
                     setQuiz(data);
@@ -78,15 +79,26 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [quizUploadId, quiz, setQuiz]);
+    }, [quizUploadId, examQuiz, setQuiz]);
+
+    // calculate the questions to be examined
+    const [numQuestions, setNumQuestions] = useState<number>(
+        parseInt(searchParams.get("num") || "0")
+    );
+    const [qns, setQns] = useState<QuizSubmissionQuestion[]>([]);
+    const timeLimit = searchParams.get("length") || 0;
+
+    useEffect(() => {
+        if (!examQuiz) return;
+        const examinableQuestions = getExaminableQuestions(examQuiz);
+        setQns(
+            examinableQuestions
+                .sort(() => Math.random() - Math.random())
+                .slice(0, numQuestions)
+        );
+    }, [examQuiz, numQuestions]);
 
     // TODO: ensure error handling
-    const examinableQuestions = getExaminableQuestions(examQuiz);
-    const numQuestions =
-        parseInt(
-            searchParams.get("num") || examinableQuestions.length.toString()
-        ) || examinableQuestions.length;
-    const timeLimit = searchParams.get("length") || 0;
 
     const answers = examQuiz?.quizAnswers;
 
@@ -96,18 +108,7 @@ export default function Page() {
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
 
-    const allQuestions = examinableQuestions || [];
-
-    // given the number of questions, get a random subset of questions
-    const qns = useMemo(
-        () =>
-            allQuestions
-                .sort(() => Math.random() - Math.random())
-                .slice(0, numQuestions),
-        [allQuestions, numQuestions]
-    );
-
-    console.log({ selectedOptions });
+    console.log({ examQuiz });
 
     const submitCustomQuiz = async () => {
         const hydratedSelectedOptions = hydrateSelectedOptions(
@@ -162,7 +163,7 @@ export default function Page() {
             });
     };
 
-    if (!quiz) return <>Loading...</>;
+    if (!examQuiz) return <>Loading...</>;
     return (
         <Flex
             minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
@@ -185,7 +186,7 @@ export default function Page() {
                 </Box>
                 <Box
                     dangerouslySetInnerHTML={{
-                        __html: quiz.quizInfo.description,
+                        __html: examQuiz.quizInfo.description,
                     }}
                 />
                 {/* <Grid
