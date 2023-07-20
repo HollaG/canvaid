@@ -13,7 +13,7 @@ import {
     getExaminableQuestions,
     hydrateSelectedOptions,
 } from "@/lib/functions";
-import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
     CanvasQuizSubmission,
     QuestionResponse,
@@ -32,6 +32,7 @@ import {
     Box,
     useColorModeValue,
     useToast,
+    Center,
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -116,7 +117,10 @@ export default function Page() {
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const submitCustomQuiz = async () => {
+        setIsSubmitting(true);
         const hydratedSelectedOptions = hydrateSelectedOptions(
             selectedOptions,
             answers
@@ -150,11 +154,8 @@ export default function Page() {
             selectedOptions: hydratedSelectedOptions,
         };
 
-        console.log({ quizAttempt });
         create(quizAttempt, examQuiz.quizInfo)
             .then(() => {
-                console.log("created quiz");
-
                 toast({
                     ...SUCCESS_TOAST_OPTIONS,
                     title: "Quiz submitted!",
@@ -166,6 +167,14 @@ export default function Page() {
             })
             .catch((e) => {
                 console.log(e);
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error submitting quiz",
+                    description: e.message,
+                });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
             });
     };
 
@@ -265,18 +274,20 @@ export default function Page() {
                             </Stack>
                         ))}
                     </Stack>
-                    <Button
-                        onClick={() => {
-                            // TODO : calculate total marks
-                            // create(newQuizAttempt, quiz.quizInfo);
-                            // setIsExamMode(false);
-                            // router.refresh();
-                            submitCustomQuiz();
-                        }}
-                        colorScheme="teal"
-                    >
-                        Submit Quiz
-                    </Button>
+                    <Center mt={3}>
+                        <Button
+                            size="lg"
+                            onClick={submitCustomQuiz}
+                            colorScheme="orange"
+                            isDisabled={
+                                Object.keys(selectedOptions).length !==
+                                (numQuestions || qns.length)
+                            }
+                            isLoading={isSubmitting}
+                        >
+                            Submit Quiz
+                        </Button>
+                    </Center>
                 </Stack>
                 {/* </GridItem>
             </Grid> */}

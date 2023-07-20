@@ -336,6 +336,7 @@ export default function Page() {
                                         `/uploads/${quiz.id}/exam?num=${examinableQuestionNumber}&length=${examLength}`
                                     );
                                 }}
+                                colorScheme="orange"
                             >
                                 Start Exam
                             </Button>
@@ -396,10 +397,6 @@ export default function Page() {
                     />
                     <Heading>{quiz.quizName}</Heading>
 
-                    <Button onClick={onOpen}>
-                        {isExamMode ? "Exit Exam Mode" : "Enter Exam Mode"}
-                    </Button>
-
                     <Flex flexDir={"row"} flexWrap="wrap">
                         {quiz.quizInfo.show_correct_answers ? (
                             <Box mr={2} mb={2}>
@@ -435,6 +432,14 @@ export default function Page() {
                     >
                         <GridItem p={5}>
                             <Stack>
+                                <Button
+                                    onClick={onOpen}
+                                    colorScheme="orange"
+                                    variant="outline"
+                                >
+                                    Enter Exam Mode
+                                </Button>
+                                <Divider />
                                 <Button
                                     variant={
                                         selectedAttemptIndex === -1

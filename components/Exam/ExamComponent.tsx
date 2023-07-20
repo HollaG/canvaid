@@ -280,24 +280,28 @@ export const ExamAnswerList = ({
         case "multiple_answers_question":
             return (
                 <CheckboxGroup
-                    value={selectedOptions[
-                        questionId
-                    ]?.selected_answer_ids?.map((id) => id.toString())}
+                    value={
+                        selectedOptions[questionId]?.selected_answer_ids?.map(
+                            (id) => id.toString()
+                        ) || []
+                    }
                     onChange={(e) => {
-                        // setSelectedAnswers(e.map((e) => e));
-                        // selectedOptions.selected_answer_ids =
-                        //     selectedAnswers.map((id) =>
-                        //         parseInt(id.toString())
-                        //     );
-                        //console.log("selectedAns" + selectedAnswers);
-                        setSelectedOptions((prev) => ({
-                            ...prev,
-                            [questionId]: {
-                                selected_answer_ids: e.map((id) =>
-                                    parseInt(id.toString())
-                                ),
-                            },
-                        }));
+                        // if no selecetd option, delete it from the object
+                        if (e.length === 0) {
+                            setSelectedOptions((prev) => {
+                                const newPrev = { ...prev };
+                                delete newPrev[questionId];
+                                return newPrev;
+                            });
+                        } else
+                            setSelectedOptions((prev) => ({
+                                ...prev,
+                                [questionId]: {
+                                    selected_answer_ids: e.map((id) =>
+                                        parseInt(id.toString())
+                                    ),
+                                },
+                            }));
                     }}
                 >
                     <Stack spacing={4}>
@@ -335,12 +339,23 @@ export const ExamAnswerList = ({
                                             ?.answer_text?.[0] ?? ""
                                     }
                                     onChange={(e) => {
-                                        setSelectedOptions((prev) => ({
-                                            ...prev,
-                                            [questionId]: {
-                                                answer_text: [e.target.value],
-                                            },
-                                        }));
+                                        if (!e.target.value) {
+                                            setSelectedOptions((prev) => {
+                                                const newPrev = {
+                                                    ...prev,
+                                                };
+                                                delete newPrev[questionId];
+                                                return newPrev;
+                                            });
+                                        } else
+                                            setSelectedOptions((prev) => ({
+                                                ...prev,
+                                                [questionId]: {
+                                                    answer_text: [
+                                                        e.target.value,
+                                                    ],
+                                                },
+                                            }));
                                     }}
                                 />
                             </Stack>
