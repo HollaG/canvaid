@@ -1,5 +1,6 @@
 "use client";
 import { useQuizContainer } from "@/app/providers";
+import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamComponent";
 import {
     create,
@@ -86,6 +87,8 @@ export default function Page() {
         parseInt(searchParams.get("num") || "0")
     );
     const [qns, setQns] = useState<QuizSubmissionQuestion[]>([]);
+
+    const [enableRandom, setEnableRandom] = useState<boolean>(false);
     const timeLimit = searchParams.get("length") || 0;
 
     useEffect(() => {
@@ -93,8 +96,13 @@ export default function Page() {
         const examinableQuestions = getExaminableQuestions(examQuiz);
         setQns(
             examinableQuestions
-                .sort(() => Math.random() - Math.random())
-                .slice(0, numQuestions)
+                .sort(() => (!enableRandom ? 0 : Math.random() - Math.random()))
+                .slice(
+                    0,
+                    numQuestions !== 0
+                        ? numQuestions
+                        : examinableQuestions.length
+                )
         );
     }, [examQuiz, numQuestions]);
 
@@ -107,8 +115,6 @@ export default function Page() {
         examQuiz?.submissions.filter((submission) => submission.attempt < 0)
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
-
-    console.log({ examQuiz });
 
     const submitCustomQuiz = async () => {
         const hydratedSelectedOptions = hydrateSelectedOptions(
@@ -179,9 +185,14 @@ export default function Page() {
                 borderRadius="xl"
                 mt={6}
             >
+                <CourseInfo
+                    courseCode={quiz.course.split(" ")[0]}
+                    courseName={quiz.course.split(" ").slice(1).join(" ")}
+                />
+                <Heading> {quiz.quizName} </Heading>
                 <Box mr={2} mb={2}>
                     <Tag colorScheme={"teal"}>
-                        Total questions: {numQuestions}
+                        Total questions: {numQuestions || qns.length}
                     </Tag>
                 </Box>
                 <Box

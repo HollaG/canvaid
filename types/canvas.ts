@@ -151,6 +151,8 @@ export type Quiz = {
     quizAnswers: QuizAnswers;
 
     quizSettings: QuizSettings;
+
+    sources?: string[]; // the uids that this quiz was taken from
 };
 
 export type QuizResponse = {

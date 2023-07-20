@@ -262,3 +262,10 @@ const COLORS = [
 export const getRandomColor = () => {
     return COLORS[Math.floor(Math.random() * COLORS.length)];
 };
+
+/**
+ * Remove all letters from a string.
+ */
+export const removeLetters = (str: string) => {
+    return str.replace(/[a-zA-Z]/g, "");
+};
