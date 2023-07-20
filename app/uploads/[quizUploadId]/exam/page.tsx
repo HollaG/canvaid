@@ -142,7 +142,7 @@ export default function Page() {
             has_seen_results: false,
             workflow_state: "untaken",
             overdue_and_needs_submission: false,
-            quiz_points_possible: numQuestions,
+            quiz_points_possible: numQuestions || qns.length,
         };
         const quizAttempt: QuizAttempt = {
             ...examQuiz,

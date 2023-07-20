@@ -80,11 +80,6 @@ const CourseInfo = ({
                     <Input
                         type="color"
                         opacity={0}
-                        defaultValue={
-                            user
-                                ? user.courseColors[courseCode] || "gray.500"
-                                : "gray.500"
-                        }
                         onChange={(e) => setSelectedColor(e.target.value)}
                         value={selectedColor}
                     />
