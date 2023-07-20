@@ -220,6 +220,7 @@ export default function Page() {
                 academicYear: ACADEMIC_YEAR,
                 semester: ACADEMIC_SEMESTER,
                 isPinned: false,
+                isCustom: true,
             },
 
             sources: selectedQuizzes,

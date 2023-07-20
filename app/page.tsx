@@ -8,6 +8,7 @@ import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
+    ButtonGroup,
     Center,
     Container,
     Drawer,
@@ -21,6 +22,7 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
+    LightMode,
     Stack,
     Text,
     useColorModeValue,
@@ -110,6 +112,7 @@ export default function Page() {
         onClose: onCloseAddNewQuiz,
     } = useDisclosure();
 
+    const borderRightColor = useColorModeValue("teal.700", "teal.700");
     // for searching
     return (
         <>
@@ -196,21 +199,27 @@ export default function Page() {
                                             }
                                         />
                                     </InputGroup>
-
-                                    <Button
-                                        size="md"
-                                        ml={3}
-                                        onClick={onOpenAddNewQuiz}
-                                        data-testid="add-new-btn"
-                                    >
-                                        Upload
-                                    </Button>
-                                    <Button
-                                        ml={3}
-                                        onClick={() => router.push("/exam")}
-                                    >
-                                        Exam
-                                    </Button>
+                                    <LightMode>
+                                        <ButtonGroup isAttached ml={3}>
+                                            <Button
+                                                onClick={onOpenAddNewQuiz}
+                                                data-testid="add-new-btn"
+                                                borderRightWidth={"2px"}
+                                                borderRightColor={
+                                                    borderRightColor
+                                                }
+                                            >
+                                                Upload
+                                            </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    router.push("/exam")
+                                                }
+                                            >
+                                                Exam
+                                            </Button>
+                                        </ButtonGroup>
+                                    </LightMode>
                                 </Center>
                             </Box>
                         </Center>
