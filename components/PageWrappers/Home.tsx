@@ -24,6 +24,7 @@ import NextLink from "next/link";
 import HomePageImage from "@/public/assets/homepage.svg";
 import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
 import GetStartedImage from "@/public/assets/get_started.svg";
+import GetStartedDarkImage from "@/public/assets/get_started-dark.svg";
 import Features1 from "@/public/assets/features_1.svg";
 import Features2 from "@/public/assets/features_2.svg";
 
@@ -163,7 +164,9 @@ export default function NotAuthedHomePage() {
                         width="400px"
                     >
                         <Image
-                            src={GetStartedImage}
+                            src={
+                                darkMode ? GetStartedDarkImage : GetStartedImage
+                            }
                             alt="Get started"
                             width="400"
                         />
