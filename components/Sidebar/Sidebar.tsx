@@ -27,6 +27,7 @@ import {
     Link,
     useColorMode,
     useMediaQuery,
+    Tooltip,
 } from "@chakra-ui/react";
 
 import React, { ReactNode, useEffect, useState } from "react";
@@ -54,6 +55,7 @@ import { TbDoorExit, TbMoon, TbSun, TbSunLow } from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
 import Navbar from "../Navbar/Navbar";
+import CustomAlertDialog from "../Alert/CustomAlertDialog";
 /**
  * Sidebar component.
  *
@@ -124,11 +126,31 @@ const Sidebar = () => {
 
     // hide the welcome back and avatar if height is below 700px
     const [hideWelcome] = useMediaQuery("(max-height: 700px)");
+
+    // for sign out alert
+    const alertProps = useDisclosure();
     if (!user) return null;
 
     console.log(user.courseColors);
     return (
         <>
+            <CustomAlertDialog
+                headerText="Sign out"
+                bodyText="Are you sure you want to sign out?"
+                {...alertProps}
+                ConfirmButton={
+                    <Button
+                        colorScheme={"red"}
+                        onClick={() => {
+                            alertProps.onClose();
+                            signOutAll();
+                        }}
+                    >
+                        {" "}
+                        Sign out
+                    </Button>
+                }
+            />
             <Box display={{ base: "block", md: "none" }} height={NAVBAR_HEIGHT}>
                 <Navbar />
             </Box>
@@ -401,20 +423,28 @@ const Sidebar = () => {
                         )}
                     </Accordion>
                     <Flex alignItems={"center"} justifyContent="space-between">
-                        <Button
-                            onClick={toggleColorMode}
-                            variant="ghost"
-                            colorScheme="gray"
+                        <Tooltip
+                            label={`Toggle ${
+                                colorMode === "light" ? "dark" : "light"
+                            } mode`}
                         >
-                            {colorMode === "light" ? <TbMoon /> : <TbSun />}
-                        </Button>
-                        <Button
-                            variant={"ghost"}
-                            colorScheme="gray"
-                            onClick={signOutAll}
-                        >
-                            <TbDoorExit />
-                        </Button>
+                            <Button
+                                onClick={toggleColorMode}
+                                variant="ghost"
+                                colorScheme="gray"
+                            >
+                                {colorMode === "light" ? <TbMoon /> : <TbSun />}
+                            </Button>
+                        </Tooltip>
+                        <Tooltip label="Sign out">
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={() => alertProps.onOpen()}
+                            >
+                                <TbDoorExit />
+                            </Button>
+                        </Tooltip>
                     </Flex>
                     {/* <Flex textAlign="right">
                     <Text
