@@ -26,6 +26,7 @@ import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
 import GetStartedImage from "@/public/assets/get_started.svg";
 import GetStartedDarkImage from "@/public/assets/get_started-dark.svg";
 import Features1 from "@/public/assets/features_1.svg";
+import Features1Dark from "@/public/assets/features_1-dark.svg";
 import Features2 from "@/public/assets/features_2.svg";
 
 import Image from "next/image";
@@ -198,7 +199,7 @@ export default function NotAuthedHomePage() {
                                 bottom="-22px"
                             >
                                 <Image
-                                    src={Features1}
+                                    src={darkMode ? Features1Dark : Features1}
                                     alt="Get started"
                                     width="200"
                                 />
