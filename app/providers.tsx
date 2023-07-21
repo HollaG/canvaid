@@ -20,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <CacheProvider>
             <ChakraProvider theme={customTheme}>
                 <UserProvider>
-                    <QuizStorageProvider>{children}</QuizStorageProvider>
+                    <QuizStorageProvider>
+                        <SidebarProvider>{children}</SidebarProvider>
+                    </QuizStorageProvider>
                 </UserProvider>
             </ChakraProvider>
         </CacheProvider>
@@ -209,3 +211,27 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useAuthContainer = () => useContext(UserContext);
+export const useSidebarContainer = () => useContext(SidebarContext);
+
+interface ISidebarContext {
+    isOpenSidebar: boolean;
+    setIsOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export const SidebarContext = createContext<ISidebarContext>({
+    isOpenSidebar: true, // Set the default value for isOpen
+    setIsOpenSidebar: () => {}, // Set a dummy function for setIsOpen
+});
+export const SidebarProvider = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
+    const [isOpenSidebar, setIsOpenSidebar] = useState(true);
+
+    useEffect(() => {}, [isOpenSidebar]);
+    return (
+        <SidebarContext.Provider value={{ isOpenSidebar, setIsOpenSidebar }}>
+            {children}
+        </SidebarContext.Provider>
+    );
+};

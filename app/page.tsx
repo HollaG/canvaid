@@ -30,7 +30,11 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
-import { useAuthContainer, useQuizContainer } from "./providers";
+import {
+    useAuthContainer,
+    useQuizContainer,
+    useSidebarContainer,
+} from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
@@ -61,7 +65,7 @@ export default function Page() {
     const authCtx = useAuthContainer();
     const { quizzes, setQuizzes, searchString, setSearchString } =
         useQuizContainer();
-
+    const { isOpenSidebar } = useSidebarContainer();
     const user = authCtx?.user;
 
     // useEffect(() => {
@@ -151,7 +155,11 @@ export default function Page() {
                     <Stack
                         flexGrow={1}
                         mt={{ base: 0, md: 6 }}
-                        ml={{ base: 0, md: SIDEBAR_WIDTH }}
+                        ml={
+                            isOpenSidebar
+                                ? { base: 0, md: SIDEBAR_WIDTH }
+                                : { base: 0, md: "30px" }
+                        }
                         pt={6}
                         bgColor={useColorModeValue("gray.50", "gray.900")}
                         backgroundImage={useColorModeValue(

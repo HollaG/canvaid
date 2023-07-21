@@ -90,7 +90,11 @@ import {
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
 import CourseInfo from "@/components/Display/CourseInfo";
-import { useAuthContainer, useQuizContainer } from "@/app/providers";
+import {
+    useAuthContainer,
+    useQuizContainer,
+    useSidebarContainer,
+} from "@/app/providers";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
@@ -133,6 +137,7 @@ export default function Page() {
     const dataId = params.quizUploadId;
     const { quizzes, setQuiz } = useQuizContainer();
     const authCtx = useAuthContainer();
+    const { isOpenSidebar, setIsOpenSidebar } = useSidebarContainer();
     const user = authCtx.user;
     const router = useRouter();
     const quiz = quizzes.filter((quiz) => quiz.id === dataId)[0];
@@ -413,7 +418,11 @@ export default function Page() {
                 <Stack
                     spacing={6}
                     flexGrow={1}
-                    ml={{ base: 0, md: SIDEBAR_WIDTH }}
+                    ml={
+                        isOpenSidebar
+                            ? { base: 0, md: SIDEBAR_WIDTH }
+                            : { base: 0, md: "60px" }
+                    }
                     p={4}
                     bgColor={bgColor}
                     borderRadius={{ base: 0, md: "xl" }}
@@ -816,6 +825,7 @@ const QuestionExtras = ({
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
     const [newAnnotation, setNewAnnotation] = useState("");
+
     const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
         event.preventDefault();
 

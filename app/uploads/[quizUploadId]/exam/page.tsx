@@ -1,12 +1,16 @@
 "use client";
-import { useQuizContainer } from "@/app/providers";
+import { useQuizContainer, useSidebarContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
 import {
     create,
     getQuizUpload,
 } from "@/firebase/database/repositories/uploads";
-import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
+import {
+    MINIMISED_SIDEBAR_WIDTH,
+    NAVBAR_HEIGHT,
+    SIDEBAR_WIDTH,
+} from "@/lib/constants";
 import {
     calculateTotalScore,
     convertCustomAttemptNumber,
@@ -46,6 +50,7 @@ import { useEffect, useMemo, useState } from "react";
 export default function Page() {
     // the ongoing selected options
     const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({});
+    const { isOpenSidebar } = useSidebarContainer();
 
     const searchParams = useSearchParams();
     const params = useParams();
@@ -206,7 +211,11 @@ export default function Page() {
             <Stack
                 spacing={6}
                 flexGrow={1}
-                ml={{ base: 0, md: SIDEBAR_WIDTH }}
+                ml={
+                    isOpenSidebar
+                        ? { base: 0, md: SIDEBAR_WIDTH }
+                        : { base: 0, md: "60px" }
+                }
                 p={4}
                 bgColor={bgColor}
                 borderRadius="xl"
