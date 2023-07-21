@@ -47,6 +47,7 @@ type ResponseData = {
 };
 
 import AddImage from "@/public/assets/add.svg";
+import AddDarkImage from "@/public/assets/add-dark.svg";
 import Image from "next/image";
 import { deleteAttempt } from "@/firebase/database/repositories/uploads";
 import { ERROR_TOAST_OPTIONS } from "@/lib/toasts";
@@ -191,7 +192,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                 {showIllustration && (
                     <Box position="fixed" bottom={0} right={-113} w="600px">
                         <Image
-                            src={isDarkMode ? AddImage : AddImage}
+                            src={isDarkMode ? AddDarkImage : AddImage}
                             alt="Image asking for new upload"
                         />
                     </Box>
