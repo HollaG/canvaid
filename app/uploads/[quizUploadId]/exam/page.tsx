@@ -150,8 +150,8 @@ export default function Page() {
             user_id: parseInt(examQuiz?.userUid),
             submission_id: newSubmissionAttemptNumber,
             started_at: new Date().toString(),
-            finished_at: "",
-            end_at: "",
+            finished_at: new Date().toString(),
+            end_at: new Date().toString(),
             attempt: newSubmissionAttemptNumber,
             extra_attempts: 0,
             extra_time: 0,
@@ -173,14 +173,16 @@ export default function Page() {
         };
 
         create(quizAttempt, examQuiz.quizInfo)
-            .then(() => {
+            .then((newQuiz) => {
                 toast({
                     ...SUCCESS_TOAST_OPTIONS,
                     title: "Quiz submitted!",
                 });
 
                 router.push(
-                    `/uploads/${quizUploadId}?attemptNum=${newSubmissionAttemptNumber}`
+                    `/uploads/${quizUploadId}?submission=${
+                        newQuiz.submissions.length - 1
+                    }`
                 );
             })
             .catch((e) => {
