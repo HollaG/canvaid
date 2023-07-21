@@ -108,6 +108,7 @@ import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import Image from "next/image";
 
 import ExamImage from "@/public/assets/exam.svg";
+import ExamDarkImage from "@/public/assets/exam-dark.svg";
 
 // export default async function Page({
 //     params,
@@ -333,7 +334,7 @@ export default function Page() {
                     {showIllustration && (
                         <Box position="fixed" bottom={-2} right={-50} w="600px">
                             <Image
-                                src={ExamImage}
+                                src={isDarkMode ? ExamDarkImage : ExamImage}
                                 alt="Image representing exam mode"
                             />
                         </Box>

@@ -45,7 +45,7 @@ import {
     useState,
 } from "react";
 import ExamSettings, { GeneralExamSettings1 } from "./ExamSettings";
-
+import ExamDarkImage from "@/public/assets/exam-dark.svg";
 import ExamImage from "@/public/assets/exam.svg";
 
 const ExamComponent = ({ onClose }: { onClose: () => void }) => {
@@ -293,7 +293,10 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
         <Container maxW={PAGE_CONTAINER_SIZE}>
             {showIllustration && (
                 <Box position="fixed" bottom={-2} right={-50} w="600px">
-                    <Image src={ExamImage} alt="Image representing exam mode" />
+                    <Image
+                        src={isDarkMode ? ExamDarkImage : ExamImage}
+                        alt="Image representing exam mode"
+                    />
                 </Box>
             )}
             <Container maxW="container.md" ml={0}>
