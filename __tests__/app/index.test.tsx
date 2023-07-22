@@ -209,7 +209,9 @@ describe("Home page", () => {
                         setUser: jest.fn(),
                     }}
                 >
-                    <HomePage />
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
                 </UserContext.Provider>
             )
         );
@@ -235,7 +237,9 @@ describe("Home page", () => {
                             setSearchString: jest.fn(),
                         }}
                     >
-                        <HomePage />
+                        <ChakraProvider theme={customTheme}>
+                            <HomePage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             )
@@ -243,11 +247,11 @@ describe("Home page", () => {
 
         // expect the homepage to display the title of the course, in this case
         // SOCT101 SoC Teaching Workshop
-        // expect there to be two cards
+        // expect there to be 1 cards
 
         expect(
             await screen.findAllByText(/SoC Teaching Workshop/)
-        ).toHaveLength(2);
+        ).toHaveLength(1);
 
         // // expect there to only one card
         // expect(await screen.findByText(/23\/24 S1/)).toBeInTheDocument();

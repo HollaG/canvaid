@@ -51,6 +51,16 @@ export type Answer = {
     text: string;
     html: string;
 };
+export type ExamDetails = {
+    courseName: string;
+    quizName?: string;
+    numQns: number;
+    timeLimit?: number;
+};
+export type Exam = {
+    examDetails: ExamDetails;
+    examResponses: any;
+};
 
 export interface CanvasQuizSubmission {
     // The ID of the quiz submission.
@@ -123,6 +133,7 @@ export type QuizSettings = {
 
     // pinned
     isPinned: boolean;
+    isCustom?: boolean;
 };
 
 export type Quiz = {
@@ -138,7 +149,11 @@ export type Quiz = {
 
     quizInfo: CanvasQuiz;
 
+    quizAnswers: QuizAnswers;
+
     quizSettings: QuizSettings;
+
+    sources?: string[]; // the uids that this quiz was taken from
 };
 
 export type QuizResponse = {
@@ -152,6 +167,14 @@ export type QuestionResponse = {
     correct_answer_ids?: number[]; // for multiple answer / mcq
     total_score?: number;
     your_score?: number;
+};
+
+export type QuizAnswers = {
+    [assessment_question_id: number]: {
+        correct_answer_text?: string[]; // for text input
+        correct_answer_ids?: number[];
+        total_score?: number;
+    };
 };
 
 export type CanvasQuiz = {

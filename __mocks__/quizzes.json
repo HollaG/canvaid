@@ -1,84 +1,181 @@
 [
     {
-        "id": "CgBnvGYEayotCQXfrpi7",
-        "submissions": [
-            {
-                "end_at": "2023-06-29T15:59:00Z",
-                "quiz_id": 7744,
-                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=1",
-                "attempts_left": -1,
-                "finished_at": "2023-06-25T06:36:47Z",
-                "validation_token": "1af068deaa34fca6ea78aa47dca6f8165857dd9899c5f661fcbd88a7087bf800",
-                "attempt": 1,
-                "time_spent": 20,
-                "quiz_points_possible": 10,
-                "score": 2.25,
-                "user_id": 79438,
-                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submissions/778671",
-                "kept_score": 2.25,
-                "started_at": "2023-06-25T06:36:27Z",
-                "workflow_state": "complete",
-                "id": 778671,
-                "overdue_and_needs_submission": false,
-                "quiz_version": 4
-            },
-            {
-                "end_at": "2023-06-29T15:59:00Z",
-                "quiz_id": 7744,
-                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=2",
-                "attempts_left": -1,
-                "finished_at": "2023-06-25T06:39:28Z",
-                "validation_token": "1af068deaa34fca6ea78aa47dca6f8165857dd9899c5f661fcbd88a7087bf800",
-                "attempt": 2,
-                "time_spent": 130,
-                "quiz_points_possible": 10,
-                "score": 10,
-                "user_id": 79438,
-                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submissions/778671",
-                "kept_score": 10,
-                "started_at": "2023-06-25T06:37:17Z",
-                "workflow_state": "complete",
-                "id": 778671,
-                "overdue_and_needs_submission": false,
-                "has_seen_results": false,
-                "quiz_version": 4
-            }
-        ],
-        "lastUpdated": {
-            "seconds": 1689670335,
-            "nanoseconds": 522000000
+        "quizSettings": {
+            "semester": 1,
+            "academicYear": 2023,
+            "isPinned": false
         },
         "userUid": "FVz6q3E4xqSSZYgpZfmr5tuEYaR2",
+        "quizAnswers": {
+            "63091": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    50037
+                ]
+            },
+            "63092": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    49804
+                ]
+            },
+            "63093": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    62703
+                ]
+            },
+            "63094": {
+                "correct_answer_ids": [
+                    16048
+                ],
+                "total_score": 1
+            },
+            "63095": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    7057
+                ]
+            },
+            "63096": {
+                "correct_answer_ids": [
+                    90910
+                ],
+                "total_score": 1
+            },
+            "63097": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    28896,
+                    74598
+                ]
+            },
+            "63098": {
+                "total_score": 1,
+                "correct_answer_ids": [
+                    26723,
+                    93021,
+                    53906,
+                    78975
+                ]
+            },
+            "63099": {
+                "correct_answer_ids": [
+                    65984,
+                    68870,
+                    57741
+                ],
+                "total_score": 1
+            },
+            "63100": {
+                "correct_answer_ids": [
+                    35245,
+                    8819
+                ],
+                "total_score": 1
+            }
+        },
         "quizName": "Part 3: Tips on conducting a class",
+        "course": "SOCT101 SoC Teaching Workshop",
+        "quizInfo": {
+            "in_paced_course": false,
+            "id": 7744,
+            "title": "Part 3: Tips on conducting a class",
+            "question_count": 10,
+            "has_access_code": false,
+            "ip_filter": null,
+            "points_possible": 10,
+            "require_lockdown_browser_monitor": false,
+            "unlock_at": "2022-12-31T16:00:00Z",
+            "show_correct_answers_at": null,
+            "lockdown_browser_monitor_data": null,
+            "permissions": {
+                "review_grades": false,
+                "create": false,
+                "delete": false,
+                "preview": false,
+                "submit": true,
+                "update": false,
+                "grade": false,
+                "read_statistics": false,
+                "read": true,
+                "manage": false,
+                "view_answer_audits": false
+            },
+            "locked_for_user": false,
+            "shuffle_answers": true,
+            "cant_go_back": false,
+            "quiz_reports_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7744/reports",
+            "timer_autosubmit_disabled": false,
+            "mobile_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744?force_user=1&persist_headless=1",
+            "migration_id": "g80606da1488e4828b16c73cdd68aaefc",
+            "show_correct_answers_last_attempt": false,
+            "quiz_type": "practice_quiz",
+            "one_time_results": false,
+            "hide_correct_answers_at": null,
+            "lock_at": "2024-06-29T15:59:00Z",
+            "important_dates": false,
+            "all_dates": [
+                {
+                    "lock_at": "2024-06-29T15:59:00Z",
+                    "unlock_at": "2022-12-31T16:00:00Z",
+                    "base": true,
+                    "due_at": null
+                }
+            ],
+            "require_lockdown_browser": false,
+            "published": true,
+            "due_at": null,
+            "assignment_group_id": 11019,
+            "require_lockdown_browser_for_results": false,
+            "time_limit": null,
+            "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744",
+            "question_types": [
+                "multiple_answers_question",
+                "multiple_choice_question"
+            ],
+            "hide_results": null,
+            "version_number": 5,
+            "quiz_submission_versions_html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submission_versions",
+            "show_correct_answers": true,
+            "one_question_at_a_time": false,
+            "assignment_id": null,
+            "post_to_sis": null,
+            "can_update": false,
+            "allowed_attempts": -1,
+            "quiz_statistics_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7744/statistics",
+            "description": "<p>This quiz is based on the video \"How to Teach, Part 3\".&nbsp;</p>\n<p>There are 6 multiple-choice questions (MCQs) and 4 multiple-response questions (MRQs).</p>\n<p>Each MCQ has one correct answer. Each question is worth one mark.</p>\n<p>Each MRQ has one or more correct answers. You need to pick all the correct answers to get 1 mark per question.</p>\n<p>To pass this quiz, you need to get at least 5&nbsp;marks out of 10.</p><script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
+            "scoring_policy": "keep_highest"
+        },
         "selectedOptions": [
             {
                 "63091": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        50037
-                    ],
                     "selected_answer_ids": [
                         50037
                     ],
-                    "total_score": 1
+                    "total_score": 1,
+                    "your_score": 1,
+                    "correct_answer_ids": [
+                        50037
+                    ]
                 },
                 "63092": {
-                    "your_score": 1,
+                    "total_score": 1,
                     "correct_answer_ids": [
                         49804
                     ],
+                    "your_score": 1,
                     "selected_answer_ids": [
                         49804
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63093": {
                     "your_score": 0,
-                    "correct_answer_ids": [
-                        62703
-                    ],
                     "selected_answer_ids": [
                         22996
+                    ],
+                    "correct_answer_ids": [
+                        62703
                     ],
                     "total_score": 1
                 },
@@ -93,27 +190,27 @@
                     "total_score": 1
                 },
                 "63095": {
+                    "total_score": 1,
                     "your_score": 0,
                     "correct_answer_ids": [
                         7057
                     ],
                     "selected_answer_ids": [
                         84881
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63096": {
                     "your_score": 0,
-                    "correct_answer_ids": [
-                        90910
-                    ],
                     "selected_answer_ids": [
                         40110
+                    ],
+                    "correct_answer_ids": [
+                        90910
                     ],
                     "total_score": 1
                 },
                 "63097": {
-                    "your_score": 0,
+                    "total_score": 1,
                     "correct_answer_ids": [
                         74598,
                         28896
@@ -125,120 +222,119 @@
                         10730,
                         94621
                     ],
-                    "total_score": 1
+                    "your_score": 0
                 },
                 "63098": {
-                    "your_score": 0.25,
                     "correct_answer_ids": [
                         26723,
                         78975,
                         93021,
                         53906
                     ],
+                    "your_score": 0.25,
+                    "total_score": 1,
                     "selected_answer_ids": [
                         26723
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63099": {
+                    "selected_answer_ids": [
+                        65975
+                    ],
+                    "total_score": 1,
                     "your_score": 0,
                     "correct_answer_ids": [
                         57741,
                         68870,
                         65984
-                    ],
-                    "selected_answer_ids": [
-                        65975
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63100": {
-                    "your_score": 0,
                     "correct_answer_ids": [
                         8819,
                         35245
                     ],
+                    "total_score": 1,
                     "selected_answer_ids": [
                         39203
                     ],
-                    "total_score": 1
+                    "your_score": 0
                 }
             },
             {
                 "63091": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        50037
-                    ],
+                    "total_score": 1,
                     "selected_answer_ids": [
                         50037
                     ],
-                    "total_score": 1
+                    "your_score": 1,
+                    "correct_answer_ids": [
+                        50037
+                    ]
                 },
                 "63092": {
-                    "your_score": 1,
                     "correct_answer_ids": [
                         49804
                     ],
+                    "your_score": 1,
+                    "total_score": 1,
                     "selected_answer_ids": [
                         49804
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63093": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        62703
-                    ],
                     "selected_answer_ids": [
                         62703
                     ],
-                    "total_score": 1
+                    "total_score": 1,
+                    "correct_answer_ids": [
+                        62703
+                    ],
+                    "your_score": 1
                 },
                 "63094": {
-                    "your_score": 1,
+                    "total_score": 1,
                     "correct_answer_ids": [
                         16048
                     ],
+                    "your_score": 1,
                     "selected_answer_ids": [
                         16048
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63095": {
-                    "your_score": 1,
                     "correct_answer_ids": [
                         7057
                     ],
                     "selected_answer_ids": [
                         7057
                     ],
-                    "total_score": 1
+                    "total_score": 1,
+                    "your_score": 1
                 },
                 "63096": {
                     "your_score": 1,
-                    "correct_answer_ids": [
-                        90910
-                    ],
                     "selected_answer_ids": [
                         90910
                     ],
-                    "total_score": 1
+                    "total_score": 1,
+                    "correct_answer_ids": [
+                        90910
+                    ]
                 },
                 "63097": {
-                    "your_score": 1,
+                    "total_score": 1,
                     "correct_answer_ids": [
                         28896,
                         74598
                     ],
+                    "your_score": 1,
                     "selected_answer_ids": [
                         28896,
                         74598
-                    ],
-                    "total_score": 1
+                    ]
                 },
                 "63098": {
-                    "your_score": 1,
                     "correct_answer_ids": [
                         26723,
                         93021,
@@ -251,318 +347,363 @@
                         53906,
                         78975
                     ],
+                    "your_score": 1,
                     "total_score": 1
                 },
                 "63099": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        65984,
-                        68870,
-                        57741
-                    ],
                     "selected_answer_ids": [
                         65984,
                         68870,
                         57741
                     ],
+                    "correct_answer_ids": [
+                        65984,
+                        68870,
+                        57741
+                    ],
+                    "your_score": 1,
                     "total_score": 1
                 },
                 "63100": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        35245,
-                        8819
-                    ],
                     "selected_answer_ids": [
                         35245,
                         8819
                     ],
-                    "total_score": 1
+                    "total_score": 1,
+                    "your_score": 1,
+                    "correct_answer_ids": [
+                        35245,
+                        8819
+                    ]
                 }
+            }
+        ],
+        "submissions": [
+            {
+                "workflow_state": "complete",
+                "user_id": 79438,
+                "attempt": 1,
+                "validation_token": "1af068deaa34fca6ea78aa47dca6f8165857dd9899c5f661fcbd88a7087bf800",
+                "time_spent": 20,
+                "kept_score": 2.25,
+                "quiz_points_possible": 10,
+                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submissions/778671",
+                "score": 2.25,
+                "end_at": "2023-06-29T15:59:00Z",
+                "quiz_version": 4,
+                "overdue_and_needs_submission": false,
+                "attempts_left": -1,
+                "started_at": "2023-06-25T06:36:27Z",
+                "id": 778671,
+                "finished_at": "2023-06-25T06:36:47Z",
+                "quiz_id": 7744,
+                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=1"
+            },
+            {
+                "quiz_version": 4,
+                "quiz_id": 7744,
+                "attempts_left": -1,
+                "overdue_and_needs_submission": false,
+                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submissions/778671",
+                "end_at": "2023-06-29T15:59:00Z",
+                "quiz_points_possible": 10,
+                "validation_token": "1af068deaa34fca6ea78aa47dca6f8165857dd9899c5f661fcbd88a7087bf800",
+                "workflow_state": "complete",
+                "time_spent": 130,
+                "finished_at": "2023-06-25T06:39:28Z",
+                "kept_score": 10,
+                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/history?quiz_submission_id=778671&version=2",
+                "id": 778671,
+                "user_id": 79438,
+                "started_at": "2023-06-25T06:37:17Z",
+                "attempt": 2,
+                "has_seen_results": false,
+                "score": 10
             }
         ],
         "questions": [
             {
-                "quiz_id": 7744,
-                "quiz_group_id": 8204,
-                "correct": true,
-                "question_type": "multiple_choice_question",
+                "assessment_question_id": 63798,
                 "answers": [
                     {
-                        "text": "Does less talking that the students.",
-                        "id": 79507
-                    },
-                    {
-                        "id": 7057,
-                        "text": "Does more talking than the students."
+                        "text": "Does more talking than the students.",
+                        "id": 7057
                     },
                     {
                         "text": "Caters to every student in the class.",
                         "id": 96300
                     },
                     {
-                        "id": 84881,
-                        "text": "Makes use of interactive teaching strategies."
+                        "text": "Does less talking that the students.",
+                        "id": 79507
+                    },
+                    {
+                        "text": "Makes use of interactive teaching strategies.",
+                        "id": 84881
                     }
                 ],
+                "quiz_group_id": 8204,
+                "question_type": "multiple_choice_question",
+                "isFlagged": true,
+                "flagged": false,
+                "question_name": "Question 1",
+                "id": 63095,
+                "correct": true,
+                "position": 1,
+                "quiz_id": 7744,
                 "annotations": [
                     {
                         "annotationID": 1,
                         "annotation": "testing"
                     }
                 ],
-                "isFlagged": true,
-                "question_text": "Which of the following counters the teacher's role as facilitator of learning?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "assessment_question_id": 63798,
-                "flagged": false,
-                "question_name": "Question 1",
-                "id": 63095,
-                "position": 1
+                "question_text": "Which of the following counters the teacher's role as facilitator of learning?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>"
             },
             {
-                "quiz_group_id": 8204,
-                "quiz_id": 7744,
-                "correct": true,
+                "position": 2,
+                "isFlagged": false,
+                "flagged": false,
+                "annotations": [],
+                "assessment_question_id": 63795,
+                "question_text": "How do you ensure that you do not overrun your lesson?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "question_type": "multiple_choice_question",
+                "quiz_id": 7744,
+                "question_name": "Question 2",
+                "quiz_group_id": 8204,
                 "answers": [
                     {
-                        "id": 95784,
-                        "text": "By providing all the answers to your students."
+                        "text": "By going faster.",
+                        "id": 40258
+                    },
+                    {
+                        "text": "By skipping questions that you have no time to complete.",
+                        "id": 28213
+                    },
+                    {
+                        "text": "By providing all the answers to your students.",
+                        "id": 95784
                     },
                     {
                         "id": 49804,
                         "text": "By placing time markers in your lesson plan."
-                    },
-                    {
-                        "id": 28213,
-                        "text": "By skipping questions that you have no time to complete."
-                    },
-                    {
-                        "id": 40258,
-                        "text": "By going faster."
                     }
                 ],
-                "annotations": [],
-                "isFlagged": false,
-                "question_text": "How do you ensure that you do not overrun your lesson?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "flagged": false,
-                "assessment_question_id": 63795,
-                "question_name": "Question 2",
-                "position": 2,
+                "correct": true,
                 "id": 63092
             },
             {
-                "quiz_group_id": 8204,
-                "quiz_id": 7744,
+                "assessment_question_id": 63796,
+                "id": 63093,
                 "correct": true,
+                "quiz_id": 7744,
+                "isFlagged": false,
+                "question_name": "Question 3",
+                "position": 3,
+                "question_text": "Which of the following best describes a well managed class?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
+                "annotations": [],
+                "quiz_group_id": 8204,
                 "question_type": "multiple_choice_question",
                 "answers": [
-                    {
-                        "id": 22996,
-                        "text": "When students are controlled by the teacher."
-                    },
-                    {
-                        "id": 62703,
-                        "text": "When students are engaged in activities that lead them to realise their set goal."
-                    },
-                    {
-                        "id": 17922,
-                        "text": "When students pursue their task without inhibition."
-                    },
                     {
                         "html": "When students blindly obey teacher's instructions.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                         "id": 81490,
                         "text": "When students blindly obey teacher's instructions."
+                    },
+                    {
+                        "text": "When students are engaged in activities that lead them to realise their set goal.",
+                        "id": 62703
+                    },
+                    {
+                        "text": "When students pursue their task without inhibition.",
+                        "id": 17922
+                    },
+                    {
+                        "text": "When students are controlled by the teacher.",
+                        "id": 22996
                     }
                 ],
-                "annotations": [],
-                "isFlagged": false,
-                "question_text": "Which of the following best describes a well managed class?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "flagged": false,
-                "assessment_question_id": 63796,
-                "question_name": "Question 3",
-                "id": 63093,
-                "position": 3
+                "flagged": false
             },
             {
-                "quiz_group_id": 8204,
-                "quiz_id": 7744,
-                "correct": true,
                 "question_type": "multiple_answers_question",
+                "correct": true,
+                "id": 63098,
+                "isFlagged": false,
+                "assessment_question_id": 63801,
+                "position": 4,
+                "quiz_group_id": 8204,
+                "question_name": "Question 4",
+                "annotations": [],
+                "flagged": false,
                 "answers": [
                     {
                         "id": 53906,
                         "text": "Neat appearance."
                     },
                     {
-                        "text": "Positive interaction with students.",
-                        "id": 26723
-                    },
-                    {
-                        "text": "Punctuality.",
-                        "id": 78975
+                        "id": 78975,
+                        "text": "Punctuality."
                     },
                     {
                         "text": "Impartiality.",
                         "id": 93021
+                    },
+                    {
+                        "id": 26723,
+                        "text": "Positive interaction with students."
                     }
                 ],
-                "annotations": [],
-                "isFlagged": false,
                 "question_text": "What entails professionalism in teaching?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "flagged": false,
-                "assessment_question_id": 63801,
-                "question_name": "Question 4",
-                "id": 63098,
-                "position": 4
+                "quiz_id": 7744
             },
             {
+                "position": 5,
+                "flagged": false,
+                "assessment_question_id": 63800,
                 "quiz_group_id": 8204,
-                "quiz_id": 7744,
-                "correct": true,
-                "question_type": "multiple_answers_question",
                 "answers": [
                     {
-                        "id": 74598,
-                        "text": "Maintaining eye contact only with the student you are conversing with."
-                    },
-                    {
-                        "html": "Getting another student to echo a student's question.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                        "id": 10730,
-                        "text": "Getting another student to echo a student's question."
-                    },
-                    {
+                        "text": "Answering a student's question right away without first echoing the question to the class.",
                         "html": "Answering a student's question right away without first echoing the question to the class.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                        "id": 28896,
-                        "text": "Answering a student's question right away without first echoing the question to the class."
+                        "id": 28896
                     },
                     {
                         "id": 98359,
                         "text": "Not looking at the students when taking attendance."
                     },
                     {
-                        "id": 94621,
-                        "text": "Not getting the students to echo your question."
+                        "text": "Maintaining eye contact only with the student you are conversing with.",
+                        "id": 74598
+                    },
+                    {
+                        "text": "Getting another student to echo a student's question.",
+                        "html": "Getting another student to echo a student's question.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
+                        "id": 10730
+                    },
+                    {
+                        "text": "Not getting the students to echo your question.",
+                        "id": 94621
                     }
                 ],
                 "annotations": [],
                 "isFlagged": false,
+                "correct": true,
+                "id": 63097,
+                "quiz_id": 7744,
                 "question_text": "What are the common mistakes discussed in Part 3 video on eye contact and echoing?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "flagged": false,
-                "assessment_question_id": 63800,
-                "question_name": "Question 5",
-                "position": 5,
-                "id": 63097
+                "question_type": "multiple_answers_question",
+                "question_name": "Question 5"
             },
             {
                 "quiz_group_id": 8204,
+                "id": 63096,
+                "flagged": false,
                 "quiz_id": 7744,
-                "correct": true,
-                "question_type": "multiple_choice_question",
                 "answers": [
                     {
-                        "text": "At the front of the class.",
-                        "id": 12848
+                        "id": 40110,
+                        "text": "At the back of the class."
+                    },
+                    {
+                        "id": 90910,
+                        "text": "No fixed position; move around in the class."
                     },
                     {
                         "text": "At the corner of the class.",
                         "id": 9103
                     },
                     {
-                        "text": "No fixed position; move around in the class.",
-                        "id": 90910
-                    },
-                    {
-                        "id": 40110,
-                        "text": "At the back of the class."
+                        "id": 12848,
+                        "text": "At the front of the class."
                     }
                 ],
-                "annotations": [],
+                "question_type": "multiple_choice_question",
                 "isFlagged": false,
-                "question_text": "Where should a teacher position himself/herself in the classroom?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "flagged": false,
-                "assessment_question_id": 63799,
                 "question_name": "Question 6",
-                "id": 63096,
-                "position": 6
+                "annotations": [],
+                "correct": true,
+                "question_text": "Where should a teacher position himself/herself in the classroom?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
+                "position": 6,
+                "assessment_question_id": 63799
             },
             {
                 "quiz_id": 7744,
-                "quiz_group_id": 8204,
-                "correct": true,
-                "question_type": "multiple_choice_question",
                 "answers": [
                     {
-                        "text": "To find out the location of the room.",
-                        "id": 32449
+                        "id": 32449,
+                        "text": "To find out the location of the room."
                     },
                     {
                         "text": "All of the above.",
                         "id": 50037
                     },
                     {
-                        "text": "To test out the equipment such as the projector.",
-                        "id": 46313
+                        "id": 46313,
+                        "text": "To test out the equipment such as the projector."
                     },
                     {
-                        "id": 84210,
-                        "text": "To check out the whiteboard markers."
+                        "text": "To check out the furniture arrangement.",
+                        "id": 49635
                     },
                     {
-                        "id": 49635,
-                        "text": "To check out the furniture arrangement."
+                        "text": "To check out the whiteboard markers.",
+                        "id": 84210
                     }
                 ],
-                "annotations": [],
+                "position": 7,
+                "correct": true,
                 "isFlagged": false,
-                "question_text": "Why do you need to check out the tutorial room before your first lesson?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "flagged": false,
+                "question_type": "multiple_choice_question",
                 "assessment_question_id": 63794,
+                "annotations": [],
+                "question_text": "Why do you need to check out the tutorial room before your first lesson?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "question_name": "Question 7",
-                "id": 63091,
-                "position": 7
+                "quiz_group_id": 8204,
+                "id": 63091
             },
             {
-                "quiz_group_id": 8204,
                 "quiz_id": 7744,
-                "correct": true,
+                "question_text": "Which of the following are listed in the greenhorns' mistakes (from audit) in Part 3 video?&nbsp;<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "question_type": "multiple_answers_question",
                 "answers": [
-                    {
-                        "id": 60637,
-                        "text": "Speaking too softly."
-                    },
-                    {
-                        "id": 65975,
-                        "text": "Overly strict."
-                    },
                     {
                         "id": 57741,
                         "text": "Poor time management."
                     },
                     {
-                        "text": "Lack of energy level.",
-                        "id": 68870
+                        "text": "Speaking too softly.",
+                        "id": 60637
                     },
                     {
                         "text": "Lack of interaction.",
                         "id": 65984
+                    },
+                    {
+                        "text": "Overly strict.",
+                        "id": 65975
+                    },
+                    {
+                        "text": "Lack of energy level.",
+                        "id": 68870
                     }
                 ],
                 "annotations": [],
                 "isFlagged": false,
-                "question_text": "Which of the following are listed in the greenhorns' mistakes (from audit) in Part 3 video?&nbsp;<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "assessment_question_id": 63802,
-                "flagged": false,
+                "quiz_group_id": 8204,
+                "correct": true,
                 "question_name": "Question 8",
-                "id": 63099,
-                "position": 8
+                "position": 8,
+                "flagged": false,
+                "id": 63099
             },
             {
-                "quiz_group_id": 8204,
-                "quiz_id": 7744,
+                "position": 9,
                 "correct": true,
-                "question_type": "multiple_choice_question",
+                "assessment_question_id": 63797,
+                "annotations": [],
+                "quiz_group_id": 8204,
                 "answers": [
                     {
                         "text": "Cooperative learning.",
@@ -573,1040 +714,63 @@
                         "text": "Criticism."
                     },
                     {
-                        "id": 16465,
-                        "text": "Competition."
-                    },
-                    {
                         "text": "Long assignments.",
                         "id": 93356
+                    },
+                    {
+                        "id": 16465,
+                        "text": "Competition."
                     }
                 ],
-                "annotations": [],
-                "isFlagged": false,
-                "question_text": "Which of the following marks a conducive learning environment?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "flagged": false,
-                "assessment_question_id": 63797,
-                "question_name": "Question 9",
-                "position": 9,
-                "id": 63094
+                "isFlagged": false,
+                "question_type": "multiple_choice_question",
+                "quiz_id": 7744,
+                "id": 63094,
+                "question_text": "Which of the following marks a conducive learning environment?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
+                "question_name": "Question 9"
             },
             {
-                "quiz_id": 7744,
-                "quiz_group_id": 8204,
-                "correct": true,
+                "annotations": [],
+                "assessment_question_id": 63803,
+                "flagged": false,
                 "question_type": "multiple_answers_question",
+                "position": 10,
+                "quiz_id": 7744,
+                "correct": true,
+                "question_text": "Which of the following are listed in the greenhorns' mistakes (from students' feedback) in Part 3 video?&nbsp;<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
                 "answers": [
                     {
-                        "id": 35245,
-                        "text": "Speak with more confidence."
+                        "id": 8819,
+                        "text": "Be more prepared."
                     },
                     {
                         "id": 56412,
                         "text": "Tell too many stories."
                     },
                     {
-                        "id": 52265,
-                        "text": "Too much control."
-                    },
-                    {
                         "text": "No eye contact.",
                         "id": 39203
                     },
                     {
-                        "id": 8819,
-                        "text": "Be more prepared."
+                        "text": "Too much control.",
+                        "id": 52265
+                    },
+                    {
+                        "text": "Speak with more confidence.",
+                        "id": 35245
                     }
                 ],
-                "annotations": [],
+                "quiz_group_id": 8204,
+                "id": 63100,
                 "isFlagged": false,
-                "question_text": "Which of the following are listed in the greenhorns' mistakes (from students' feedback) in Part 3 video?&nbsp;<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "assessment_question_id": 63803,
-                "flagged": false,
-                "question_name": "Question 10",
-                "position": 10,
-                "id": 63100
-            }
-        ],
-        "course": "SOCT101 SoC Teaching Workshop",
-        "quizInfo": {
-            "in_paced_course": false,
-            "points_possible": 10,
-            "mobile_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744?force_user=1&persist_headless=1",
-            "unlock_at": "2022-12-31T16:00:00Z",
-            "post_to_sis": null,
-            "important_dates": false,
-            "title": "Part 3: Tips on conducting a class",
-            "quiz_submission_versions_html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744/submission_versions",
-            "has_access_code": false,
-            "one_question_at_a_time": false,
-            "quiz_reports_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7744/reports",
-            "published": true,
-            "quiz_type": "practice_quiz",
-            "hide_results": null,
-            "assignment_group_id": 11019,
-            "show_correct_answers_at": null,
-            "timer_autosubmit_disabled": false,
-            "description": "<p>This quiz is based on the video \"How to Teach, Part 3\".&nbsp;</p>\n<p>There are 6 multiple-choice questions (MCQs) and 4 multiple-response questions (MRQs).</p>\n<p>Each MCQ has one correct answer. Each question is worth one mark.</p>\n<p>Each MRQ has one or more correct answers. You need to pick all the correct answers to get 1 mark per question.</p>\n<p>To pass this quiz, you need to get at least 5&nbsp;marks out of 10.</p><script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-            "question_count": 10,
-            "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7744",
-            "scoring_policy": "keep_highest",
-            "show_correct_answers": true,
-            "show_correct_answers_last_attempt": false,
-            "require_lockdown_browser_for_results": false,
-            "version_number": 5,
-            "lockdown_browser_monitor_data": null,
-            "time_limit": null,
-            "locked_for_user": false,
-            "permissions": {
-                "preview": false,
-                "read_statistics": false,
-                "update": false,
-                "grade": false,
-                "delete": false,
-                "create": false,
-                "view_answer_audits": false,
-                "manage": false,
-                "review_grades": false,
-                "submit": true,
-                "read": true
-            },
-            "assignment_id": null,
-            "allowed_attempts": -1,
-            "can_update": false,
-            "require_lockdown_browser_monitor": false,
-            "due_at": null,
-            "shuffle_answers": true,
-            "cant_go_back": false,
-            "all_dates": [
-                {
-                    "unlock_at": "2022-12-31T16:00:00Z",
-                    "lock_at": "2024-06-29T15:59:00Z",
-                    "due_at": null,
-                    "base": true
-                }
-            ],
-            "migration_id": "g80606da1488e4828b16c73cdd68aaefc",
-            "ip_filter": null,
-            "quiz_statistics_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7744/statistics",
-            "require_lockdown_browser": false,
-            "lock_at": "2024-06-29T15:59:00Z",
-            "one_time_results": false,
-            "question_types": [
-                "multiple_answers_question",
-                "multiple_choice_question"
-            ],
-            "hide_correct_answers_at": null,
-            "id": 7744
-        },
-        "quizSettings": {
-            "isPinned": false,
-            "academicYear": 2023,
-            "semester": 1
-        }
-    },
-    {
-        "id": "Fy1ZSm2ZXyes9NQ50T8I",
-        "questions": [
-            {
-                "question_text": "Which of the following are some of Bloom's six categories of questions?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 1",
-                "answers": [
-                    {
-                        "id": 14993,
-                        "text": "Transfer"
-                    },
-                    {
-                        "id": 69218,
-                        "text": "Application"
-                    },
-                    {
-                        "id": 38017,
-                        "text": "Knowledge"
-                    },
-                    {
-                        "id": 73805,
-                        "text": "Analysis"
-                    },
-                    {
-                        "id": 93424,
-                        "text": "Evaluation"
-                    }
-                ],
-                "annotations": [],
-                "id": 63110,
-                "position": 1,
-                "isFlagged": false
-            },
-            {
-                "question_text": "What should a teacher consider when planning her questions?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 2",
-                "answers": [
-                    {
-                        "html": "Formulate different types of&nbsp;questions (short, direct, open-ended, etc.)<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                        "id": 6523,
-                        "text": "Formulate different types ofquestions (short, direct, open-ended, etc.)"
-                    },
-                    {
-                        "id": 26489,
-                        "text": "Set aside enough time in class for question asking."
-                    },
-                    {
-                        "id": 61310,
-                        "text": "Allow students time to formulate their replies."
-                    },
-                    {
-                        "id": 43553,
-                        "text": "Be prepared to handle awkward moments."
-                    }
-                ],
-                "annotations": [],
-                "id": 63109,
-                "position": 2,
-                "isFlagged": false
-            },
-            {
-                "question_text": "In Part 2 video, what are the ways a teacher may handle a student's question which the teacher has no answer to?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 3",
-                "answers": [
-                    {
-                        "id": 72227,
-                        "text": "Direct the question to the class."
-                    },
-                    {
-                        "id": 82292,
-                        "text": "Get back to the student later with the answer."
-                    },
-                    {
-                        "id": 53454,
-                        "text": "Show the class how to find the answer."
-                    },
-                    {
-                        "id": 2481,
-                        "text": "Ask student to find out the answer himself."
-                    }
-                ],
-                "annotations": [],
-                "id": 63108,
-                "position": 3,
-                "isFlagged": false
-            },
-            {
-                "question_text": "Which of the following are possible means to help teachers explain a concept?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 4",
-                "answers": [
-                    {
-                        "id": 13519,
-                        "text": "Using walk-through."
-                    },
-                    {
-                        "id": 28583,
-                        "text": "Using examples."
-                    },
-                    {
-                        "id": 75976,
-                        "text": "Using analogy."
-                    },
-                    {
-                        "id": 12085,
-                        "text": "Using diagrams."
-                    }
-                ],
-                "annotations": [],
-                "id": 63106,
-                "position": 4,
-                "isFlagged": false
-            },
-            {
-                "question_text": "While listening to your student, what should you do?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 5",
-                "answers": [
-                    {
-                        "id": 48464,
-                        "text": "Be non-judgemental and do not criticise."
-                    },
-                    {
-                        "id": 13891,
-                        "text": "Get the speaker to also write down his points."
-                    },
-                    {
-                        "html": "Tune in to the speaker's nonverbal behavior and emotions.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                        "id": 11771,
-                        "text": "Tune in to the speaker's nonverbal behavior and emotions."
-                    },
-                    {
-                        "id": 95917,
-                        "text": "Interrupt the speaker frequently to ask questions."
-                    }
-                ],
-                "annotations": [],
-                "id": 63105,
-                "position": 5,
-                "isFlagged": false
-            },
-            {
-                "question_text": "What are&nbsp;the purposes for teachers to ask questions?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 6",
-                "answers": [
-                    {
-                        "id": 94569,
-                        "text": "As a form of feedback."
-                    },
-                    {
-                        "id": 65768,
-                        "text": "As a form of class management."
-                    },
-                    {
-                        "id": 58645,
-                        "text": "As a form of encouragement."
-                    },
-                    {
-                        "id": 98136,
-                        "text": "As a form of assessment."
-                    },
-                    {
-                        "id": 80965,
-                        "text": "As a form of interaction."
-                    }
-                ],
-                "annotations": [],
-                "id": 63107,
-                "position": 6,
-                "isFlagged": false
-            },
-            {
-                "question_text": "Which of the following are the key teaching activities mentioned in Part 2 video?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 7",
-                "answers": [
-                    {
-                        "id": 82036,
-                        "text": "Explaining."
-                    },
-                    {
-                        "id": 29299,
-                        "text": "Building rapport."
-                    },
-                    {
-                        "id": 58454,
-                        "text": "Monitoriing."
-                    },
-                    {
-                        "id": 52328,
-                        "text": "Giving and receiving feedback."
-                    },
-                    {
-                        "id": 36817,
-                        "text": "Setting challenging tasks."
-                    }
-                ],
-                "annotations": [],
-                "id": 63103,
-                "position": 7,
-                "isFlagged": false
-            },
-            {
-                "question_text": "In Part 2 video, which activity is cited as an example to bring out the teacher's enthusiasm, motivation and rapport building?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_choice_question",
-                "question_name": "Question 8",
-                "answers": [
-                    {
-                        "id": 27635,
-                        "text": "Asking questions."
-                    },
-                    {
-                        "html": "Memorisiing students' names.<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                        "id": 87265,
-                        "text": "Memorisiing students' names."
-                    },
-                    {
-                        "id": 26450,
-                        "text": "Conducting help sessions."
-                    },
-                    {
-                        "id": 59331,
-                        "text": "Setting challenging exam."
-                    }
-                ],
-                "annotations": [],
-                "id": 63101,
-                "position": 8,
-                "isFlagged": false
-            },
-            {
-                "question_text": "What are the objectives of the pre-workshop group activity mentioned in Part 2 video?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_answers_question",
-                "question_name": "Question 9",
-                "answers": [
-                    {
-                        "id": 50994,
-                        "text": "It demonstrates elements of teaching through presentations."
-                    },
-                    {
-                        "id": 60837,
-                        "text": "It hypes up the participants."
-                    },
-                    {
-                        "id": 8668,
-                        "text": "It provides healthy competition among the participants."
-                    },
-                    {
-                        "id": 28759,
-                        "text": "It serves as an ice breaker."
-                    },
-                    {
-                        "id": 5599,
-                        "text": "It facilitates the sharing of information."
-                    }
-                ],
-                "annotations": [],
-                "id": 63104,
-                "position": 9,
-                "isFlagged": false
-            },
-            {
-                "question_text": "What is \"withitness\" mentioned in Part 2 video?<script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-                "quiz_id": 7745,
-                "quiz_group_id": 8205,
-                "flagged": false,
-                "correct": true,
-                "question_type": "multiple_choice_question",
-                "question_name": "Question 10",
-                "answers": [
-                    {
-                        "id": 99519,
-                        "text": "It means that the teacher is aware of every action in the classroom and will respond accordingly."
-                    },
-                    {
-                        "id": 7711,
-                        "text": "It means that the teacher has good time management."
-                    },
-                    {
-                        "id": 43562,
-                        "text": "It means that the teacher is always with the students and support them."
-                    },
-                    {
-                        "id": 11177,
-                        "text": "It means that the teacher has a good grasp on the course materials and administration of the course."
-                    }
-                ],
-                "annotations": [],
-                "id": 63102,
-                "position": 10,
-                "isFlagged": false
-            }
-        ],
-        "submissions": [
-            {
-                "end_at": "2023-06-29T15:59:00Z",
-                "quiz_id": 7745,
-                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/history?quiz_submission_id=776354&version=1",
-                "attempts_left": -1,
-                "finished_at": "2023-06-25T03:54:08Z",
-                "validation_token": "178a5c8201c898bf4f14c81f20b70ad38d58df1687727e0ca38f5ef76fba039d",
-                "attempt": 1,
-                "time_spent": 58732,
-                "quiz_points_possible": 10,
-                "score": 5.666666666666667,
-                "user_id": 79438,
-                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/submissions/776354",
-                "kept_score": 5.666666666666667,
-                "started_at": "2023-06-24T11:35:16Z",
-                "workflow_state": "complete",
-                "id": 776354,
-                "overdue_and_needs_submission": false,
-                "quiz_version": 4
-            },
-            {
-                "end_at": "2023-06-29T15:59:00Z",
-                "quiz_id": 7745,
-                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/history?quiz_submission_id=776354&version=2",
-                "attempts_left": -1,
-                "finished_at": "2023-06-25T06:31:42Z",
-                "validation_token": "178a5c8201c898bf4f14c81f20b70ad38d58df1687727e0ca38f5ef76fba039d",
-                "attempt": 2,
-                "time_spent": 47,
-                "quiz_points_possible": 10,
-                "score": 3.75,
-                "user_id": 79438,
-                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/submissions/776354",
-                "kept_score": 5.666666666666667,
-                "started_at": "2023-06-25T06:30:55Z",
-                "workflow_state": "complete",
-                "id": 776354,
-                "overdue_and_needs_submission": false,
-                "has_seen_results": false,
-                "quiz_version": 4
-            },
-            {
-                "end_at": "2023-06-29T15:59:00Z",
-                "quiz_id": 7745,
-                "result_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/history?quiz_submission_id=776354&version=3",
-                "attempts_left": -1,
-                "finished_at": "2023-06-25T06:35:10Z",
-                "validation_token": "178a5c8201c898bf4f14c81f20b70ad38d58df1687727e0ca38f5ef76fba039d",
-                "attempt": 3,
-                "time_spent": 127,
-                "quiz_points_possible": 10,
-                "score": 10,
-                "user_id": 79438,
-                "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/submissions/776354",
-                "kept_score": 10,
-                "started_at": "2023-06-25T06:33:03Z",
-                "workflow_state": "complete",
-                "id": 776354,
-                "overdue_and_needs_submission": false,
-                "has_seen_results": false,
-                "quiz_version": 4
+                "question_name": "Question 10"
             }
         ],
         "lastUpdated": {
-            "seconds": 1689670328,
-            "nanoseconds": 306000000
+            "seconds": 1689785942,
+            "nanoseconds": 235000000
         },
-        "course": "SOCT101 SoC Teaching Workshop",
-        "selectedOptions": [
-            {
-                "63101": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        27635
-                    ],
-                    "selected_answer_ids": [
-                        27635
-                    ],
-                    "total_score": 1
-                },
-                "63102": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        99519
-                    ],
-                    "selected_answer_ids": [
-                        7711
-                    ],
-                    "total_score": 1
-                },
-                "63103": {
-                    "your_score": 0.33,
-                    "correct_answer_ids": [
-                        36817,
-                        52328,
-                        82036
-                    ],
-                    "selected_answer_ids": [
-                        29299,
-                        36817,
-                        58454,
-                        52328,
-                        82036
-                    ],
-                    "total_score": 1
-                },
-                "63104": {
-                    "your_score": 0.33,
-                    "correct_answer_ids": [
-                        50994,
-                        60837,
-                        28759
-                    ],
-                    "selected_answer_ids": [
-                        5599,
-                        8668,
-                        50994,
-                        60837,
-                        28759
-                    ],
-                    "total_score": 1
-                },
-                "63105": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        11771,
-                        48464
-                    ],
-                    "selected_answer_ids": [
-                        11771,
-                        48464
-                    ],
-                    "total_score": 1
-                },
-                "63106": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        75976,
-                        12085,
-                        28583,
-                        13519
-                    ],
-                    "selected_answer_ids": [
-                        75976,
-                        12085,
-                        28583,
-                        13519
-                    ],
-                    "total_score": 1
-                },
-                "63107": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        80965,
-                        94569
-                    ],
-                    "selected_answer_ids": [
-                        98136,
-                        58645,
-                        80965,
-                        94569,
-                        65768
-                    ],
-                    "total_score": 1
-                },
-                "63108": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        82292,
-                        72227,
-                        53454
-                    ],
-                    "selected_answer_ids": [
-                        82292,
-                        72227,
-                        53454
-                    ],
-                    "total_score": 1
-                },
-                "63109": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        6523,
-                        26489,
-                        61310,
-                        43553
-                    ],
-                    "selected_answer_ids": [
-                        6523,
-                        26489,
-                        61310,
-                        43553
-                    ],
-                    "total_score": 1
-                },
-                "63110": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        69218,
-                        73805,
-                        93424,
-                        38017
-                    ],
-                    "selected_answer_ids": [
-                        14993,
-                        69218
-                    ],
-                    "total_score": 1
-                }
-            },
-            {
-                "63101": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        27635
-                    ],
-                    "selected_answer_ids": [
-                        59331
-                    ],
-                    "total_score": 1
-                },
-                "63102": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        99519
-                    ],
-                    "selected_answer_ids": [
-                        11177
-                    ],
-                    "total_score": 1
-                },
-                "63103": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        36817,
-                        82036,
-                        52328
-                    ],
-                    "selected_answer_ids": [
-                        82036,
-                        29299,
-                        52328,
-                        58454
-                    ],
-                    "total_score": 1
-                },
-                "63104": {
-                    "your_score": 0.33,
-                    "correct_answer_ids": [
-                        50994,
-                        28759,
-                        60837
-                    ],
-                    "selected_answer_ids": [
-                        50994,
-                        8668,
-                        5599,
-                        28759,
-                        60837
-                    ],
-                    "total_score": 1
-                },
-                "63105": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        48464,
-                        11771
-                    ],
-                    "selected_answer_ids": [
-                        13891,
-                        48464,
-                        95917,
-                        11771
-                    ],
-                    "total_score": 1
-                },
-                "63106": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        12085,
-                        13519,
-                        28583,
-                        75976
-                    ],
-                    "selected_answer_ids": [
-                        12085,
-                        13519,
-                        28583,
-                        75976
-                    ],
-                    "total_score": 1
-                },
-                "63107": {
-                    "your_score": 0,
-                    "correct_answer_ids": [
-                        80965,
-                        94569
-                    ],
-                    "selected_answer_ids": [
-                        58645,
-                        98136,
-                        80965,
-                        65768,
-                        94569
-                    ],
-                    "total_score": 1
-                },
-                "63108": {
-                    "your_score": 0.67,
-                    "correct_answer_ids": [
-                        72227,
-                        53454,
-                        82292
-                    ],
-                    "selected_answer_ids": [
-                        2481,
-                        72227,
-                        53454,
-                        82292
-                    ],
-                    "total_score": 1
-                },
-                "63109": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        43553,
-                        6523,
-                        61310,
-                        26489
-                    ],
-                    "selected_answer_ids": [
-                        43553,
-                        6523,
-                        61310,
-                        26489
-                    ],
-                    "total_score": 1
-                },
-                "63110": {
-                    "your_score": 0.75,
-                    "correct_answer_ids": [
-                        69218,
-                        73805,
-                        93424,
-                        38017
-                    ],
-                    "selected_answer_ids": [
-                        69218,
-                        73805,
-                        93424,
-                        14993,
-                        38017
-                    ],
-                    "total_score": 1
-                }
-            },
-            {
-                "63101": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        27635
-                    ],
-                    "selected_answer_ids": [
-                        27635
-                    ],
-                    "total_score": 1
-                },
-                "63102": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        99519
-                    ],
-                    "selected_answer_ids": [
-                        99519
-                    ],
-                    "total_score": 1
-                },
-                "63103": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        52328,
-                        36817,
-                        82036
-                    ],
-                    "selected_answer_ids": [
-                        52328,
-                        36817,
-                        82036
-                    ],
-                    "total_score": 1
-                },
-                "63104": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        28759,
-                        60837,
-                        50994
-                    ],
-                    "selected_answer_ids": [
-                        28759,
-                        60837,
-                        50994
-                    ],
-                    "total_score": 1
-                },
-                "63105": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        48464,
-                        11771
-                    ],
-                    "selected_answer_ids": [
-                        48464,
-                        11771
-                    ],
-                    "total_score": 1
-                },
-                "63106": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        75976,
-                        28583,
-                        12085,
-                        13519
-                    ],
-                    "selected_answer_ids": [
-                        75976,
-                        28583,
-                        12085,
-                        13519
-                    ],
-                    "total_score": 1
-                },
-                "63107": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        94569,
-                        80965
-                    ],
-                    "selected_answer_ids": [
-                        94569,
-                        80965
-                    ],
-                    "total_score": 1
-                },
-                "63108": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        82292,
-                        72227,
-                        53454
-                    ],
-                    "selected_answer_ids": [
-                        82292,
-                        72227,
-                        53454
-                    ],
-                    "total_score": 1
-                },
-                "63109": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        43553,
-                        6523,
-                        61310,
-                        26489
-                    ],
-                    "selected_answer_ids": [
-                        43553,
-                        6523,
-                        61310,
-                        26489
-                    ],
-                    "total_score": 1
-                },
-                "63110": {
-                    "your_score": 1,
-                    "correct_answer_ids": [
-                        73805,
-                        38017,
-                        69218,
-                        93424
-                    ],
-                    "selected_answer_ids": [
-                        73805,
-                        38017,
-                        69218,
-                        93424
-                    ],
-                    "total_score": 1
-                }
-            }
-        ],
-        "userUid": "FVz6q3E4xqSSZYgpZfmr5tuEYaR2",
-        "quizName": "Part 2: Interaction in class",
-        "quizSettings": {
-            "semester": 1,
-            "academicYear": 2023,
-            "isPinned": false
-        },
-        "quizInfo": {
-            "question_count": 10,
-            "require_lockdown_browser": false,
-            "quiz_submission_versions_html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745/submission_versions",
-            "question_types": [
-                "multiple_answers_question",
-                "multiple_choice_question"
-            ],
-            "one_time_results": false,
-            "post_to_sis": null,
-            "show_correct_answers_last_attempt": false,
-            "require_lockdown_browser_monitor": false,
-            "version_number": 5,
-            "cant_go_back": false,
-            "due_at": null,
-            "mobile_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745?force_user=1&persist_headless=1",
-            "hide_results": null,
-            "lockdown_browser_monitor_data": null,
-            "quiz_statistics_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7745/statistics",
-            "description": "<p>This quiz is based on the video \"How to Teach, Part 2\".&nbsp;</p>\n<p>There are 2 multiple-choice questions (MCQs) and 8&nbsp;multiple-response questions (MRQs).</p>\n<p>Each MCQ has one correct answer. Each question is worth one mark.</p>\n<p>Each MRQ has one or more correct answers. You need to pick all the correct answers to get 1 mark per question.</p>\n<p>To pass this quiz, you need to get at least 5&nbsp;marks out of 10.</p><script src=\"https://instructure-uploads-apse1.s3.ap-southeast-1.amazonaws.com/account_214500000000000001/attachments/18442/BlueCanvasMobileConfig.js\"></script>",
-            "lock_at": "2024-06-29T15:59:00Z",
-            "quiz_reports_url": "https://canvas.nus.edu.sg/api/v1/courses/41924/quizzes/7745/reports",
-            "allowed_attempts": -1,
-            "hide_correct_answers_at": null,
-            "id": 7745,
-            "one_question_at_a_time": false,
-            "ip_filter": null,
-            "migration_id": "g165242e6e710459dbd01008cc55358df",
-            "time_limit": null,
-            "scoring_policy": "keep_highest",
-            "has_access_code": false,
-            "points_possible": 10,
-            "locked_for_user": false,
-            "assignment_id": null,
-            "unlock_at": "2022-12-31T16:00:00Z",
-            "show_correct_answers_at": null,
-            "in_paced_course": false,
-            "all_dates": [
-                {
-                    "unlock_at": "2022-12-31T16:00:00Z",
-                    "lock_at": "2024-06-29T15:59:00Z",
-                    "due_at": null,
-                    "base": true
-                }
-            ],
-            "title": "Part 2: Interaction in class",
-            "show_correct_answers": true,
-            "timer_autosubmit_disabled": false,
-            "can_update": false,
-            "important_dates": false,
-            "shuffle_answers": true,
-            "published": true,
-            "quiz_type": "practice_quiz",
-            "html_url": "https://canvas.nus.edu.sg/courses/41924/quizzes/7745",
-            "assignment_group_id": 11019,
-            "require_lockdown_browser_for_results": false,
-            "permissions": {
-                "review_grades": false,
-                "create": false,
-                "delete": false,
-                "submit": true,
-                "preview": false,
-                "manage": false,
-                "view_answer_audits": false,
-                "read": true,
-                "update": false,
-                "read_statistics": false,
-                "grade": false
-            }
-        }
+        "id": "CgBnvGYEayotCQXfrpi7"
     }
 ]

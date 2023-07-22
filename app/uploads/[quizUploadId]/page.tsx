@@ -16,9 +16,9 @@ import {
     QuestionResponse,
     Quiz,
     QuizResponse,
-    CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
     QuizAttempt,
+    CanvasQuizSubmission,
 } from "@/types/canvas";
 import {
     Input,
@@ -28,7 +28,6 @@ import {
     Button,
     Checkbox,
     CheckboxGroup,
-    Container,
     Divider,
     Flex,
     Grid,
@@ -44,7 +43,6 @@ import {
     Tabs,
     Tag,
     Text,
-    FormErrorMessageProps,
     useColorModeValue,
     Tooltip,
     useDisclosure,
@@ -52,33 +50,65 @@ import {
     AlertIcon,
     AlertTitle,
     useToast,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    FormControl,
+    FormLabel,
+    NumberInput,
+    NumberInputField,
+    NumberInputStepper,
+    NumberIncrementStepper,
+    NumberDecrementStepper,
+    useSteps,
+    useBreakpointValue,
+    Container,
+    Step,
+    StepDescription,
+    StepIcon,
+    StepIndicator,
+    StepNumber,
+    Stepper,
+    StepSeparator,
+    StepStatus,
+    StepTitle,
+    useMediaQuery,
 } from "@chakra-ui/react";
 
-import {
-    useParams,
-    useRouter,
-    useSelectedLayoutSegment,
-} from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
     useEffect,
     useState,
     FormEvent,
     Dispatch,
     SetStateAction,
-    useMemo,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
-import Sidebar from "@/components/Sidebar/Sidebar";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { useAuthContainer, useQuizContainer } from "@/app/providers";
-import useSidebar from "@/hooks/useSidebar";
-import { getUploads } from "@/lib/functions";
-import QuizContainer from "@/components/PageWrappers/Quiz";
 import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+
+import { create } from "@/firebase/database/repositories/uploads";
+import {
+    convertCustomAttemptNumber,
+    getExaminableQuestions,
+} from "@/lib/functions";
+
 import { TbTrashX } from "react-icons/tb";
+import ExamSettings from "@/components/Exam/ExamSettings";
+import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
+import DrawerContainer from "@/components/Drawer/DrawerContainer";
+import Image from "next/image";
+
+import ExamImage from "@/public/assets/exam.svg";
+import ExamDarkImage from "@/public/assets/exam-dark.svg";
 
 // export default async function Page({
 //     params,
@@ -101,21 +131,18 @@ import { TbTrashX } from "react-icons/tb";
 export default function Page() {
     const params = useParams();
     const dataId = params.quizUploadId;
-
     const { quizzes, setQuiz } = useQuizContainer();
-    const [questionInputs, setQuestionInputs] = useState<string>("");
-
     const authCtx = useAuthContainer();
     const user = authCtx.user;
-
     const router = useRouter();
     const quiz = quizzes.filter((quiz) => quiz.id === dataId)[0];
-
     const toast = useToast();
-
     const [pageQuiz, setPageQuiz] = useState(
         quizzes.filter((quiz) => quiz.id === dataId)[0]
     );
+
+    const searchParams = useSearchParams();
+    const submissionIndexToShow = searchParams.get("submission");
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -131,7 +158,9 @@ export default function Page() {
         }
     }, [dataId, quiz, setQuiz]);
 
-    const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
+    const [submissionIndex, setSubmissionIndex] = useState(
+        submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
+    );
     //console.log(quiz);
 
     const getQuestionsForAttempt = (selectedAttemptIndex: number) => {
@@ -182,6 +211,7 @@ export default function Page() {
     // For deleting an attempt
     const attemptDeleteDisclosure = useDisclosure();
     const [isDeletingAttempt, setIsDeletingAttempt] = useState(false);
+    const [isExamMode, setIsExamMode] = useState(false);
 
     const [attemptNumberToDelete, setAttemptNumberToDelete] = useState(-1);
     const confirmDeleteAttempt = () => {
@@ -223,6 +253,43 @@ export default function Page() {
             });
     };
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const [examinableQuestionNumber, setExaminableQuestionNumber] = useState<
+        number | undefined
+    >();
+    const [numQns, setNumQns] = useState<number | undefined>();
+    const [examLength, setExamLength] = useState<number | undefined>();
+    const [isRandom, setIsRandom] = useState(false);
+
+    useEffect(() => {
+        setExaminableQuestionNumber(getExaminableQuestions(quiz).length);
+        setNumQns(getExaminableQuestions(quiz).length);
+    }, [quiz]);
+
+    // for exam mode
+    const steps = [
+        {
+            title: "Select",
+            description: "Select the quiz questions that you want",
+        },
+        {
+            title: "Configure",
+            description: "Set up your exam how you want it",
+        },
+    ];
+    const stepperOrienation = useBreakpointValue({
+        base: "vertical",
+        md: "horizontal",
+    });
+
+    const { activeStep, setActiveStep } = useSteps({
+        index: 1,
+        count: steps.length,
+    });
+
+    const [showIllustration] = useMediaQuery("(min-width: 1000px)");
+    const isDarkMode = useColorModeValue(false, true);
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -249,10 +316,14 @@ export default function Page() {
             />
             <CustomAlertDialog
                 {...attemptDeleteDisclosure}
-                bodyText={`Are you sure you want to delete Attempt #${attemptNumberToDelete}?  
+                bodyText={`Are you sure you want to delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}?  
                 
                 This action is not reversible.`}
-                headerText={`Delete Attempt #${attemptNumberToDelete}`}
+                headerText={`Delete Attempt #${convertCustomAttemptNumber(
+                    attemptNumberToDelete
+                )}`}
                 ConfirmButton={
                     <Button
                         onClick={confirmDeleteAttempt}
@@ -264,6 +335,86 @@ export default function Page() {
                     </Button>
                 }
             />
+            <DrawerContainer onClose={onClose} isOpen={isOpen}>
+                <Container maxW={PAGE_CONTAINER_SIZE}>
+                    {showIllustration && (
+                        <Box position="fixed" bottom={-2} right={-50} w="600px">
+                            <Image
+                                src={isDarkMode ? ExamDarkImage : ExamImage}
+                                alt="Image representing exam mode"
+                            />
+                        </Box>
+                    )}
+                    <Container maxW="container.md" ml={0}>
+                        <Box>
+                            <Stepper
+                                index={activeStep}
+                                orientation={stepperOrienation as any}
+                            >
+                                {steps.map((step, index) => (
+                                    <Step key={index}>
+                                        <StepIndicator>
+                                            <StepStatus
+                                                complete={<StepIcon />}
+                                                incomplete={<StepNumber />}
+                                                active={<StepNumber />}
+                                            />
+                                        </StepIndicator>
+
+                                        <Box flexShrink="0">
+                                            <StepTitle>{step.title}</StepTitle>
+                                            <StepDescription>
+                                                {step.description}
+                                            </StepDescription>
+                                        </Box>
+
+                                        <StepSeparator />
+                                    </Step>
+                                ))}
+                            </Stepper>
+                        </Box>
+                        <Flex mt={8} direction="column" mb={16}>
+                            <Flex alignItems={"center"}>
+                                <Heading fontWeight={"semibold"} fontSize="5xl">
+                                    Customize your quiz
+                                </Heading>
+                            </Flex>
+                        </Flex>
+                        <ExamSettings
+                            examLength={examLength}
+                            setExamLength={setExamLength}
+                            maxQns={examinableQuestionNumber}
+                            isRandom={isRandom}
+                            setIsRandom={setIsRandom}
+                            numQns={numQns}
+                            setNumQns={setNumQns}
+                        />
+                        <Flex mt={16}>
+                            <Button
+                                colorScheme={"gray"}
+                                mr={4}
+                                mb={3}
+                                onClick={onClose}
+                            >
+                                Go back
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    onClose();
+                                    // setIsExamMode(true);
+                                    router.push(
+                                        `/uploads/${quiz.id}/exam?num=${numQns}&length=${examLength}&random=${isRandom}`
+                                    );
+                                }}
+                                colorScheme="orange"
+                            >
+                                Start Exam
+                            </Button>
+                        </Flex>
+                    </Container>
+                </Container>
+            </DrawerContainer>
+
             {quiz ? (
                 <Stack
                     spacing={6}
@@ -296,7 +447,6 @@ export default function Page() {
                             <Tooltip label="Delete this quiz">
                                 <Button
                                     colorScheme={"red"}
-                                    aria-role="Delete"
                                     onClick={alertDeleteDisclosure.onOpen}
                                     isLoading={isDeleting}
                                     size="sm"
@@ -317,6 +467,7 @@ export default function Page() {
                         }
                     />
                     <Heading>{quiz.quizName}</Heading>
+
                     <Flex flexDir={"row"} flexWrap="wrap">
                         {quiz.quizInfo.show_correct_answers ? (
                             <Box mr={2} mb={2}>
@@ -345,39 +496,62 @@ export default function Page() {
                     <Divider />
 
                     <Grid
-                        gridTemplateColumns={{ base: "1fr", md: "200px 1fr" }}
+                        gridTemplateColumns={{
+                            base: "1fr",
+                            md: "200px 1fr",
+                        }}
                     >
                         <GridItem p={5}>
                             <Stack>
                                 <Button
-                                    variant={
-                                        selectedAttemptIndex === -1
-                                            ? "solid"
-                                            : "outline"
-                                    }
-                                    colorScheme="teal"
-                                    onClick={() => setSelectedAttemptIndex(-1)}
-                                    data-testid="combined-button"
+                                    onClick={onOpen}
+                                    colorScheme="orange"
+                                    variant="outline"
                                 >
-                                    Combined
+                                    Enter Exam Mode
                                 </Button>
-                                <Divider />
+                                {quiz.submissions.length !== 0 ? (
+                                    <>
+                                        <Divider />
+                                        <Button
+                                            variant={
+                                                submissionIndex === -1 ||
+                                                submissionIndex >=
+                                                    quiz.submissions.length
+                                                    ? "solid"
+                                                    : "outline"
+                                            }
+                                            colorScheme="teal"
+                                            onClick={() =>
+                                                setSubmissionIndex(-1)
+                                            }
+                                            data-testid="combined-button"
+                                        >
+                                            Combined
+                                        </Button>
+                                        <Divider />
+                                    </>
+                                ) : (
+                                    <></>
+                                )}
                                 {quiz.submissions.map((submission, i) => (
                                     <Button
                                         variant={
-                                            selectedAttemptIndex === i
+                                            submissionIndex === i
                                                 ? "solid"
                                                 : "ghost"
                                         }
                                         colorScheme="teal"
                                         key={i}
                                         textAlign="left"
-                                        onClick={() =>
-                                            setSelectedAttemptIndex(i)
-                                        }
+                                        onClick={() => setSubmissionIndex(i)}
                                         fontSize="sm"
                                     >
-                                        Attempt #{submission.attempt} (
+                                        Attempt #
+                                        {convertCustomAttemptNumber(
+                                            submission.attempt
+                                        )}{" "}
+                                        (
                                         {Math.round(submission.score * 100) /
                                             100}
                                         /{submission.quiz_points_possible})
@@ -385,48 +559,145 @@ export default function Page() {
                                 ))}
                             </Stack>
                         </GridItem>
-                        <GridItem p={5}>
-                            {selectedAttemptIndex === -1 ? (
-                                <CombinedQuestionList
-                                    quiz={quiz}
-                                    setQuiz={setQuiz}
-                                />
-                            ) : (
+                        {quiz.submissions.length !== 0 ? (
+                            <GridItem p={5}>
+                                {submissionIndex === -1 ||
+                                submissionIndex >= quiz.submissions.length ? (
+                                    <CombinedQuestionList
+                                        quiz={quiz}
+                                        setQuiz={setQuiz}
+                                    />
+                                ) : (
+                                    <Stack>
+                                        <Flex
+                                            justifyContent={"space-between"}
+                                            alignItems="center"
+                                        >
+                                            <Heading fontSize="xl">
+                                                Attempt #
+                                                {convertCustomAttemptNumber(
+                                                    quiz.submissions[
+                                                        submissionIndex
+                                                    ].attempt
+                                                )}
+                                            </Heading>
+                                            <Flex>
+                                                <Button
+                                                    size="sm"
+                                                    colorScheme={"red"}
+                                                    onClick={() => {
+                                                        attemptDeleteDisclosure.onOpen();
+                                                        setAttemptNumberToDelete(
+                                                            quiz.submissions[
+                                                                submissionIndex
+                                                            ].attempt
+                                                        );
+                                                    }}
+                                                    data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
+                                                >
+                                                    <TbTrashX />
+                                                </Button>
+                                            </Flex>
+                                        </Flex>
+                                        <Stack spacing="10">
+                                            {getQuestionsForAttempt(
+                                                submissionIndex
+                                            ).map((question, i) => (
+                                                <Stack
+                                                    key={i}
+                                                    alignItems="stretch"
+                                                    borderWidth="1px"
+                                                    borderRadius="md"
+                                                    padding="4"
+                                                    bgColor={questionBgColor}
+                                                >
+                                                    <Heading
+                                                        fontSize="lg"
+                                                        alignItems={"center"}
+                                                        display="flex"
+                                                        justifyContent={
+                                                            "space-between"
+                                                        }
+                                                    >
+                                                        <div>
+                                                            {" "}
+                                                            Question {i +
+                                                                1}{" "}
+                                                            <QuestionResultTag
+                                                                quiz={quiz}
+                                                                questionResponse={
+                                                                    quiz
+                                                                        .selectedOptions[
+                                                                        submissionIndex
+                                                                    ][
+                                                                        question
+                                                                            .id
+                                                                    ]
+                                                                }
+                                                            />
+                                                        </div>
+                                                        <FlaggingButton
+                                                            question={question}
+                                                            quiz={quiz}
+                                                            setQuiz={setQuiz}
+                                                        />
+                                                    </Heading>
+                                                    <div
+                                                        className="question-text"
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: question.question_text,
+                                                        }}
+                                                    />
+                                                    <Divider />
+                                                    <Box mt={3}>
+                                                        <AnswerList
+                                                            questionType={
+                                                                question.question_type
+                                                            }
+                                                            answers={
+                                                                question.answers
+                                                            }
+                                                            selectedOptions={
+                                                                quiz
+                                                                    .selectedOptions[
+                                                                    submissionIndex
+                                                                ] &&
+                                                                quiz
+                                                                    .selectedOptions[
+                                                                    submissionIndex
+                                                                ][question.id]
+                                                            }
+                                                            show_correct_answers={
+                                                                quiz.quizInfo
+                                                                    .show_correct_answers
+                                                            }
+                                                        />
+                                                    </Box>
+                                                    <QuestionExtras
+                                                        question={question}
+                                                        quiz={quiz}
+                                                        setQuiz={setQuiz}
+                                                    />
+                                                </Stack>
+                                            ))}
+                                        </Stack>
+                                    </Stack>
+                                )}
+                            </GridItem>
+                        ) : (
+                            <GridItem p={5}>
                                 <Stack>
                                     <Flex
                                         justifyContent={"space-between"}
                                         alignItems="center"
                                     >
                                         <Heading fontSize="xl">
-                                            Attempt #
-                                            {
-                                                quiz.submissions[
-                                                    selectedAttemptIndex
-                                                ].attempt
-                                            }
+                                            Question List
                                         </Heading>
-                                        <Flex>
-                                            <Button
-                                                size="sm"
-                                                colorScheme={"red"}
-                                                onClick={() => {
-                                                    attemptDeleteDisclosure.onOpen();
-                                                    setAttemptNumberToDelete(
-                                                        quiz.submissions[
-                                                            selectedAttemptIndex
-                                                        ].attempt
-                                                    );
-                                                }}
-                                                data-testid={`delete-attempt-${quiz.submissions[selectedAttemptIndex].attempt}`}
-                                            >
-                                                <TbTrashX />
-                                            </Button>
-                                        </Flex>
+                                        <Flex></Flex>
                                     </Flex>
                                     <Stack spacing="10">
-                                        {getQuestionsForAttempt(
-                                            selectedAttemptIndex
-                                        ).map((question, i) => (
+                                        {quiz.questions.map((question, i) => (
                                             <Stack
                                                 key={i}
                                                 alignItems="stretch"
@@ -446,21 +717,7 @@ export default function Page() {
                                                     <div>
                                                         {" "}
                                                         Question {i + 1}{" "}
-                                                        <QuestionResultTag
-                                                            quiz={quiz}
-                                                            questionResponse={
-                                                                quiz
-                                                                    .selectedOptions[
-                                                                    selectedAttemptIndex
-                                                                ][question.id]
-                                                            }
-                                                        />
                                                     </div>
-                                                    <FlaggingButton
-                                                        question={question}
-                                                        quiz={quiz}
-                                                        setQuiz={setQuiz}
-                                                    />
                                                 </Heading>
                                                 <div
                                                     className="question-text"
@@ -469,41 +726,19 @@ export default function Page() {
                                                     }}
                                                 />
                                                 <Divider />
-                                                <Box mt={3}>
-                                                    <AnswerList
-                                                        questionType={
-                                                            question.question_type
-                                                        }
-                                                        answers={
-                                                            question.answers
-                                                        }
-                                                        selectedOptions={
-                                                            quiz
-                                                                .selectedOptions[
-                                                                selectedAttemptIndex
-                                                            ] &&
-                                                            quiz
-                                                                .selectedOptions[
-                                                                selectedAttemptIndex
-                                                            ][question.id]
-                                                        }
-                                                        show_correct_answers={
-                                                            quiz.quizInfo
-                                                                .show_correct_answers
-                                                        }
-                                                    />
-                                                </Box>
-                                                <QuestionExtras
+                                                <ExamAnswerList // this is the correct answer
+                                                    // questionType={question.question_type}
+                                                    // answers={question.answers}
                                                     question={question}
-                                                    quiz={quiz}
-                                                    setQuiz={setQuiz}
+                                                    selectedOptions={{}}
+                                                    setSelectedOptions={() => {}}
                                                 />
                                             </Stack>
                                         ))}
                                     </Stack>
                                 </Stack>
-                            )}
-                        </GridItem>
+                            </GridItem>
+                        )}
                     </Grid>
                 </Stack>
             ) : (
@@ -525,6 +760,7 @@ export default function Page() {
         // </Container>
     );
 }
+
 const FlaggingButton = ({
     question,
     quiz,
@@ -898,6 +1134,18 @@ const AnswerResultTag = ({
 
     return <></>;
 };
+const availableQuestionsWithCorrectAnswers = (
+    questionResponse: QuestionResponse
+) => {
+    // for qns that aren't graded yet
+    if (questionResponse.your_score === -1) {
+        return false;
+    }
+    if (questionResponse.total_score == questionResponse.your_score) {
+        return true; // selected_ans_id would be the correct answer
+    }
+    return false;
+};
 
 type CombinedQuestion = {
     question_id: number;
@@ -927,6 +1175,7 @@ const CombinedQuestionList = ({
         let bestResult: QuestionResponse = {};
         let bestAttemptNumber = 0;
         const attempts: QuestionResponse[] = [];
+        // use selectedOptions to get the answers in the attempt which has the corresponding quesiton id
 
         quiz.selectedOptions.forEach((selectedOptions, submissionIndex) => {
             // each selectedOptions is each attempt
