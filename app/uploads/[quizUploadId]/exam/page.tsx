@@ -1,7 +1,7 @@
 "use client";
 import { useQuizContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
-import { ExamAnswerList } from "@/components/Exam/ExamComponent";
+import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
 import {
     create,
     getQuizUpload,
@@ -13,7 +13,7 @@ import {
     getExaminableQuestions,
     hydrateSelectedOptions,
 } from "@/lib/functions";
-import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
     CanvasQuizSubmission,
     QuestionResponse,
@@ -32,6 +32,7 @@ import {
     Box,
     useColorModeValue,
     useToast,
+    Center,
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -83,27 +84,45 @@ export default function Page() {
     }, [quizUploadId, examQuiz, setQuiz]);
 
     // calculate the questions to be examined
+    // we expect `num` to ALWAYS be in the URL. if not in URL, default to all qns
     const [numQuestions, setNumQuestions] = useState<number>(
         parseInt(searchParams.get("num") || "0")
     );
     const [qns, setQns] = useState<QuizSubmissionQuestion[]>([]);
 
-    const [enableRandom, setEnableRandom] = useState<boolean>(false);
-    const timeLimit = searchParams.get("length") || 0;
+    const [isRandom, setIsRandom] = useState<boolean>(
+        searchParams.get("random") === "true" || false
+    );
+
+    const [examLength, setExamLength] = useState<number>(
+        parseInt(searchParams.get("length") || "0")
+    );
+
+    console.log({
+        isRandom,
+        examLength,
+        numQuestions,
+    });
 
     useEffect(() => {
         if (!examQuiz) return;
         const examinableQuestions = getExaminableQuestions(examQuiz);
-        setQns(
-            examinableQuestions
-                .sort(() => (!enableRandom ? 0 : Math.random() - Math.random()))
-                .slice(
-                    0,
-                    numQuestions !== 0
-                        ? numQuestions
-                        : examinableQuestions.length
+
+        if (numQuestions === 0) {
+            // all qns
+            setQns(
+                examinableQuestions.sort(() =>
+                    !isRandom ? 0 : Math.random() - Math.random()
                 )
-        );
+            );
+        } else {
+            // randomize
+            setQns(
+                examinableQuestions
+                    .sort(() => (!isRandom ? 0 : Math.random() - Math.random()))
+                    .slice(0, numQuestions)
+            );
+        }
     }, [examQuiz, numQuestions]);
 
     // TODO: ensure error handling
@@ -116,7 +135,10 @@ export default function Page() {
             .length ?? 0;
     const newSubmissionAttemptNumber = -10 - previousCustomAttempts;
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const submitCustomQuiz = async () => {
+        setIsSubmitting(true);
         const hydratedSelectedOptions = hydrateSelectedOptions(
             selectedOptions,
             answers
@@ -128,8 +150,8 @@ export default function Page() {
             user_id: parseInt(examQuiz?.userUid),
             submission_id: newSubmissionAttemptNumber,
             started_at: new Date().toString(),
-            finished_at: "",
-            end_at: "",
+            finished_at: new Date().toString(),
+            end_at: new Date().toString(),
             attempt: newSubmissionAttemptNumber,
             extra_attempts: 0,
             extra_time: 0,
@@ -150,22 +172,29 @@ export default function Page() {
             selectedOptions: hydratedSelectedOptions,
         };
 
-        console.log({ quizAttempt });
         create(quizAttempt, examQuiz.quizInfo)
-            .then(() => {
-                console.log("created quiz");
-
+            .then((newQuiz) => {
                 toast({
                     ...SUCCESS_TOAST_OPTIONS,
                     title: "Quiz submitted!",
                 });
 
                 router.push(
-                    `/uploads/${quizUploadId}?attemptNum=${newSubmissionAttemptNumber}`
+                    `/uploads/${quizUploadId}?submission=${
+                        newQuiz.submissions.length - 1
+                    }`
                 );
             })
             .catch((e) => {
                 console.log(e);
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error submitting quiz",
+                    description: e.message,
+                });
+            })
+            .finally(() => {
+                setIsSubmitting(false);
             });
     };
 
@@ -265,18 +294,20 @@ export default function Page() {
                             </Stack>
                         ))}
                     </Stack>
-                    <Button
-                        onClick={() => {
-                            // TODO : calculate total marks
-                            // create(newQuizAttempt, quiz.quizInfo);
-                            // setIsExamMode(false);
-                            // router.refresh();
-                            submitCustomQuiz();
-                        }}
-                        colorScheme="teal"
-                    >
-                        Submit Quiz
-                    </Button>
+                    <Center mt={3}>
+                        <Button
+                            size="lg"
+                            onClick={submitCustomQuiz}
+                            colorScheme="orange"
+                            isDisabled={
+                                Object.keys(selectedOptions).length !==
+                                (numQuestions || qns.length)
+                            }
+                            isLoading={isSubmitting}
+                        >
+                            Submit Quiz
+                        </Button>
+                    </Center>
                 </Stack>
                 {/* </GridItem>
             </Grid> */}

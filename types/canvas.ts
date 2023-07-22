@@ -133,6 +133,7 @@ export type QuizSettings = {
 
     // pinned
     isPinned: boolean;
+    isCustom?: boolean;
 };
 
 export type Quiz = {

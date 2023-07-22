@@ -1,355 +1,429 @@
-import { create } from "@/firebase/database/repositories/uploads";
+import { useAuthContainer, useQuizContainer } from "@/app/providers";
+import { uploadExamTemplate } from "@/firebase/database/repositories/uploads";
 import {
-    Quiz,
-    QuizResponse,
-    CanvasQuizSubmission,
-    QuizAttempt,
-    Answer,
-    QuestionResponse,
-    QuizSubmissionQuestion,
-} from "@/types/canvas";
+    ACADEMIC_SEMESTER,
+    ACADEMIC_YEAR,
+    PAGE_CONTAINER_SIZE,
+} from "@/lib/constants";
+import { getExaminableQuestions } from "@/lib/functions";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { Quiz, QuizAnswers, QuizSubmissionQuestion } from "@/types/canvas";
 import {
-    useColorModeValue,
-    Tag,
+    Checkbox,
     Stack,
+    Box,
+    Container,
+    Step,
+    StepDescription,
+    StepIcon,
+    StepIndicator,
+    StepNumber,
+    Stepper,
+    StepSeparator,
+    StepStatus,
+    StepTitle,
+    useBreakpointValue,
+    useSteps,
+    Collapse,
     Flex,
     Heading,
-    Divider,
-    Button,
-    RadioGroup,
-    Radio,
-    CheckboxGroup,
-    Checkbox,
-    Box,
-    Input,
+    useToast,
     Text,
+    Button,
+    useColorModeValue,
+    useMediaQuery,
 } from "@chakra-ui/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-import { useRouter } from "next/router";
+import {
+    Dispatch,
+    FormEvent,
+    SetStateAction,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+import ExamSettings, { GeneralExamSettings1 } from "./ExamSettings";
+import ExamDarkImage from "@/public/assets/exam-dark.svg";
+import ExamImage from "@/public/assets/exam.svg";
 
-import { Dispatch, SetStateAction, useState } from "react";
+const ExamComponent = ({ onClose }: { onClose: () => void }) => {
+    const steps = [
+        {
+            title: "Select",
+            description: "Select the quiz questions that you want",
+        },
+        {
+            title: "Configure",
+            description: "Set up your exam how you want it",
+        },
+    ];
+    const stepperOrienation = useBreakpointValue({
+        base: "vertical",
+        md: "horizontal",
+    });
 
-const Exam = ({
-    numQn,
-    quiz,
-    quizResponse,
-}: {
-    numQn: string;
+    const { activeStep, setActiveStep } = useSteps({
+        index: 0,
+        count: steps.length,
+    });
 
-    quiz: Quiz & { id: string };
-    quizResponse: QuizResponse; // the question id :  correct answers with empty selected answers
-}) => {
+    // ----------------------- generate data ----------------------------------
+
+    const { quizzes, setQuizzes } = useQuizContainer();
+    const { user } = useAuthContainer();
+
     const router = useRouter();
-    const updatedQuestions = [...quiz.questions];
-    //let updatedSelectedOptions = [...quiz.selectedOptions];
-    const questionIds = Object.keys(quizResponse);
-    // get all the highest SelectedOptions
-    if (quiz.questions.length > parseInt(numQn)) {
-        let difference = quiz.questions.length - parseInt(numQn);
-        // Remove random elements from the copied array
-        for (let i = 0; i < difference; i++) {
-            const randomIndex = Math.floor(Math.random() * questionIds.length);
-            const removedQnID = questionIds.splice(randomIndex, 1)[0];
-            delete quizResponse[parseInt(removedQnID)];
-        }
-    }
-    let minSubmissionAttempt = -11;
-    for (let i = 0; i < quiz.submissions.length; i++) {
-        if (quiz.submissions[i].attempt <= minSubmissionAttempt) {
-            minSubmissionAttempt = quiz.submissions[i].attempt;
-        }
-    }
-    minSubmissionAttempt = minSubmissionAttempt - 1;
-    const newSubmission: CanvasQuizSubmission = {
-        id: minSubmissionAttempt,
-        // The ID of the Quiz the quiz submission belongs to.
-        quiz_id: parseInt(quiz.id),
-        // The ID of the Student that made the quiz submission.
-        user_id: parseInt(quiz.userUid),
-        // The ID of the Submission the quiz submission represents.
-        submission_id: minSubmissionAttempt,
-        // The time at which the student started the quiz submission.
-        started_at: "",
-        // The time at which the student submitted the quiz submission.
-        finished_at: "",
-        // The time at which the quiz submission will be overdue, and be flagged as a
-        // late submission.
-        end_at: "",
-        // For quizzes that allow multiple attempts, this field specifies the quiz
-        // submission attempt number.
-        attempt: minSubmissionAttempt,
-        // Number of times the student was allowed to re-take the quiz over the
-        // multiple-attempt limit.
-        extra_attempts: 0,
-        // Amount of extra time allowed for the quiz submission, in minutes.
-        extra_time: 0,
-        // The student can take the quiz even if it's locked for everyone else
-        manually_unlocked: true,
-        // Amount of time spent, in seconds.
-        time_spent: 0,
-        // The score of the quiz submission, if graded.
-        score: -1,
-        // The original score of the quiz submission prior to any re-grading.
-        score_before_regrade: -1,
-        // For quizzes that allow multiple attempts, this is the score that will be
-        // used, which might be the score of the latest, or the highest, quiz
-        // submission.
-        kept_score: -1,
-        // Number of points the quiz submission's score was fudged by.
-        fudge_points: -1,
-        // Whether the student has viewed their results to the quiz.
-        has_seen_results: false,
-        // The current state of the quiz submission. Possible values:
-        // ['untaken'|'pending_review'|'complete'|'settings_only'|'preview'].
-        workflow_state: "untaken",
-        // Indicates whether the quiz submission is overdue and needs submission
-        overdue_and_needs_submission: false,
+    const toast = useToast();
 
-        quiz_points_possible: questionIds.length,
-    };
-    // quiz.submissions.push(newSubmission);
-    // no need to change the question order here
-    // for (let i = 0; i < updatedQuestions.length; i++) {
-    //     updatedQuestions[i].position = i + 1;
-    // }
-    // new quiz attempt object
-    const newQuizAttempt: QuizAttempt & { id: string } = {
-        ...quiz,
-        submission: newSubmission,
-        selectedOptions: quizResponse,
-    };
-    // const updatedQuiz = create(newQuizAttempt, quiz.quizInfo);
-    const qns = quiz.questions.filter((qn) =>
-        questionIds.includes(qn.id.toString())
+    const examinableQuizzes = quizzes.filter(
+        (quiz) =>
+            getExaminableQuestions(quiz).length > 0 &&
+            !quiz.quizSettings.isCustom
     );
 
-    const bgColor = useColorModeValue("gray.50", "gray.900");
-    const questionBgColor = useColorModeValue("white", "gray.800");
+    const sanitizedExaminableQuizzes = useMemo(() => {
+        // change every questionId to include the quizId
+
+        // questionId to change: `id` and also in quizAnswers
+
+        if (!examinableQuizzes) return [];
+        return examinableQuizzes.map((quiz, index) => {
+            const newQuizAnswers: QuizAnswers = {};
+
+            for (const oldQnId in quiz.quizAnswers) {
+                const newQnId = parseInt(oldQnId) * ((index + 1) * 2);
+                newQuizAnswers[newQnId] = quiz.quizAnswers[oldQnId];
+            }
+
+            return {
+                ...quiz,
+                questions: quiz.questions.map((qn) => ({
+                    ...qn,
+                    id: qn.id * ((index + 1) * 2),
+                })),
+                quizAnswers: newQuizAnswers,
+            };
+        });
+    }, [examinableQuizzes]);
+
+    if (!sanitizedExaminableQuizzes.length) {
+        // none
+    }
+
+    const groupedByCourseCode = sanitizedExaminableQuizzes.reduce(
+        (acc, quiz) => {
+            const courseCode = quiz.course.split(" ")[0];
+            if (!acc[courseCode]) {
+                acc[courseCode] = [];
+            }
+            acc[courseCode].push(quiz);
+            return acc;
+        },
+        {} as Record<string, (Quiz & { id: string })[]>
+    );
+
+    // controlled components
+    // array of ids
+    const [categoryName, setCategoryName] = useState<string>("");
+    const [newQuizName, setNewQuizName] = useState<string>("");
+
+    const [selectedQuizzes, setSelectedQuizzes] = useState<string[]>([]);
+    const [numQns, setNumQns] = useState<number | undefined>();
+    const totalAvailableQns = sanitizedExaminableQuizzes
+        .filter((eq) => selectedQuizzes.includes(eq.id))
+        .reduce((acc, quiz) => acc + getExaminableQuestions(quiz).length, 0);
+
+    // refresh the number of questions whenever the selected quizzes change
+    useEffect(() => {
+        setNumQns(totalAvailableQns);
+    }, [selectedQuizzes]);
+
+    const [examLength, setExamLength] = useState<number | undefined>();
+
+    const [isRandom, setIsRandom] = useState<boolean>(false);
+
+    const [errorMessage, setErrorMessage] = useState<string>("");
+
+    const [isCreating, setIsCreating] = useState<boolean>(false);
+    const createExam = () => {
+        if (!user) return;
+
+        if (!selectedQuizzes.length)
+            return setErrorMessage("Please select at least one quiz!");
+        if (!newQuizName) return setErrorMessage("Please enter a name!");
+
+        setIsCreating(true);
+        // construct the new `quiz` object
+        const newQuizId = Math.random() * 100000;
+
+        const chosenQuizzes = selectedQuizzes.map((quizId) =>
+            sanitizedExaminableQuizzes.find((quiz) => quiz.id === quizId)
+        );
+
+        const questions = chosenQuizzes.reduce((acc, quiz) => {
+            if (!quiz) return acc;
+            return [...acc, ...getExaminableQuestions(quiz)];
+        }, [] as QuizSubmissionQuestion[]);
+
+        let compiledQuizAnswers: QuizAnswers = {};
+        chosenQuizzes.forEach((quiz) => {
+            compiledQuizAnswers = {
+                ...compiledQuizAnswers,
+                ...quiz?.quizAnswers,
+            };
+        });
+
+        const chosenQuestions = questions
+            .sort(() => (!isRandom ? 0 : Math.random() - 0.5))
+            .slice(0, numQns !== undefined ? numQns : questions.length);
+
+        const chosenQuestionIDs = chosenQuestions.map(
+            (question) => question.id
+        );
+
+        const chosenQuizAnswers: QuizAnswers = {};
+        chosenQuestionIDs.forEach((id) => {
+            if (compiledQuizAnswers[id])
+                chosenQuizAnswers[id] = compiledQuizAnswers[id];
+        });
+        console.log({ chosenQuizAnswers });
+        const quiz: Quiz = {
+            submissions: [],
+            selectedOptions: [],
+
+            questions,
+
+            quizName: newQuizName,
+            course: categoryName === "" ? "Custom" : categoryName,
+            userUid: user.uid,
+            lastUpdated: new Date(),
+
+            quizInfo: {
+                id: newQuizId,
+                title: newQuizName,
+                html_url: "",
+                mobile_url: "",
+                preview_url: "",
+                description: "",
+                quiz_type: "practice_quiz",
+                assignment_group_id: 0,
+                time_limit: 0,
+                shuffle_answers: false,
+                hide_results: null,
+                show_correct_answers: false,
+                show_correct_answers_last_attempt: false,
+                show_correct_answers_at: "",
+                hide_correct_answers_at: "",
+                one_time_results: false,
+                scoring_policy: "keep_highest",
+                allowed_attempts: 0,
+                one_question_at_a_time: false,
+                question_count: 0,
+                points_possible: 0,
+                cant_go_back: false,
+                access_code: "",
+                ip_filter: "",
+                due_at: "",
+                lock_at: "",
+                unlock_at: "",
+                published: false,
+                unpublishable: false,
+                locked_for_user: false,
+                lock_info: "",
+                lock_explanation: "",
+                speedgrader_url: "",
+                quiz_extensions_url: "",
+                permissions: {
+                    read: true,
+                    submit: true,
+                    create: true,
+                    manage: true,
+                    read_statistics: true,
+                    review_grades: true,
+                    update: true,
+                },
+                all_dates: "",
+                version_number: 0,
+                question_types: [""],
+                anonymous_submissions: false,
+            },
+
+            quizAnswers: chosenQuizAnswers,
+            quizSettings: {
+                academicYear: ACADEMIC_YEAR,
+                semester: ACADEMIC_SEMESTER,
+                isPinned: false,
+                isCustom: true,
+            },
+
+            sources: selectedQuizzes,
+        };
+
+        uploadExamTemplate(quiz)
+            .then(({ id }) => {
+                onClose();
+                router.push(
+                    `/uploads/${id}/exam?length=${examLength}&num=${numQns}&random=${isRandom}`
+                );
+                toast({
+                    title: "Exam created!",
+                    description: "You may now begin your exam.",
+                    ...SUCCESS_TOAST_OPTIONS,
+                });
+            })
+            .catch((err) => {
+                console.error(err);
+                toast({
+                    title: "Error creating exam",
+                    description: err.toString(),
+                    ...ERROR_TOAST_OPTIONS,
+                });
+            })
+            .finally(() => {
+                setIsCreating(false);
+            });
+    };
+
+    const [showIllustration] = useMediaQuery("(min-width: 1000px)");
+    const isDarkMode = useColorModeValue(false, true);
+
     return (
-        <>
-            <Box mr={2} mb={2}>
-                <Tag colorScheme={"teal"}>
-                    Total questions: {questionIds.length}
-                </Tag>
-            </Box>
-            <Box
-                dangerouslySetInnerHTML={{
-                    __html: quiz.quizInfo.description,
-                }}
-            />
-            {/* <Grid
-                gridTemplateColumns={{
-                    base: "1fr",
-                    md: "200px 1fr",
-                }}
-            >
-                <GridItem p={5}> */}
-            <Stack>
-                <Flex justifyContent={"space-between"} alignItems="center">
-                    <Heading fontSize="xl">
-                        Attempt #{(newSubmission.attempt + 10) * -1}
-                    </Heading>
-                    <Flex></Flex>
-                </Flex>
-                <Stack spacing="10">
-                    {qns.map((question, i) => (
-                        <Stack
-                            key={i}
-                            alignItems="stretch"
-                            borderWidth="1px"
-                            borderRadius="md"
-                            padding="4"
-                            bgColor={questionBgColor}
-                        >
-                            <Heading
-                                fontSize="lg"
-                                alignItems={"center"}
-                                display="flex"
-                                justifyContent={"space-between"}
-                            >
-                                <div> Question {i + 1} </div>
-                            </Heading>
-                            <div
-                                className="question-text"
-                                dangerouslySetInnerHTML={{
-                                    __html: question.question_text,
-                                }}
-                            />
-                            <Divider />
-                            {/* <ExamAnswerList // this is the correct answer
-                                // questionType={question.question_type}
-                                // answers={question.answers}
-                                selectedOptions={quizResponse[question.id]}
-                                
-                            /> */}
-                            {/* <Box mt={3}>
-                                         <AnswerList
-                                            questionType={
-                                                question.question_type
-                                            }
-                                            answers={question.answers}
-                                            selectedOptions={quizResponse}
-                                            show_correct_answers={
-                                                quiz.quizInfo
-                                                    .show_correct_answers
-                                            }
-                                        /> *
-                                    </Box> */}
-                        </Stack>
-                    ))}
-                </Stack>
-                <Button
-                    onClick={() => {
-                        // TODO : calculate total marks
-                        // create(newQuizAttempt, quiz.quizInfo);
-                        // setIsExamMode(false);
-                        // router.refresh();
-                    }}
-                    colorScheme="teal"
+        <Container maxW={PAGE_CONTAINER_SIZE}>
+            {showIllustration && (
+                <Box position="fixed" bottom={-2} right={-50} w="600px">
+                    <Image
+                        src={isDarkMode ? ExamDarkImage : ExamImage}
+                        alt="Image representing exam mode"
+                    />
+                </Box>
+            )}
+            <Container maxW="container.md" ml={0}>
+                <Box>
+                    <Stepper
+                        index={activeStep}
+                        orientation={stepperOrienation as any}
+                    >
+                        {steps.map((step, index) => (
+                            <Step key={index}>
+                                <StepIndicator>
+                                    <StepStatus
+                                        complete={<StepIcon />}
+                                        incomplete={<StepNumber />}
+                                        active={<StepNumber />}
+                                    />
+                                </StepIndicator>
+
+                                <Box flexShrink="0">
+                                    <StepTitle>{step.title}</StepTitle>
+                                    <StepDescription>
+                                        {step.description}
+                                    </StepDescription>
+                                </Box>
+
+                                <StepSeparator />
+                            </Step>
+                        ))}
+                    </Stepper>
+                </Box>
+                <Collapse
+                    in={activeStep === 0}
+                    unmountOnExit
+                    data-testid="step-1"
                 >
-                    Submit Quiz
-                </Button>
-            </Stack>
-            {/* </GridItem>
-            </Grid> */}
-        </>
+                    <Flex mt={8} direction="column">
+                        <Flex alignItems={"center"} mb={16}>
+                            <Heading fontWeight={"semibold"} fontSize="5xl">
+                                Let's create an exam
+                            </Heading>
+                        </Flex>
+
+                        <GeneralExamSettings1
+                            groupedByCourseCode={groupedByCourseCode}
+                            setSelectedQuizzes={setSelectedQuizzes}
+                            selectedQuizzes={selectedQuizzes}
+                            categoryName={categoryName}
+                            setCategoryName={setCategoryName}
+                            quizName={newQuizName}
+                            setQuizName={setNewQuizName}
+                        />
+                        <Flex mt={16}>
+                            <Button
+                                colorScheme={"gray"}
+                                mr={4}
+                                mb={3}
+                                onClick={onClose}
+                            >
+                                Go back
+                            </Button>
+                            <Button
+                                // onClick={acceptUpload}
+                                data-testid="next-btn"
+                                onClick={() => setActiveStep(1)}
+                                isDisabled={
+                                    !selectedQuizzes.length ||
+                                    newQuizName === ""
+                                }
+                            >
+                                Next step
+                            </Button>
+                        </Flex>
+                    </Flex>
+                </Collapse>
+                <Collapse
+                    in={activeStep === 1}
+                    unmountOnExit
+                    data-testid="step-2"
+                >
+                    <Flex mt={8} direction="column" mb={16}>
+                        <Flex alignItems={"center"}>
+                            <Heading fontWeight={"semibold"} fontSize="5xl">
+                                Customize your quiz
+                            </Heading>
+                        </Flex>
+                    </Flex>
+                    <ExamSettings
+                        examLength={examLength}
+                        setExamLength={setExamLength}
+                        isRandom={isRandom}
+                        setIsRandom={setIsRandom}
+                        maxQns={totalAvailableQns}
+                        numQns={numQns}
+                        setNumQns={setNumQns}
+                    />
+                    <Flex mt={16}>
+                        <Button
+                            colorScheme={"gray"}
+                            mr={4}
+                            mb={3}
+                            onClick={() => {
+                                setActiveStep(0);
+                                // clear the custom selection
+
+                                setIsRandom(false);
+                                setExamLength(undefined);
+                            }}
+                        >
+                            Go back
+                        </Button>
+                        <Button
+                            // onClick={acceptUpload}
+                            data-testid="next-btn"
+                            onClick={createExam}
+                            isDisabled={
+                                !selectedQuizzes.length || newQuizName === ""
+                            }
+                            colorScheme="orange"
+                            isLoading={isCreating}
+                        >
+                            Start Exam
+                        </Button>
+                    </Flex>
+                </Collapse>
+            </Container>
+        </Container>
     );
 };
-// const endExam = (quizReponse: QuizResponse, setIsExamMode:Dispatch<SetStateAction<boolean>>) => {
-//     individualExamUpdate(quizReponse);
-//         setIsExamMode(false);
-//         // update the quiz attempt
-//         // update the quiz
 
-// }
-
-export default Exam;
-export const ExamAnswerList = ({
-    // questionType,
-    // answers,
-    selectedOptions,
-    setSelectedOptions,
-    question,
-}: {
-    question: QuizSubmissionQuestion;
-    selectedOptions: QuizResponse; // a single question
-    setSelectedOptions: Dispatch<SetStateAction<QuizResponse>>;
-}) => {
-    const questionType = question.question_type;
-    const answers = question.answers;
-    const questionId = question.id;
-    switch (questionType) {
-        case "multiple_choice_question":
-        case "true_false_question":
-            return (
-                <RadioGroup
-                    value={(
-                        selectedOptions[questionId]?.selected_answer_ids?.[0] ??
-                        ""
-                    ).toString()}
-                    onChange={(value) => {
-                        // value is a single
-                        // setSelectedAnswer(value);
-                        // selectedOptions.selected_answer_ids = [
-                        //     parseInt(selectedAnswer),
-                        // ];
-
-                        setSelectedOptions((prev) => {
-                            return {
-                                ...prev,
-                                [questionId]: {
-                                    selected_answer_ids: [parseInt(value)],
-                                },
-                            };
-                        });
-                    }}
-                >
-                    <Stack>
-                        {answers.map((answer, i) => (
-                            <Flex alignItems="center" key={i}>
-                                <Box width="100px" textAlign="end" mr={3}></Box>
-                                <Radio key={i} value={answer.id.toString()}>
-                                    {answer.text ?? answer.html}
-                                </Radio>
-                            </Flex>
-                        ))}
-                    </Stack>
-                </RadioGroup>
-            );
-
-        case "multiple_answers_question":
-            return (
-                <CheckboxGroup
-                    value={selectedOptions[
-                        questionId
-                    ]?.selected_answer_ids?.map((id) => id.toString())}
-                    onChange={(e) => {
-                        // setSelectedAnswers(e.map((e) => e));
-                        // selectedOptions.selected_answer_ids =
-                        //     selectedAnswers.map((id) =>
-                        //         parseInt(id.toString())
-                        //     );
-                        //console.log("selectedAns" + selectedAnswers);
-                        setSelectedOptions((prev) => ({
-                            ...prev,
-                            [questionId]: {
-                                selected_answer_ids: e.map((id) =>
-                                    parseInt(id.toString())
-                                ),
-                            },
-                        }));
-                    }}
-                >
-                    <Stack spacing={4}>
-                        {answers.map((answer, i) => (
-                            <Flex alignItems="center" key={i}>
-                                <Box width="100px" textAlign="end" mr={3}></Box>
-                                <Checkbox key={i} value={answer.id.toString()}>
-                                    {answer.text ?? answer.html}
-                                </Checkbox>
-                            </Flex>
-                        ))}
-                    </Stack>
-                </CheckboxGroup>
-            );
-
-        case "essay_question":
-        case "short_answer_question":
-        case "numerical_question":
-            return (
-                <Stack spacing={4}>
-                    <Flex alignItems="center">
-                        <Box width="100px" textAlign="end" mr={3}></Box>
-                        <Box>
-                            <Stack spacing={1}>
-                                <Text
-                                    fontWeight="semibold"
-                                    textDecoration="underline"
-                                >
-                                    Your answer
-                                </Text>
-                                <Input
-                                    placeholder="Insert Answer Here"
-                                    value={
-                                        selectedOptions[questionId]
-                                            ?.answer_text?.[0] ?? ""
-                                    }
-                                    onChange={(e) => {
-                                        setSelectedOptions((prev) => ({
-                                            ...prev,
-                                            [questionId]: {
-                                                answer_text: [e.target.value],
-                                            },
-                                        }));
-                                    }}
-                                />
-                            </Stack>
-                        </Box>
-                    </Flex>
-                </Stack>
-            );
-
-        default:
-            return <>--- UNSUPPORTED QUESTION TYPE ---</>;
-    }
-};
+export default ExamComponent;

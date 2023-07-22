@@ -57,6 +57,7 @@ import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import CustomAlertDialog from "../Alert/CustomAlertDialog";
 import { useAuthContainer } from "@/app/providers";
 import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
+import { useRouter } from "next/navigation";
 
 export default function QuizUploadCard({
     quiz,
@@ -68,7 +69,9 @@ export default function QuizUploadCard({
     const user = authCtx.user;
     // order the submissions according to the attempt number in reverse order
     const sortedSubmissions = structuredClone(quiz.submissions).sort(
-        (a, b) => b.attempt - a.attempt
+        (a, b) =>
+            new Date(b.finished_at).getTime() -
+            new Date(a.finished_at).getTime()
     );
 
     const hasMoreThan3 = sortedSubmissions.length > 3;
@@ -138,6 +141,8 @@ export default function QuizUploadCard({
     };
 
     const helperColor = useColorModeValue("gray.600", "gray.400");
+
+    const router = useRouter();
     return (
         <Box
             flexGrow={1}
@@ -219,7 +224,21 @@ export default function QuizUploadCard({
                             >
                                 {lastThreeSubmissions.map((submission, i) => (
                                     <Step key={i}>
-                                        <StepIndicator fontSize={"xs"}>
+                                        <StepIndicator
+                                            fontSize={"xs"}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.push(
+                                                    `/uploads/${
+                                                        quiz.id
+                                                    }?submission=${
+                                                        sortedSubmissions.length -
+                                                        1 -
+                                                        i
+                                                    }`
+                                                );
+                                            }}
+                                        >
                                             <StepStatus
                                                 complete={convertCustomAttemptNumber(
                                                     submission.attempt
@@ -233,23 +252,42 @@ export default function QuizUploadCard({
                                             />
                                         </StepIndicator>
                                         <Box flexShrink={0} minH="48px">
-                                            <StepTitle>
-                                                {" "}
-                                                {Math.round(
-                                                    submission.score * 100
-                                                ) / 100 ?? 0}{" "}
-                                                /{" "}
-                                                {submission.quiz_points_possible ??
-                                                    0}{" "}
-                                            </StepTitle>
-                                            <StepDescription>
-                                                {" "}
-                                                {formatTimeElapsed(
-                                                    new Date(
-                                                        submission.finished_at
-                                                    )
-                                                )}{" "}
-                                            </StepDescription>
+                                            <Button
+                                                display="flex"
+                                                flexDir="column"
+                                                alignItems={"baseline"}
+                                                variant="unstyled"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    router.push(
+                                                        `/uploads/${
+                                                            quiz.id
+                                                        }?submission=${
+                                                            sortedSubmissions.length -
+                                                            1 -
+                                                            i
+                                                        }`
+                                                    );
+                                                }}
+                                            >
+                                                <StepTitle>
+                                                    {" "}
+                                                    {Math.round(
+                                                        submission.score * 100
+                                                    ) / 100 ?? 0}{" "}
+                                                    /{" "}
+                                                    {submission.quiz_points_possible ??
+                                                        0}{" "}
+                                                </StepTitle>
+                                                <StepDescription>
+                                                    {" "}
+                                                    {formatTimeElapsed(
+                                                        new Date(
+                                                            submission.finished_at
+                                                        )
+                                                    )}{" "}
+                                                </StepDescription>
+                                            </Button>
                                         </Box>
                                         <StepSeparator />
                                     </Step>

@@ -209,7 +209,9 @@ describe("Home page", () => {
                         setUser: jest.fn(),
                     }}
                 >
-                    <HomePage />
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
                 </UserContext.Provider>
             )
         );
@@ -235,7 +237,9 @@ describe("Home page", () => {
                             setSearchString: jest.fn(),
                         }}
                     >
-                        <HomePage />
+                        <ChakraProvider theme={customTheme}>
+                            <HomePage />
+                        </ChakraProvider>
                     </QuizStorageContext.Provider>
                 </UserContext.Provider>
             )

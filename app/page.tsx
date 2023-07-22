@@ -8,6 +8,7 @@ import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
+    ButtonGroup,
     Center,
     Container,
     Drawer,
@@ -21,6 +22,7 @@ import {
     Input,
     InputGroup,
     InputLeftElement,
+    LightMode,
     Stack,
     Text,
     useColorModeValue,
@@ -53,6 +55,7 @@ import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
 import { TbSearch } from "react-icons/tb";
+import ExamComponent from "@/components/Exam/ExamComponent";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -110,7 +113,15 @@ export default function Page() {
         onClose: onCloseAddNewQuiz,
     } = useDisclosure();
 
-    // for searching
+    const borderRightColor = useColorModeValue("teal.700", "teal.700");
+
+    // for go exam mode
+    const {
+        isOpen: isOpenExam,
+        onOpen: onOpenExam,
+        onClose: onCloseExam,
+    } = useDisclosure();
+
     return (
         <>
             <DrawerContainer
@@ -128,7 +139,9 @@ export default function Page() {
             >
                 <AddComponent onClose={onCloseAddNewQuiz} />
             </DrawerContainer>
-
+            <DrawerContainer onClose={onCloseExam} isOpen={isOpenExam}>
+                <ExamComponent onClose={onCloseExam} />
+            </DrawerContainer>
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
                 <Flex
@@ -196,21 +209,28 @@ export default function Page() {
                                             }
                                         />
                                     </InputGroup>
-
-                                    <Button
-                                        size="md"
-                                        ml={3}
-                                        onClick={onOpenAddNewQuiz}
-                                        data-testid="add-new-btn"
-                                    >
-                                        Upload
-                                    </Button>
-                                    <Button
-                                        ml={3}
-                                        onClick={() => router.push("/exam")}
-                                    >
-                                        Exam
-                                    </Button>
+                                    <LightMode>
+                                        <ButtonGroup isAttached ml={3}>
+                                            <Button
+                                                onClick={onOpenAddNewQuiz}
+                                                data-testid="add-new-btn"
+                                                borderRightWidth={"2px"}
+                                                borderRightColor={
+                                                    borderRightColor
+                                                }
+                                            >
+                                                Upload
+                                            </Button>
+                                            <Button
+                                                onClick={() =>
+                                                    // router.push("/exam")
+                                                    onOpenExam()
+                                                }
+                                            >
+                                                Exam
+                                            </Button>
+                                        </ButtonGroup>
+                                    </LightMode>
                                 </Center>
                             </Box>
                         </Center>
