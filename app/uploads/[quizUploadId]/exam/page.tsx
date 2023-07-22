@@ -2,6 +2,7 @@
 import { useQuizContainer, useSidebarContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
+import { ExamSidebar } from "@/components/Sidebar/ExamSidebar";
 import {
     create,
     getQuizUpload,
@@ -49,12 +50,13 @@ import { useEffect, useMemo, useState } from "react";
  */
 export default function Page() {
     // the ongoing selected options
-    const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({});
+    //const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({});
     const { isOpenSidebar } = useSidebarContainer();
 
     const searchParams = useSearchParams();
     const params = useParams();
-    const { quizzes, setQuiz } = useQuizContainer();
+    const { quizzes, setQuiz, selectedOptions, setSelectedOptions } =
+        useQuizContainer();
 
     const toast = useToast();
     const router = useRouter();
@@ -73,6 +75,10 @@ export default function Page() {
     );
 
     const [examQuiz, setExamQuiz] = useState<Quiz & { id: string }>(quiz);
+    useEffect(() => {
+        // reset selected options to nil when quiz changes
+        setSelectedOptions({});
+    }, []);
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -319,6 +325,11 @@ export default function Page() {
                 {/* </GridItem>
             </Grid> */}
             </Stack>{" "}
+            {/* <ExamSidebar
+                questions={qns}
+                selectedOption={selectedOptions}
+                examLength={examLength}
+            /> */}
         </Flex>
     );
 }
