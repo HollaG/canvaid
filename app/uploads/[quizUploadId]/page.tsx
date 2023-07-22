@@ -79,7 +79,7 @@ import {
     useMediaQuery,
 } from "@chakra-ui/react";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
     useEffect,
     useState,
@@ -145,6 +145,10 @@ export default function Page() {
     const [pageQuiz, setPageQuiz] = useState(
         quizzes.filter((quiz) => quiz.id === dataId)[0]
     );
+
+    const searchParams = useSearchParams();
+    const submissionIndexToShow = searchParams.get("submission");
+
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
         if (!quiz) {
@@ -159,7 +163,9 @@ export default function Page() {
         }
     }, [dataId, quiz, setQuiz]);
 
-    const [selectedAttemptIndex, setSelectedAttemptIndex] = useState(0);
+    const [submissionIndex, setSubmissionIndex] = useState(
+        submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
+    );
     //console.log(quiz);
 
     const getQuestionsForAttempt = (selectedAttemptIndex: number) => {
@@ -518,13 +524,15 @@ export default function Page() {
                                         <Divider />
                                         <Button
                                             variant={
-                                                selectedAttemptIndex === -1
+                                                submissionIndex === -1 ||
+                                                submissionIndex >=
+                                                    quiz.submissions.length
                                                     ? "solid"
                                                     : "outline"
                                             }
                                             colorScheme="teal"
                                             onClick={() =>
-                                                setSelectedAttemptIndex(-1)
+                                                setSubmissionIndex(-1)
                                             }
                                             data-testid="combined-button"
                                         >
@@ -538,16 +546,14 @@ export default function Page() {
                                 {quiz.submissions.map((submission, i) => (
                                     <Button
                                         variant={
-                                            selectedAttemptIndex === i
+                                            submissionIndex === i
                                                 ? "solid"
                                                 : "ghost"
                                         }
                                         colorScheme="teal"
                                         key={i}
                                         textAlign="left"
-                                        onClick={() =>
-                                            setSelectedAttemptIndex(i)
-                                        }
+                                        onClick={() => setSubmissionIndex(i)}
                                         fontSize="sm"
                                     >
                                         Attempt #
@@ -564,7 +570,8 @@ export default function Page() {
                         </GridItem>
                         {quiz.submissions.length !== 0 ? (
                             <GridItem p={5}>
-                                {selectedAttemptIndex === -1 ? (
+                                {submissionIndex === -1 ||
+                                submissionIndex >= quiz.submissions.length ? (
                                     <CombinedQuestionList
                                         quiz={quiz}
                                         setQuiz={setQuiz}
@@ -579,7 +586,7 @@ export default function Page() {
                                                 Attempt #
                                                 {convertCustomAttemptNumber(
                                                     quiz.submissions[
-                                                        selectedAttemptIndex
+                                                        submissionIndex
                                                     ].attempt
                                                 )}
                                             </Heading>
@@ -591,11 +598,11 @@ export default function Page() {
                                                         attemptDeleteDisclosure.onOpen();
                                                         setAttemptNumberToDelete(
                                                             quiz.submissions[
-                                                                selectedAttemptIndex
+                                                                submissionIndex
                                                             ].attempt
                                                         );
                                                     }}
-                                                    data-testid={`delete-attempt-${quiz.submissions[selectedAttemptIndex].attempt}`}
+                                                    data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
                                                 >
                                                     <TbTrashX />
                                                 </Button>
@@ -603,7 +610,7 @@ export default function Page() {
                                         </Flex>
                                         <Stack spacing="10">
                                             {getQuestionsForAttempt(
-                                                selectedAttemptIndex
+                                                submissionIndex
                                             ).map((question, i) => (
                                                 <Stack
                                                     key={i}
@@ -630,7 +637,7 @@ export default function Page() {
                                                                 questionResponse={
                                                                     quiz
                                                                         .selectedOptions[
-                                                                        selectedAttemptIndex
+                                                                        submissionIndex
                                                                     ][
                                                                         question
                                                                             .id
@@ -662,11 +669,11 @@ export default function Page() {
                                                             selectedOptions={
                                                                 quiz
                                                                     .selectedOptions[
-                                                                    selectedAttemptIndex
+                                                                    submissionIndex
                                                                 ] &&
                                                                 quiz
                                                                     .selectedOptions[
-                                                                    selectedAttemptIndex
+                                                                    submissionIndex
                                                                 ][question.id]
                                                             }
                                                             show_correct_answers={
