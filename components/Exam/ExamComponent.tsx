@@ -290,7 +290,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     const isDarkMode = useColorModeValue(false, true);
 
     return (
-        <Container maxW={PAGE_CONTAINER_SIZE}>
+        <Container maxW={PAGE_CONTAINER_SIZE} data-testid="exam-component">
             {showIllustration && (
                 <Box position="fixed" bottom={-2} right={-50} w="600px">
                     <Image

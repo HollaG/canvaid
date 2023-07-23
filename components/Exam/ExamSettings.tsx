@@ -49,7 +49,7 @@ const ExamSettings = ({
                     min={1}
                     max={maxQns}
                 >
-                    <NumberInputField />
+                    <NumberInputField data-testid="input-numQns" />
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -66,7 +66,7 @@ const ExamSettings = ({
                     }
                     min={0}
                 >
-                    <NumberInputField />
+                    <NumberInputField data-testid="input-examLength" />
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -81,6 +81,7 @@ const ExamSettings = ({
                 <Checkbox
                     isChecked={isRandom}
                     onChange={(e) => setIsRandom(e.target.checked)}
+                    data-testid="input-isRandom"
                 >
                     Randomise question order
                 </Checkbox>
@@ -141,6 +142,7 @@ export const GeneralExamSettings1 = ({
                     placeholder=" "
                     value={quizName}
                     onChange={(e) => setQuizName(e.target.value)}
+                    data-testid="input-quizName"
                 />
                 <FormLabel>Quiz name</FormLabel>
                 <FormHelperText>
@@ -253,6 +255,7 @@ const CheckboxTree = ({
                                             }
                                         });
                                     }}
+                                    data-testid="checkbox-quiz"
                                 >
                                     {quiz.quizName}
                                 </Checkbox>

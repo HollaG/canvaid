@@ -31,6 +31,9 @@ import {
 import mockRouter from "next-router-mock";
 import { customTheme } from "@/theme/theme";
 import { ChakraProvider } from "@chakra-ui/react";
+import { getExaminableQuestions } from "@/lib/functions";
+import { Quiz } from "@/types/canvas";
+
 jest.mock("next/navigation", () => ({
     ...require("next-router-mock"),
     useParams: () => ({ quizUploadId: "123" }),
@@ -131,6 +134,8 @@ describe("Quiz page rendering", () => {
                             setQuiz: jest.fn(),
                             setSearchString: jest.fn(),
                             setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -162,6 +167,8 @@ describe("Quiz page rendering", () => {
                             setQuiz: setQuizMock,
                             setSearchString: jest.fn(),
                             setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -252,6 +259,8 @@ describe("Quiz page editing", () => {
                             setQuiz: jest.fn(),
                             setSearchString: jest.fn(),
                             setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -284,6 +293,8 @@ describe("Quiz page editing", () => {
                             setQuiz: setQuizMock,
                             setSearchString: jest.fn(),
                             setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -429,6 +440,172 @@ describe("Quiz page editing", () => {
             asPath: "/",
             pathname: "/",
             query: {},
+        });
+    });
+});
+describe("Exam mode", () => {
+    let renderResult: RenderResult;
+    const push = jest.fn((url) => {});
+    const setQuizMock = jest.fn((quiz) => {
+        renderResult.rerender(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
+                        value={{
+                            // rerender with the updated quiz
+                            quizzes: [quiz],
+                            searchString: "",
+                            setQuiz: jest.fn(),
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
+                        }}
+                    >
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
+        );
+    });
+    beforeEach(() => {
+        // Mock the fetch request
+        act(() => {
+            mockRouter.push(`/uploads/${mockUploadId}`);
+        });
+        // Mock the page
+        renderResult = render(
+            <AppRouterContextProviderMock router={{ push }}>
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <QuizStorageContext.Provider
+                        value={{
+                            quizzes: QUIZZES as any,
+                            searchString: "",
+                            setQuiz: setQuizMock,
+                            setSearchString: jest.fn(),
+                            setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
+                        }}
+                    >
+                        <ChakraProvider theme={customTheme}>
+                            <QuizPage />
+                        </ChakraProvider>
+                    </QuizStorageContext.Provider>
+                </UserContext.Provider>
+            </AppRouterContextProviderMock>
+        );
+    });
+
+    it("should render the exam mode button", async () => {
+        const examModeButton = await screen.findByTestId("exam-mode-btn");
+
+        expect(examModeButton).toBeInTheDocument();
+    });
+
+    it("should display a popup asking the user to customise their quiz and populate the default values", async () => {
+        const examModeButton = await screen.findByTestId("exam-mode-btn");
+
+        act(() => examModeButton.click());
+
+        expect(
+            await screen.findByText(/Customize your quiz/)
+        ).toBeInTheDocument();
+
+        // expect the number of questions to be filled in with the default value, which will be 12
+        const questions = getExaminableQuestions(QUIZ as any);
+
+        const questionNumberInput = await screen.findByTestId("input-numQns");
+        const examLengthInput = await screen.findByTestId("input-examLength");
+        const isRandomCheckbox = await screen.findByTestId("input-isRandom");
+
+        expect(questionNumberInput).toHaveDisplayValue(
+            questions.length.toString()
+        );
+
+        // expect clamp
+        // expect(questionNumberInput).toHaveDisplayValue(
+        //     questions.length.toString()
+        // );
+
+        // change to 8
+        await act(async () =>
+            fireEvent.change(questionNumberInput, {
+                target: { value: "8" },
+            })
+        );
+
+        // expect ok
+        expect(questionNumberInput).toHaveDisplayValue("8");
+    });
+
+    it("should redirect to the exam page with the set parameters", async () => {
+        const examModeButton = await screen.findByTestId("exam-mode-btn");
+        act(() => examModeButton.click());
+
+        const questions = getExaminableQuestions(QUIZ as any);
+
+        const questionNumberInput = await screen.findByTestId("input-numQns");
+        await act(async () =>
+            fireEvent.change(questionNumberInput, {
+                target: { value: "8" },
+            })
+        );
+        const examLengthInput = await screen.findByTestId("input-examLength");
+        await act(async () =>
+            fireEvent.change(examLengthInput, {
+                target: { value: "120" },
+            })
+        );
+
+        const isRandomCheckbox = await screen.findByTestId("input-isRandom");
+        await act(async () => fireEvent.click(isRandomCheckbox));
+
+        const startBtn = await screen.findByTestId("start-exam-btn");
+        expect(startBtn).toBeInTheDocument();
+
+        await act(async () => fireEvent.click(startBtn));
+
+        expect(mockRouter).toMatchObject({
+            asPath: `/uploads/${mockUploadId}/exam?num=${8}&length=120&random=true`,
+            pathname: `/uploads/${mockUploadId}/exam`,
+            query: {
+                num: `${8}`,
+                length: "120",
+                random: "true",
+            },
+        });
+    });
+
+    it("should redirect to the exam page with default parameters", async () => {
+        const examModeButton = await screen.findByTestId("exam-mode-btn");
+        act(() => examModeButton.click());
+
+        const startBtn = await screen.findByTestId("start-exam-btn");
+
+        await act(async () => fireEvent.click(startBtn));
+        const questions = getExaminableQuestions(QUIZ as any);
+
+        expect(mockRouter).toMatchObject({
+            asPath: `/uploads/${mockUploadId}/exam?num=${questions.length}&length=undefined&random=false`,
+            pathname: `/uploads/${mockUploadId}/exam`,
+            query: {
+                num: `${questions.length}`,
+                length: "undefined",
+                random: "false",
+            },
         });
     });
 });

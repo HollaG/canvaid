@@ -104,7 +104,10 @@ export default function Page() {
             onClose();
             router.replace("/");
         }
-    }, [showLogIn, user, onClose, onOpen, router]);
+
+        // cannot have router as dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showLogIn, user, onClose, onOpen]);
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
@@ -236,6 +239,7 @@ export default function Page() {
                                                     // router.push("/exam")
                                                     onOpenExam()
                                                 }
+                                                data-testid="exam-mode-btn"
                                             >
                                                 Exam
                                             </Button>

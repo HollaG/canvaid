@@ -50,7 +50,7 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
         //router.push("../");
     };
     return (
-        <Center>
+        <Center data-testid="timer">
             {time == 0 && !modalOpened && (
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />

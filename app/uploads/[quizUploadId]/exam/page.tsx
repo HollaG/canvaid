@@ -310,6 +310,8 @@ export default function Page() {
                                 (numQuestions || qns.length)
                             }
                             isLoading={isSubmitting}
+                            type="submit"
+                            name="submit"
                         >
                             Submit Quiz
                         </Button>

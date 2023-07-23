@@ -73,6 +73,8 @@ describe("Add a new quiz page", () => {
                             setQuiz: jest.fn(),
                             setSearchString: jest.fn(),
                             setQuizzes: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -115,6 +117,8 @@ describe("Add a new quiz page", () => {
                                 setQuiz: jest.fn(),
                                 setSearchString: jest.fn(),
                                 setQuizzes: jest.fn(),
+                                selectedOptions: [],
+                                setSelectedOptions: jest.fn(),
                             }}
                         >
                             <ChakraProvider theme={customTheme}>
@@ -262,6 +266,8 @@ describe("Add a new quiz page", () => {
                                 setQuiz: jest.fn(),
                                 setSearchString: jest.fn(),
                                 setQuizzes: jest.fn(),
+                                selectedOptions: [],
+                                setSelectedOptions: jest.fn(),
                             }}
                         >
                             <ChakraProvider theme={customTheme}>
