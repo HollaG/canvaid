@@ -152,10 +152,9 @@ const Sidebar = () => {
     const alertProps = useDisclosure();
     if (!user) return null;
     const handleToggleSidebar = () => {
-        console.log("toggle sidebar" + isOpenSidebar);
-        setIsOpenSidebar(!isOpenSidebar);
+        setIsOpenSidebar((prev) => !prev);
     };
-    console.log(user.courseColors);
+
     return (
         <>
             {/* {!isOpen && ()}
@@ -209,7 +208,7 @@ const Sidebar = () => {
                                 height="34"
                                 alt="Website logo"
                                 style={{
-                                    transform: "translate(10px) scale(5);",
+                                    transform: "translate(10px) scale(5)",
                                 }}
                             />
                         </Link>

@@ -74,7 +74,7 @@ export default function Page() {
     useEffect(() => {
         // reset selected options to nil when quiz changes
         setSelectedOptions({});
-    }, []);
+    }, [setSelectedOptions]);
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -88,7 +88,7 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [quizUploadId, examQuiz, setQuiz]);
+    }, [quizUploadId, examQuiz, setQuiz, router]);
 
     // calculate the questions to be examined
     // we expect `num` to ALWAYS be in the URL. if not in URL, default to all qns
@@ -104,12 +104,6 @@ export default function Page() {
     const [examLength, setExamLength] = useState<number>(
         parseInt(searchParams.get("length") || "0")
     );
-
-    console.log({
-        isRandom,
-        examLength,
-        numQuestions,
-    });
 
     useEffect(() => {
         if (!examQuiz) return;
@@ -130,7 +124,7 @@ export default function Page() {
                     .slice(0, numQuestions)
             );
         }
-    }, [examQuiz, numQuestions]);
+    }, [examQuiz, numQuestions, isRandom]);
 
     // TODO: ensure error handling
 
