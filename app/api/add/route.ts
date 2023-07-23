@@ -30,6 +30,7 @@ export interface IAddBody {
     quizName: string;
     course: string;
     uid: string;
+    canvasApiToken: string;
 }
 
 const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL;
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
             quizName: _quizName,
             course: _courseName,
             uid,
+            canvasApiToken,
         }: IAddBody = await request.json();
         // console.log({ data });
 
@@ -64,9 +66,7 @@ export async function POST(request: Request) {
 
         /** ---- API ---- */
         // get the user
-        const userData = await getUser(uid);
-
-        const API_TOKEN = userData.canvasApiToken;
+        const API_TOKEN = canvasApiToken;
         if (!API_TOKEN) {
             throw new Error("No API token was present!");
         }

@@ -66,7 +66,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         if (user) {
             getUploads(user.uid).then((data) => {
                 setQuizzes(data.data || []);
-                setSelectedOptions(data.selectedOptions || {});
+                setSelectedOptions({});
             });
         }
     }, [user]);
@@ -196,11 +196,17 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
                     JSON.parse(JSON.stringify(user))
                 ).catch(console.log);
                 if (appUser) {
-                    setUser(appUser);
+                    // get the token
+                    const token = localStorage.getItem("canvasApiToken");
+                    setUser({
+                        ...appUser,
+                        canvasApiToken: token || "",
+                    });
                     localStorage.setItem("user", JSON.stringify(appUser));
                 } else {
                     setUser(false);
                     localStorage.removeItem("user");
+                    localStorage.removeItem("canvasApiToken");
                 }
             } else {
                 setUser(false);
