@@ -16,6 +16,10 @@ import {
     useBreakpoint,
     useMediaQuery,
     Link,
+    Alert,
+    AlertTitle,
+    AlertDescription,
+    AlertIcon,
 } from "@chakra-ui/react";
 import { signInWithGoogle } from "@/firebase/auth/google";
 import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
@@ -47,13 +51,14 @@ import {
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { TbArrowNarrowDown, TbArrowNarrowRight } from "react-icons/tb";
+import { useAuthContainer } from "@/app/providers";
 
 export default function NotAuthedHomePage() {
     const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
     const [showSecondPerson] = useMediaQuery("(min-width: 48em)");
 
     const darkMode = useColorModeValue(false, true);
-
+    const { user } = useAuthContainer();
     const getStartedRef = React.useRef<HTMLDivElement>(null);
     return (
         <>
@@ -75,6 +80,28 @@ export default function NotAuthedHomePage() {
                             spacing={{ base: 8, md: 14 }}
                             py={{ base: 20, md: 36 }}
                         >
+                            {user && !user.canvasApiToken ? (
+                                <Alert status="error">
+                                    <AlertIcon />
+                                    <AlertTitle>Missing token!</AlertTitle>
+                                    <AlertDescription>
+                                        You still need to enter your Canvas
+                                        Token before you can access this site.{" "}
+                                        <NextLink href="?login=true">
+                                            <span
+                                                style={{
+                                                    textDecoration: "underline",
+                                                }}
+                                            >
+                                                Please click here
+                                            </span>
+                                        </NextLink>{" "}
+                                        to enter it!
+                                    </AlertDescription>
+                                </Alert>
+                            ) : (
+                                <></>
+                            )}
                             <Flex justifyContent={"space-between"}>
                                 <Box maxWidth="900px" flexGrow="1">
                                     <Heading
