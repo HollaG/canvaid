@@ -71,7 +71,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
 
     // ----------------------- generate data ----------------------------------
 
-    const { quizzes, setQuizzes } = useQuizContainer();
+    const { quizzes, setQuizzes, setExamQuestionList } = useQuizContainer();
     const { user } = useAuthContainer();
 
     const router = useRouter();
