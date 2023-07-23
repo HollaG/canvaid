@@ -9,7 +9,7 @@ import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
-import { Quiz, QuizResponse } from "@/types/canvas";
+import { Quiz, QuizResponse, QuizSubmissionQuestion } from "@/types/canvas";
 import { getUploads } from "@/lib/functions";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/database";
@@ -32,6 +32,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 interface IQuizStorageContext {
     selectedOptions: QuizResponse;
     setSelectedOptions: React.Dispatch<React.SetStateAction<QuizResponse>>;
+    examQuestionList: QuizSubmissionQuestion[];
+    setExamQuestionList: React.Dispatch<
+        React.SetStateAction<QuizSubmissionQuestion[]>
+    >;
     quizzes: (Quiz & { id: string })[];
     setQuizzes: React.Dispatch<React.SetStateAction<(Quiz & { id: string })[]>>;
     setQuiz: (
@@ -46,6 +50,8 @@ interface IQuizStorageContext {
 export const QuizStorageContext = createContext<IQuizStorageContext>({
     selectedOptions: {},
     setSelectedOptions: () => {},
+    examQuestionList: [],
+    setExamQuestionList: () => {},
     quizzes: [],
     setQuizzes: () => {},
     setQuiz: (quiz) => {},
@@ -59,6 +65,10 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({}); // [qnId: string]: QuizResponse
+    const [examQuestionList, setExamQuestionList] = useState<
+        QuizSubmissionQuestion[]
+    >([]);
+
     const [searchString, setSearchString] = useState<string>("");
 
     // initial fetch
@@ -67,6 +77,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
             getUploads(user.uid).then((data) => {
                 setQuizzes(data.data || []);
                 setSelectedOptions({});
+                setExamQuestionList([]);
             });
         }
     }, [user]);
@@ -92,6 +103,9 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         },
         searchString,
         setSearchString,
+
+        examQuestionList,
+        setExamQuestionList,
     };
 
     useEffect(() => {
