@@ -49,12 +49,7 @@ import { ReactText } from "react";
 import { Quiz } from "@/types/canvas";
 import NextLink from "next/link";
 import { getUploads } from "@/lib/functions";
-import {
-    SIDEBAR_WIDTH,
-    NAVBAR_HEIGHT,
-    FOOTER_HEIGHT,
-    MINIMISED_SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { SIDEBAR_WIDTH, NAVBAR_HEIGHT, FOOTER_HEIGHT } from "@/lib/constants";
 import useSidebar from "@/hooks/useSidebar";
 import { SidebarContext } from "@/app/providers";
 
