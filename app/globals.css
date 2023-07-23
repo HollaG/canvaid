@@ -20,15 +20,25 @@
 
 /* Works on Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-    width: 12px;
+    width: 6px;
 }
 
 *::-webkit-scrollbar-track {
-    background: orange;
+    background: transparent;
+    /* padding-left: 4px;
+    padding-right: 4px; */
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: blue;
+    background-color: #319795;
     border-radius: 20px;
-    border: 3px solid orange;
+}
+
+#exam-sidebar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+#exam-sidebar:hover::-webkit-scrollbar-thumb {
+    background-color: #319795;
+    border-radius: 20px;
 }

@@ -298,6 +298,7 @@ const Sidebar = () => {
                             justifyContent="space-between"
                             height="100%"
                             overflowY={"scroll"}
+                            id="exam-sidebar"
                         >
                             <ExamSidebar
                                 questions={quiz?.questions}
