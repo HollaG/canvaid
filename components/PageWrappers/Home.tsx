@@ -55,12 +55,6 @@ export default function NotAuthedHomePage() {
     const darkMode = useColorModeValue(false, true);
     return (
         <>
-            <Head>
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap"
-                    rel="stylesheet"
-                />
-            </Head>
             <Navbar />
             <Stack spacing={0}>
                 <Center
@@ -417,9 +411,9 @@ function Features() {
                                 Question Compilation
                             </TestimonialHeading>
                             <TestimonialText>
-                                I'm able to see all my questions for each course
-                                in one place! It makes it so easy for me to
-                                revise!
+                                I&apos;m able to see all my questions for each
+                                course in one place! It makes it so easy for me
+                                to revise!
                             </TestimonialText>
                         </TestimonialContent>
                         <TestimonialAvatar
@@ -449,10 +443,10 @@ function Features() {
                                 The best study buddy
                             </TestimonialHeading>
                             <TestimonialText>
-                                Some of my courses don't have past year papers,
-                                and Canvaid allows me to easily redo all my
-                                course quizzes so I have at least something to
-                                refer to!
+                                Some of my courses don&apos;t have past year
+                                papers, and Canvaid allows me to easily redo all
+                                my course quizzes so I have at least something
+                                to refer to!
                             </TestimonialText>
                         </TestimonialContent>
                         <TestimonialAvatar name={"Max"} title={"Year 2, NUS"} />

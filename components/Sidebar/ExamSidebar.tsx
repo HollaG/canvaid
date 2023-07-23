@@ -32,7 +32,6 @@ export const ExamSidebar = ({
     }
 
     const pathname = usePathname();
-    console.log(pathname);
 
     /**
      * Not a very React-way to scroll
@@ -49,24 +48,26 @@ export const ExamSidebar = ({
         }
     };
 
+    const tealColorMode = useColorModeValue("teal.500", "teal.500");
+    const grayColorMode = useColorModeValue("gray.500", "gray.500");
     return (
         <Stack justifyContent={"center"} spacing={3}>
             {examLength != 0 && <Timer startTimeInMinutes={examLength} />}
             {questions?.map((qn, i) => (
-                <Flex align="center">
+                <Flex align="center" key={i}>
                     <Box
                         borderRadius={"full"}
                         bgColor={
                             selectedOption[qn.id]?.selected_answer_ids ||
                             selectedOption[qn.id]?.answer_text
-                                ? useColorModeValue("teal.500", "teal.500")
+                                ? tealColorMode
                                 : "unset"
                         }
                         borderColor={
                             selectedOption[qn.id]?.selected_answer_ids ||
                             selectedOption[qn.id]?.answer_text
-                                ? useColorModeValue("teal.500", "teal.500")
-                                : useColorModeValue("gray.500", "gray.500")
+                                ? tealColorMode
+                                : grayColorMode
                         }
                         borderWidth={"1px"}
                         outline={0}

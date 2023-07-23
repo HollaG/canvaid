@@ -85,7 +85,6 @@ export async function POST(request: Request) {
         // arrays start at 0
 
         if (attemptNumberElement && attemptNumberElement.innerText) {
-            console.log(attemptNumberElement.innerText);
             attemptNumber =
                 Number(
                     attemptNumberElement.innerText
@@ -357,7 +356,6 @@ export async function POST(request: Request) {
             course,
             userUid: uid,
         };
-        console.log(quizAttempt.questions[0]);
 
         const quiz = await create(quizAttempt, quizInformation);
 

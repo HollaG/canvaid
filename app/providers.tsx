@@ -159,17 +159,23 @@ interface IAuthContext {
 }
 
 // Load the user from localstorage
-const storedUser = localStorage.getItem("user");
+// const storedUser = localStorage.getItem("user");
 
 export const UserContext = createContext<IAuthContext>({
-    user: storedUser ? JSON.parse(storedUser) : undefined,
+    user: undefined,
     setUser: () => {},
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<AppUser | false | undefined>(
-        storedUser ? JSON.parse(storedUser) : undefined
-    );
+    const [user, setUser] = useState<AppUser | false | undefined>();
+
+    useEffect(() => {
+        setUser(
+            localStorage.getItem("user")
+                ? JSON.parse(localStorage.getItem("user") || "")
+                : undefined
+        );
+    }, [setUser]);
 
     const AuthContainer: IAuthContext = {
         user,
@@ -216,10 +222,9 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         return () => unsubscribe();
     }, []);
-
     return (
         <UserContext.Provider value={AuthContainer}>
-            {children}
+            {user === undefined ? <></> : children}
         </UserContext.Provider>
     );
 };

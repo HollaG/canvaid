@@ -53,7 +53,7 @@ import {
     deleteQuiz,
     togglePinQuiz,
 } from "@/firebase/database/repositories/uploads";
-import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import CustomAlertDialog from "../Alert/CustomAlertDialog";
 import { useAuthContainer } from "@/app/providers";
 import { ACADEMIC_SEMESTER, ACADEMIC_YEAR } from "@/lib/constants";
@@ -110,7 +110,11 @@ export default function QuizUploadCard({
             })
             .catch((e) => {
                 // alert
-                console.log("unpinned");
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error!",
+                    description: e,
+                });
             });
     };
 

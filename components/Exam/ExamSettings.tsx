@@ -133,7 +133,7 @@ export const GeneralExamSettings1 = ({
                 <FormHelperText>
                     {" "}
                     Helps you categorise your custom quizzes. Defaults to
-                    'Custom'
+                    &apos;Custom&apos;
                 </FormHelperText>
             </FormControl>
             <FormControl id="quizName" variant="floating" isRequired>

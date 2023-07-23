@@ -4,8 +4,6 @@ export async function POST(request: Request) {
     const token = await request.json();
     const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL || "";
 
-    console.log(`${CANVAS_URL}users/self`);
-    console.log(token);
     try {
         const CANVAS_HTTP_OPTIONS = {
             method: "GET",

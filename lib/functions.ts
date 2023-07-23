@@ -51,8 +51,6 @@ export const hydrateSelectedOptions = (
     // copy the selectedOptions
     const calculated = structuredClone(selectedOptions);
 
-    console.log({ calculated, quizAnswers });
-
     for (const qnId in calculated) {
         const questionResponse = calculated[qnId];
 

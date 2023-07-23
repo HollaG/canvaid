@@ -161,7 +161,7 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [dataId, quiz, setQuiz]);
+    }, [dataId, quiz, setQuiz, router]);
 
     const [submissionIndex, setSubmissionIndex] = useState(
         submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
@@ -797,7 +797,6 @@ const FlaggingButton = ({
             });
         } catch (e: any) {
             console.log(e);
-            console.log("Error unflagging");
             toast({
                 ...ERROR_TOAST_OPTIONS,
                 title: `Error ${
