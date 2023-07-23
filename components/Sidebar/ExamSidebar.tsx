@@ -4,8 +4,9 @@ import { Stack, Box, Text, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import { QuizSubmissionQuestion, QuizResponse } from "@/types/canvas";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
-import { Timer } from "../Timer/timer";
+
 import { TbCheck, TbX } from "react-icons/tb";
+import Timer from "../Timer/timer";
 export const ExamSidebar = ({
     questions,
     selectedOption,

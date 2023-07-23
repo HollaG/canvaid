@@ -15,11 +15,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
-export const Timer = ({
-    startTimeInMinutes,
-}: {
-    startTimeInMinutes: number;
-}) => {
+const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
     const [time, setTime] = useState(startTimeInMinutes * 60);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [modalOpened, setModalOpened] = useState(false);
@@ -88,3 +84,5 @@ export const Timer = ({
         </Box>
     );
 };
+
+export default Timer;
