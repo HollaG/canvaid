@@ -150,7 +150,7 @@ const Sidebar = () => {
 
     // for sign out alert
     const alertProps = useDisclosure();
-    if (!user) return null;
+    if (!user || !user.canvasApiToken) return null;
     const handleToggleSidebar = () => {
         setIsOpenSidebar((prev) => !prev);
     };
