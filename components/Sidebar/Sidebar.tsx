@@ -94,7 +94,7 @@ const Sidebar = () => {
     //     //   setHasToken(false);
     //     // }
     // }, [user]);
-    const { quizzes, selectedOptions } = useQuizContainer();
+    const { quizzes, selectedOptions, examQuestionList } = useQuizContainer();
     const { isOpenSidebar, setIsOpenSidebar } = useSidebarContainer();
 
     // group the quiz by course name
@@ -305,7 +305,7 @@ const Sidebar = () => {
                             id="exam-sidebar"
                         >
                             <ExamSidebar
-                                questions={quiz?.questions}
+                                questions={examQuestionList}
                                 selectedOption={selectedOptions}
                                 examLength={examLength}
                             />
