@@ -199,6 +199,8 @@ const Sidebar = () => {
                     justifyContent={"space-between"}
                     height="100%"
                     display={!isOpenSidebar ? "flex" : "none"}
+                    p={6}
+                    w="full"
                 >
                     <Box marginTop="10px">
                         <Link as={NextLink} href="/">
@@ -206,6 +208,9 @@ const Sidebar = () => {
                                 src={MainLogoCA}
                                 height="34"
                                 alt="Website logo"
+                                style={{
+                                    transform: "translate(10px) scale(5);",
+                                }}
                             />
                         </Link>
                     </Box>
