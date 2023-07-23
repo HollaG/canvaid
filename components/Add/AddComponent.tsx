@@ -245,7 +245,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 justifyContent="center"
                                 alignItems={"center"}
                                 borderRadius="3xl"
-                                mt={28}
+                                mt={{ base: 14, md: 28 }}
                                 border="2px dashed"
                                 borderColor={useColorModeValue(
                                     "gray.400",

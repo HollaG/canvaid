@@ -9,6 +9,7 @@ import userEvent from "@testing-library/user-event";
 
 import USER from "@/__mocks__/user.json";
 import QUIZZES from "@/__mocks__/quizzes.json";
+import QUIZ from "@/__mocks__/quiz.json";
 
 import { AppUser } from "@/types/user";
 import { AppRouterContextProviderMock } from "@/__mocks__/wrappers";
@@ -217,6 +218,7 @@ describe("Home page", () => {
         );
 
         expect(await screen.findByTestId("add-new-btn")).toBeInTheDocument();
+        expect(await screen.findByTestId("exam-mode-btn")).toBeInTheDocument();
     });
 
     it("should get and display user data", async () => {
@@ -235,6 +237,10 @@ describe("Home page", () => {
                             searchString: "",
                             setQuiz: jest.fn(),
                             setSearchString: jest.fn(),
+                            selectedOptions: [],
+                            setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -255,5 +261,129 @@ describe("Home page", () => {
 
         // // expect there to only one card
         // expect(await screen.findByText(/23\/24 S1/)).toBeInTheDocument();
+    });
+
+    it("should display the Upload Quiz dialog", async () => {
+        act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
+        // get the upload button
+        const uploadBtn = await screen.findByTestId("add-new-btn");
+        // click it
+        await act(async () => await userEvent.click(uploadBtn));
+
+        // expect the upload dialog to be in the document
+        expect(await screen.findByTestId("drop-input")).toBeInTheDocument();
+    });
+
+    it("should display the Exam mode dialog", async () => {
+        act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <QuizStorageContext.Provider
+                            value={{
+                                quizzes: QUIZZES as any,
+                                searchString: "",
+                                setQuiz: jest.fn(),
+                                setSearchString: jest.fn(),
+                                setQuizzes: jest.fn(),
+                                selectedOptions: {},
+                                setSelectedOptions: jest.fn(),
+                                examQuestionList: [],
+                                setExamQuestionList: jest.fn(),
+                            }}
+                        >
+                            <ChakraProvider theme={customTheme}>
+                                <HomePage />
+                            </ChakraProvider>
+                        </QuizStorageContext.Provider>
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
+
+        const examModeBtn = await screen.findByTestId("exam-mode-btn");
+
+        await act(async () => await userEvent.click(examModeBtn));
+
+        expect(await screen.findByTestId("exam-component")).toBeInTheDocument();
+
+        // quiz name and course name should be there
+        // course only has one because the homepage splits the course name
+        expect(await screen.findByText(QUIZ.course)).toBeInTheDocument();
+
+        // quiz name should appear three times IF the sidebar is rendered (one homepage, one dialog, one sidebar)
+        // no sidebar, so only 2
+        expect(screen.queryAllByText(QUIZ.quizName)).toHaveLength(2);
+    });
+
+    it("should allow going to the next step when user input is correct", async () => {
+        act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: USER,
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <QuizStorageContext.Provider
+                            value={{
+                                quizzes: QUIZZES as any,
+                                searchString: "",
+                                setQuiz: jest.fn(),
+                                setSearchString: jest.fn(),
+                                setQuizzes: jest.fn(),
+                                selectedOptions: {},
+                                setSelectedOptions: jest.fn(),
+                                examQuestionList: [],
+                                setExamQuestionList: jest.fn(),
+                            }}
+                        >
+                            <ChakraProvider theme={customTheme}>
+                                <HomePage />
+                            </ChakraProvider>
+                        </QuizStorageContext.Provider>
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
+        const examModeBtn = await screen.findByTestId("exam-mode-btn");
+
+        await act(async () => await userEvent.click(examModeBtn));
+
+        // next step should be disabled beacuse not selected
+        expect(await screen.findByTestId("next-btn")).toBeDisabled();
+
+        // should be enabled when quiz name and at least one is chosen
+        const checkboxes = await screen.findAllByTestId("checkbox-quiz");
+        // select the first one
+        await act(async () => await userEvent.click(checkboxes[0]));
+
+        // write something in the quiz name
+        const quizNameInput = await screen.findByTestId("input-quizName");
+        await act(
+            async () => await userEvent.type(quizNameInput, "test quiz name")
+        );
+
+        // expect the next button to be enabled
+        expect(await screen.findByTestId("next-btn")).toBeEnabled();
     });
 });

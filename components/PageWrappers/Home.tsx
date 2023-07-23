@@ -35,7 +35,7 @@ import {
     ArrowForwardIcon,
     ArrowRightIcon,
 } from "@chakra-ui/icons";
-import { ReactElement, ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import {
     FcAssistant,
     FcDonate,
@@ -53,6 +53,8 @@ export default function NotAuthedHomePage() {
     const [showSecondPerson] = useMediaQuery("(min-width: 48em)");
 
     const darkMode = useColorModeValue(false, true);
+
+    const getStartedRef = React.useRef<HTMLDivElement>(null);
     return (
         <>
             <Navbar />
@@ -131,6 +133,13 @@ export default function NotAuthedHomePage() {
                                                 }
                                                 variant="outline"
                                                 size="lg"
+                                                onClick={() =>
+                                                    getStartedRef.current?.scrollIntoView(
+                                                        {
+                                                            behavior: "smooth",
+                                                        }
+                                                    )
+                                                }
                                             >
                                                 Learn more
                                             </Button>
@@ -167,20 +176,26 @@ export default function NotAuthedHomePage() {
                         />
                     </Box>
                 </Center>
-                <Box boxShadow={"inner"} position="relative">
-                    <Container maxW={PAGE_CONTAINER_SIZE} minH="65vh">
-                        <Stack spacing={8} mb={24}>
-                            <Center mt={36}>
-                                <Heading>
-                                    {" "}
-                                    Get started in{" "}
-                                    <Text as={"span"} color={"teal.400"}>
-                                        three easy steps
-                                    </Text>
-                                </Heading>
-                            </Center>
-                            <Instructions />
-                        </Stack>
+                <Box
+                    boxShadow={"inner"}
+                    position="relative"
+                    ref={getStartedRef}
+                >
+                    <Container maxW={PAGE_CONTAINER_SIZE} py={16}>
+                        <Center minH="65vh">
+                            <Stack spacing={8}>
+                                <Center>
+                                    <Heading>
+                                        {" "}
+                                        Get started in{" "}
+                                        <Text as={"span"} color={"teal.400"}>
+                                            three easy steps
+                                        </Text>
+                                    </Heading>
+                                </Center>
+                                <Instructions />
+                            </Stack>
+                        </Center>
                     </Container>
                     <Center>
                         {showSecondPerson && (

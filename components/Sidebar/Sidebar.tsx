@@ -94,7 +94,7 @@ const Sidebar = () => {
     //     //   setHasToken(false);
     //     // }
     // }, [user]);
-    const { quizzes, selectedOptions } = useQuizContainer();
+    const { quizzes, selectedOptions, examQuestionList } = useQuizContainer();
     const { isOpenSidebar, setIsOpenSidebar } = useSidebarContainer();
 
     // group the quiz by course name
@@ -176,9 +176,14 @@ const Sidebar = () => {
                     </Button>
                 }
             />
-            <Box display={{ base: "block", md: "none" }} height={NAVBAR_HEIGHT}>
-                <Navbar />
-            </Box>
+            {user.canvasApiToken && (
+                <Box
+                    display={{ base: "block", md: "none" }}
+                    height={NAVBAR_HEIGHT}
+                >
+                    <Navbar />
+                </Box>
+            )}
             <Box
                 flexShrink={0}
                 width={isOpenSidebar ? SIDEBAR_WIDTH : "60px"} // why does this not work but works iwth 15px
@@ -305,7 +310,7 @@ const Sidebar = () => {
                             id="exam-sidebar"
                         >
                             <ExamSidebar
-                                questions={quiz?.questions}
+                                questions={examQuestionList}
                                 selectedOption={selectedOptions}
                                 examLength={examLength}
                             />

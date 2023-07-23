@@ -235,7 +235,7 @@ export default function LoginComponent() {
                         </Flex>
 
                         <form>
-                            <Stack spacing={8} mt={28}>
+                            <Stack spacing={8} mt={{ base: 14, md: 28 }}>
                                 {!isNew ? (
                                     <>
                                         <FormControl
