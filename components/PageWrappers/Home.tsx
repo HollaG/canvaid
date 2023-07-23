@@ -81,7 +81,7 @@ export default function NotAuthedHomePage() {
                             py={{ base: 20, md: 36 }}
                         >
                             {user && !user.canvasApiToken ? (
-                                <Alert status="error">
+                                <Alert status="error" data-testid="no-token">
                                     <AlertIcon />
                                     <AlertTitle>Missing token!</AlertTitle>
                                     <AlertDescription>

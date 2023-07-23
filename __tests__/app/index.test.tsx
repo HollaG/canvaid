@@ -85,6 +85,27 @@ describe("Home page", () => {
         expect(emailSignInInput).toBeInTheDocument();
     });
 
+    it("should display a warning if the user has not entered their token", async () => {
+        await act(() =>
+            render(
+                <UserContext.Provider
+                    value={{
+                        user: { ...USER, canvasApiToken: "" },
+                        setUser: jest.fn(),
+                    }}
+                >
+                    <ChakraProvider theme={customTheme}>
+                        <HomePage />
+                    </ChakraProvider>
+                </UserContext.Provider>
+            )
+        );
+
+        const warningAlert = await screen.findByTestId("no-token");
+
+        expect(warningAlert).toBeInTheDocument();
+    });
+
     it("should render a input Canvas token page", async () => {
         await act(() =>
             render(
