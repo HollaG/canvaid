@@ -7,11 +7,7 @@ import {
     create,
     getQuizUpload,
 } from "@/firebase/database/repositories/uploads";
-import {
-    MINIMISED_SIDEBAR_WIDTH,
-    NAVBAR_HEIGHT,
-    SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
 import {
     calculateTotalScore,
     convertCustomAttemptNumber,
@@ -270,6 +266,7 @@ export default function Page() {
                                 borderRadius="md"
                                 padding="4"
                                 bgColor={questionBgColor}
+                                id={`question-${i + 1}`}
                             >
                                 <Heading
                                     fontSize="lg"

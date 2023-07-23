@@ -12,7 +12,7 @@ import {
     ModalCloseButton,
     Center,
 } from "@chakra-ui/react";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDisclosure } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
@@ -60,24 +60,20 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
                     <ModalContent>
-                        <ModalHeader>Modal Title</ModalHeader>
+                        <ModalHeader>Exam has ended!</ModalHeader>
                         <ModalCloseButton onClick={handleClose} />
                         <ModalBody>Time's up!</ModalBody>
 
                         <ModalFooter>
-                            <Button
-                                colorScheme="green"
-                                mr={3}
-                                onClick={handleClose}
-                            >
-                                Close
+                            <Button colorScheme="teal" onClick={handleClose}>
+                                Continue
                             </Button>
                             {/* <Button variant="ghost">Continue</Button> */}
                         </ModalFooter>
                     </ModalContent>
                 </Modal>
             )}
-            <Heading size="lg">
+            <Heading fontSize="1.75em">
                 {hours.toString().padStart(2, "0")}:
                 {minutes.toString().padStart(2, "0")}:
                 {seconds.toString().padStart(2, "0")}
@@ -86,4 +82,6 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
     );
 };
 
-export default Timer;
+export default React.memo(Timer, (prevProps, nextProps) => {
+    return prevProps.startTimeInMinutes === nextProps.startTimeInMinutes;
+});
