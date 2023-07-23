@@ -75,9 +75,16 @@ export const ExamSidebar = ({
                     >
                         {selectedOption[qn.id]?.selected_answer_ids ||
                         selectedOption[qn.id]?.answer_text ? (
-                            <TbCheck color={"white"} fontSize="0.75em" />
+                            <TbCheck
+                                color={"white"}
+                                fontSize="0.75em"
+                                data-testid="indicator-done"
+                            />
                         ) : (
-                            <TbX fontSize="0.75em" />
+                            <TbX
+                                fontSize="0.75em"
+                                data-testid="indicator-undone"
+                            />
                         )}
                     </Box>
                     <Text

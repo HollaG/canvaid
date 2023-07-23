@@ -122,7 +122,7 @@ export default function Page() {
         if (numQuestions > 0) {
             qns = qns.slice(0, numQuestions);
         }
-
+        console.log(qns);
         setQns(qns);
         setExamQuestionList(qns);
     }, [examQuiz, numQuestions, isRandom, setExamQuestionList]);
@@ -306,11 +306,16 @@ export default function Page() {
                             size="lg"
                             onClick={submitCustomQuiz}
                             colorScheme="orange"
+                            // Note, this is just checking more # answered than actual
+                            // because test case is difficult to test
+                            // because of randomness
                             isDisabled={
-                                Object.keys(selectedOptions).length !==
+                                Object.keys(selectedOptions).length <
                                 (numQuestions || qns.length)
                             }
                             isLoading={isSubmitting}
+                            type="submit"
+                            name="submit"
                         >
                             Submit Quiz
                         </Button>

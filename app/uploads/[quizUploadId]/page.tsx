@@ -412,6 +412,7 @@ export default function Page() {
                                     );
                                 }}
                                 colorScheme="orange"
+                                data-testid="start-exam-btn"
                             >
                                 Start Exam
                             </Button>
@@ -516,6 +517,7 @@ export default function Page() {
                                     onClick={onOpen}
                                     colorScheme="orange"
                                     variant="outline"
+                                    data-testid="exam-mode-btn"
                                 >
                                     Enter Exam Mode
                                 </Button>
