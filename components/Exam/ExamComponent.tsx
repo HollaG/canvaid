@@ -138,7 +138,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     // refresh the number of questions whenever the selected quizzes change
     useEffect(() => {
         setNumQns(totalAvailableQns);
-    }, [selectedQuizzes]);
+    }, [selectedQuizzes, totalAvailableQns]);
 
     const [examLength, setExamLength] = useState<number | undefined>();
 
@@ -188,7 +188,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
             if (compiledQuizAnswers[id])
                 chosenQuizAnswers[id] = compiledQuizAnswers[id];
         });
-        console.log({ chosenQuizAnswers });
+
         const quiz: Quiz = {
             submissions: [],
             selectedOptions: [],
@@ -335,7 +335,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                     <Flex mt={8} direction="column">
                         <Flex alignItems={"center"} mb={16}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
-                                Let's create an exam
+                                Let&apos;s create an exam
                             </Heading>
                         </Flex>
 

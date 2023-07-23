@@ -36,7 +36,6 @@ type CourseProps = {
 const Courses = ({ onAddNew }: CourseProps) => {
     const { quizzes, searchString } = useQuizContainer();
     const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
-    console.log(quizzes);
     const filteredQuizzes = quizzes
         .filter((quiz) => {
             return (
@@ -113,7 +112,7 @@ const Courses = ({ onAddNew }: CourseProps) => {
                         </Box>
                     </Center>
                     <Heading textAlign={"center"} mt={4} fontSize="xl">
-                        You don't have any quizzes yet!
+                        You don&apos;t have any quizzes yet!
                     </Heading>
                     <Text textAlign={"center"} mt={2}>
                         Start adding by clicking the button below.
