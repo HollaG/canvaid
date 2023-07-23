@@ -156,11 +156,11 @@ export default function LoginComponent() {
 
     // step 1: login / register
     // step 2: token
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
 
     useEffect(() => {
         if (user && !user.canvasApiToken) {
-            setStep(2);
+            setStep(1);
         }
     }, [user]);
     const steps = [
@@ -169,7 +169,7 @@ export default function LoginComponent() {
     ];
 
     const { activeStep } = useSteps({
-        index: 1,
+        index: 0,
         count: steps.length,
     });
 
@@ -226,7 +226,7 @@ export default function LoginComponent() {
                         ))}
                     </Stepper>
                 </Box>
-                <Collapse in={step === 1}>
+                <Collapse in={step === 0}>
                     <Flex mt={8} direction="column" pb={16}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
@@ -537,7 +537,7 @@ export default function LoginComponent() {
                         </form>
                     </Flex>
                 </Collapse>
-                <Collapse in={step === 2}>
+                <Collapse in={step === 1}>
                     <NotCanvasApiTokenPage />
                 </Collapse>
             </Container>
