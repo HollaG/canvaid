@@ -71,7 +71,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
 
     // ----------------------- generate data ----------------------------------
 
-    const { quizzes, setQuizzes } = useQuizContainer();
+    const { quizzes, setQuizzes, setExamQuestionList } = useQuizContainer();
     const { user } = useAuthContainer();
 
     const router = useRouter();
@@ -289,6 +289,8 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     const [showIllustration] = useMediaQuery("(min-width: 1000px)");
     const isDarkMode = useColorModeValue(false, true);
 
+    const [isError, setIsError] = useState<boolean>(false);
+
     return (
         <Container maxW={PAGE_CONTAINER_SIZE} data-testid="exam-component">
             {showIllustration && (
@@ -347,6 +349,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                             setCategoryName={setCategoryName}
                             quizName={newQuizName}
                             setQuizName={setNewQuizName}
+                            setIsError={setIsError}
                         />
                         <Flex mt={16}>
                             <Button
@@ -363,7 +366,8 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                                 onClick={() => setActiveStep(1)}
                                 isDisabled={
                                     !selectedQuizzes.length ||
-                                    newQuizName === ""
+                                    newQuizName === "" ||
+                                    isError
                                 }
                             >
                                 Next step

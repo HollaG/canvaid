@@ -225,7 +225,7 @@ describe("Exam mode in progress", () => {
         ).not.toBeDisabled();
     });
 
-    it("should display a prompt before submitting", async () => {
+    it("should submit properly", async () => {
         // click the submit button
         await act(async () =>
             fireEvent.click(

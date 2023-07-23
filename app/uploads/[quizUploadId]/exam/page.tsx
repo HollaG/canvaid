@@ -112,7 +112,6 @@ export default function Page() {
     );
 
     useEffect(() => {
-        if (!examQuiz) return;
         const examinableQuestions = getExaminableQuestions(examQuiz);
 
         let qns = examinableQuestions.sort(() =>
@@ -122,7 +121,6 @@ export default function Page() {
         if (numQuestions > 0) {
             qns = qns.slice(0, numQuestions);
         }
-        console.log(qns);
         setQns(qns);
         setExamQuestionList(qns);
     }, [examQuiz, numQuestions, isRandom, setExamQuestionList]);
