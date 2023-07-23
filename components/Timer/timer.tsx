@@ -10,6 +10,7 @@ import {
     ModalFooter,
     ModalBody,
     ModalCloseButton,
+    Center,
 } from "@chakra-ui/react";
 import { useState, useEffect, useRef } from "react";
 import { useDisclosure } from "@chakra-ui/react";
@@ -54,7 +55,7 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
         //router.push("../");
     };
     return (
-        <Box>
+        <Center>
             {time == 0 && !modalOpened && (
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
@@ -81,7 +82,7 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
                 {minutes.toString().padStart(2, "0")}:
                 {seconds.toString().padStart(2, "0")}
             </Heading>
-        </Box>
+        </Center>
     );
 };
 

@@ -24,7 +24,7 @@ export const ExamSidebar = ({
         examLength = 0;
     }
     return (
-        <Stack>
+        <Stack justifyContent={"center"}>
             {examLength != 0 && <Timer startTimeInMinutes={examLength} />}
             {questions?.map((qn, i) => (
                 <Flex
