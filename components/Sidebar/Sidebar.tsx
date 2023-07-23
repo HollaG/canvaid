@@ -232,6 +232,7 @@ const Sidebar = () => {
                                 onClick={toggleColorMode}
                                 variant="ghost"
                                 colorScheme="gray"
+                                aria-label="Toggle color mode"
                             >
                                 {colorMode === "light" ? <TbMoon /> : <TbSun />}
                             </Button>
@@ -241,6 +242,7 @@ const Sidebar = () => {
                                 variant={"ghost"}
                                 colorScheme="gray"
                                 onClick={() => alertProps.onOpen()}
+                                aria-label="Sign out"
                             >
                                 <TbDoorExit />
                             </Button>
@@ -250,6 +252,7 @@ const Sidebar = () => {
                                 variant={"ghost"}
                                 colorScheme="gray"
                                 onClick={handleToggleSidebar}
+                                aria-label="Expand / Hide Sidebar"
                             >
                                 <TbArrowRight />
                             </Button>
@@ -583,6 +586,7 @@ const Sidebar = () => {
                                 onClick={toggleColorMode}
                                 variant="ghost"
                                 colorScheme="gray"
+                                aria-label="Toggle color mode"
                             >
                                 {colorMode === "light" ? <TbMoon /> : <TbSun />}
                             </Button>
@@ -592,6 +596,7 @@ const Sidebar = () => {
                                 variant={"ghost"}
                                 colorScheme="gray"
                                 onClick={() => alertProps.onOpen()}
+                                aria-label="Sign out"
                             >
                                 <TbDoorExit />
                             </Button>
@@ -607,6 +612,7 @@ const Sidebar = () => {
                                 variant={"ghost"}
                                 colorScheme="gray"
                                 onClick={handleToggleSidebar}
+                                aria-label="Toggle Sidebar"
                             >
                                 <TbArrowLeft />
                             </Button>

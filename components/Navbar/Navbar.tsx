@@ -194,6 +194,7 @@ const Navbar = () => {
                                         onClick={toggleColorMode}
                                         variant="ghost"
                                         colorScheme="gray"
+                                        aria-label="Dark / light mode toggle"
                                     >
                                         {colorMode === "light" ? (
                                             <TbMoon />
@@ -208,6 +209,7 @@ const Navbar = () => {
                                             variant={"ghost"}
                                             colorScheme="gray"
                                             onClick={signOutAll}
+                                            aria-label="Sign out button"
                                         >
                                             <TbDoorExit />
                                         </Button>
@@ -220,6 +222,7 @@ const Navbar = () => {
                                             onClick={() =>
                                                 router.push("/?login=true")
                                             }
+                                            aria-label="Sign in button"
                                         >
                                             <TbDoorEnter />
                                         </Button>
