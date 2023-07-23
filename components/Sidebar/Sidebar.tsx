@@ -299,62 +299,13 @@ const Sidebar = () => {
                                     flexDir={"column"}
                                     justifyContent="space-between"
                                     height="100%"
+                                    overflowY={"scroll"}
                                 >
                                     <ExamSidebar
                                         questions={quiz?.questions}
                                         selectedOption={selectedOptions}
                                         examLength={examLength}
                                     />
-                                    <Flex
-                                        alignItems={"center"}
-                                        justifyContent="space-between"
-                                    >
-                                        <Tooltip
-                                            label={`Toggle ${
-                                                colorMode === "light"
-                                                    ? "dark"
-                                                    : "light"
-                                            } mode`}
-                                        >
-                                            <Button
-                                                onClick={toggleColorMode}
-                                                variant="ghost"
-                                                colorScheme="gray"
-                                            >
-                                                {colorMode === "light" ? (
-                                                    <TbMoon />
-                                                ) : (
-                                                    <TbSun />
-                                                )}
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip label="Sign out">
-                                            <Button
-                                                variant={"ghost"}
-                                                colorScheme="gray"
-                                                onClick={() =>
-                                                    alertProps.onOpen()
-                                                }
-                                            >
-                                                <TbDoorExit />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip
-                                            label={
-                                                isOpenSidebar
-                                                    ? "Minimize Sidebar"
-                                                    : "Expand Sidebar"
-                                            }
-                                        >
-                                            <Button
-                                                variant={"ghost"}
-                                                colorScheme="gray"
-                                                onClick={handleToggleSidebar}
-                                            >
-                                                <TbArrowLeft />
-                                            </Button>
-                                        </Tooltip>
-                                    </Flex>
                                 </Flex>
                             ) : (
                                 <>
@@ -642,58 +593,54 @@ const Sidebar = () => {
                                             }
                                         )}
                                     </Accordion>
-                                    <Flex
-                                        alignItems={"center"}
-                                        justifyContent="space-between"
-                                    >
-                                        <Tooltip
-                                            label={`Toggle ${
-                                                colorMode === "light"
-                                                    ? "dark"
-                                                    : "light"
-                                            } mode`}
-                                        >
-                                            <Button
-                                                onClick={toggleColorMode}
-                                                variant="ghost"
-                                                colorScheme="gray"
-                                            >
-                                                {colorMode === "light" ? (
-                                                    <TbMoon />
-                                                ) : (
-                                                    <TbSun />
-                                                )}
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip label="Sign out">
-                                            <Button
-                                                variant={"ghost"}
-                                                colorScheme="gray"
-                                                onClick={() =>
-                                                    alertProps.onOpen()
-                                                }
-                                            >
-                                                <TbDoorExit />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip
-                                            label={
-                                                isOpenSidebar
-                                                    ? "Minimize Sidebar"
-                                                    : "Expand Sidebar"
-                                            }
-                                        >
-                                            <Button
-                                                variant={"ghost"}
-                                                colorScheme="gray"
-                                                onClick={handleToggleSidebar}
-                                            >
-                                                <TbArrowLeft />
-                                            </Button>
-                                        </Tooltip>
-                                    </Flex>
                                 </>
                             )}
+                            <Flex
+                                alignItems={"center"}
+                                justifyContent="space-between"
+                            >
+                                <Tooltip
+                                    label={`Toggle ${
+                                        colorMode === "light" ? "dark" : "light"
+                                    } mode`}
+                                >
+                                    <Button
+                                        onClick={toggleColorMode}
+                                        variant="ghost"
+                                        colorScheme="gray"
+                                    >
+                                        {colorMode === "light" ? (
+                                            <TbMoon />
+                                        ) : (
+                                            <TbSun />
+                                        )}
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip label="Sign out">
+                                    <Button
+                                        variant={"ghost"}
+                                        colorScheme="gray"
+                                        onClick={() => alertProps.onOpen()}
+                                    >
+                                        <TbDoorExit />
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip
+                                    label={
+                                        isOpenSidebar
+                                            ? "Minimize Sidebar"
+                                            : "Expand Sidebar"
+                                    }
+                                >
+                                    <Button
+                                        variant={"ghost"}
+                                        colorScheme="gray"
+                                        onClick={handleToggleSidebar}
+                                    >
+                                        <TbArrowLeft />
+                                    </Button>
+                                </Tooltip>
+                            </Flex>
                         </Flex>
                     </>
                 )}
