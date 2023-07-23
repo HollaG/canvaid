@@ -333,7 +333,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                     data-testid="step-1"
                 >
                     <Flex mt={8} direction="column">
-                        <Flex alignItems={"center"} mb={16}>
+                        <Flex alignItems={"center"} mb={{ base: 14, md: 28 }}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Let&apos;s create an exam
                             </Heading>
@@ -376,7 +376,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                     unmountOnExit
                     data-testid="step-2"
                 >
-                    <Flex mt={8} direction="column" mb={16}>
+                    <Flex mt={8} direction="column" mb={{ base: 14, md: 28 }}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Customize your quiz

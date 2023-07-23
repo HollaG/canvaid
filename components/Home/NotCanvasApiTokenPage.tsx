@@ -84,7 +84,7 @@ const NotCanvasApiTokenPage = () => {
                     </Heading>
                 </Flex>
                 <form onSubmit={handleTokenSubmit}>
-                    <Stack spacing={8} mt={28}>
+                    <Stack spacing={8} mt={{ base: 14, md: 28 }}>
                         <FormControl
                             id="token"
                             isRequired
