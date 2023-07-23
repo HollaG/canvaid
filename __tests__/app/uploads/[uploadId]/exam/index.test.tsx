@@ -20,6 +20,7 @@ import QUIZZES from "@/__mocks__/quizzes.json";
 import USER from "@/__mocks__/user.json";
 
 import SELECTEDOPTIONS from "@/__mocks__/selectedOptions.json";
+import EXAMQUESTIONS from "@/__mocks__/examQuestions.json";
 
 import QuizPage from "@/app/uploads/[quizUploadId]/page";
 import ExamPage from "@/app/uploads/[quizUploadId]/exam/page";
@@ -51,7 +52,8 @@ jest.mock("next/navigation", () => ({
 //         })
 //     )
 //     .mockImplementationOnce(() => Promise.resolve({ status: "deleted" }));
-
+// hacky workaround for structuredClone
+global.structuredClone = (val: any) => JSON.parse(JSON.stringify(val));
 jest.mock("../../../../../firebase/database/repositories/uploads", () => {
     const originalModule = jest.requireActual(
         "../../../../../firebase/database/repositories/uploads"
@@ -114,6 +116,8 @@ describe("Exam page rendering", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: {},
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: EXAMQUESTIONS as any,
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -149,13 +153,12 @@ describe("Exam page rendering", () => {
         ).toBeDisabled();
     });
 
-    // TODO: fix this test
-    // it("should render the questions properly", async () => {
-    //     // expect Question 8 to be displayed but 9 not
-    //     // there is more than 1 "Question 8" and "Question 9" so we need to use queryAllByText
-    //     expect(screen.queryAllByText(/Question 8/)).toHaveLength(2);
-    //     expect(screen.queryAllByText(/Question 9/)).toHaveLength(0);
-    // });
+    it("should render the questions properly", async () => {
+        // expect Question 8 to be displayed but 9 not
+        // there is more than 1 "Question 8" and "Question 9" so we need to use queryAllByText
+        expect(screen.queryAllByText(/Question 8/)).toHaveLength(2);
+        expect(screen.queryAllByText(/Question 9/)).toHaveLength(0);
+    });
 
     it("should render a timer", async () => {
         expect(await screen.findByTestId("timer")).toBeInTheDocument();
@@ -191,6 +194,8 @@ describe("Exam mode in progress", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: SELECTEDOPTIONS,
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: EXAMQUESTIONS as any,
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -213,11 +218,11 @@ describe("Exam mode in progress", () => {
 
         // TOOD: fix this test
         // the submit button should be enabled
-        // expect(
-        //     (await screen.findByRole("button", { name: /submit/i })).closest(
-        //         "button"
-        //     )
-        // ).toHaveProperty("disabled", "");
+        expect(
+            (await screen.findByRole("button", { name: /submit/i })).closest(
+                "button"
+            )
+        ).not.toBeDisabled();
     });
 
     it("should display a prompt before submitting", async () => {

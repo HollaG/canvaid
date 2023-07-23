@@ -239,6 +239,8 @@ describe("Home page", () => {
                             setSearchString: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -304,6 +306,8 @@ describe("Home page", () => {
                                 setQuizzes: jest.fn(),
                                 selectedOptions: {},
                                 setSelectedOptions: jest.fn(),
+                                examQuestionList: [],
+                                setExamQuestionList: jest.fn(),
                             }}
                         >
                             <ChakraProvider theme={customTheme}>
@@ -349,6 +353,8 @@ describe("Home page", () => {
                                 setQuizzes: jest.fn(),
                                 selectedOptions: {},
                                 setSelectedOptions: jest.fn(),
+                                examQuestionList: [],
+                                setExamQuestionList: jest.fn(),
                             }}
                         >
                             <ChakraProvider theme={customTheme}>

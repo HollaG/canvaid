@@ -136,6 +136,8 @@ describe("Quiz page rendering", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -169,6 +171,8 @@ describe("Quiz page rendering", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -261,6 +265,8 @@ describe("Quiz page editing", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -295,6 +301,8 @@ describe("Quiz page editing", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -465,6 +473,8 @@ describe("Exam mode", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
@@ -498,6 +508,8 @@ describe("Exam mode", () => {
                             setQuizzes: jest.fn(),
                             selectedOptions: [],
                             setSelectedOptions: jest.fn(),
+                            examQuestionList: [],
+                            setExamQuestionList: jest.fn(),
                         }}
                     >
                         <ChakraProvider theme={customTheme}>
