@@ -5,6 +5,7 @@
 // < 1 week: "x days ago"
 // < 1 month: "x weeks ago"
 
+import { getAttempts } from "@/firebase/database/repositories/uploads";
 import { Quiz, QuizAnswers, QuizResponse } from "@/types/canvas";
 
 export const formatTimeElapsed = (date: Date) => {
@@ -27,9 +28,12 @@ export const formatTimeElapsed = (date: Date) => {
 };
 
 export const getUploads = async (uid: string) => {
-    const res = await fetch(`/api/?uid=${uid}`);
+    // const res = await fetch(`/api/?uid=${uid}`);
 
-    return res.json();
+    // return res.json();
+
+    const quizzes = await getAttempts(uid);
+    return { data: quizzes };
 };
 
 /**

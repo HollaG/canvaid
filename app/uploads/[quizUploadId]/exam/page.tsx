@@ -1,7 +1,8 @@
 "use client";
-import { useQuizContainer } from "@/app/providers";
+import { useQuizContainer, useSidebarContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
+import { ExamSidebar } from "@/components/Sidebar/ExamSidebar";
 import {
     create,
     getQuizUpload,
@@ -45,11 +46,13 @@ import { useEffect, useMemo, useState } from "react";
  */
 export default function Page() {
     // the ongoing selected options
-    const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({});
+    //const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({});
+    const { isOpenSidebar } = useSidebarContainer();
 
     const searchParams = useSearchParams();
     const params = useParams();
-    const { quizzes, setQuiz } = useQuizContainer();
+    const { quizzes, setQuiz, selectedOptions, setSelectedOptions } =
+        useQuizContainer();
 
     const toast = useToast();
     const router = useRouter();
@@ -68,6 +71,10 @@ export default function Page() {
     );
 
     const [examQuiz, setExamQuiz] = useState<Quiz & { id: string }>(quiz);
+    useEffect(() => {
+        // reset selected options to nil when quiz changes
+        setSelectedOptions({});
+    }, []);
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -208,7 +215,11 @@ export default function Page() {
             <Stack
                 spacing={6}
                 flexGrow={1}
-                ml={{ base: 0, md: SIDEBAR_WIDTH }}
+                ml={
+                    isOpenSidebar
+                        ? { base: 0, md: SIDEBAR_WIDTH }
+                        : { base: 0, md: "60px" }
+                }
                 p={4}
                 bgColor={bgColor}
                 borderRadius="xl"
@@ -255,6 +266,7 @@ export default function Page() {
                                 borderRadius="md"
                                 padding="4"
                                 bgColor={questionBgColor}
+                                id={`question-${i + 1}`}
                             >
                                 <Heading
                                     fontSize="lg"
@@ -312,6 +324,11 @@ export default function Page() {
                 {/* </GridItem>
             </Grid> */}
             </Stack>{" "}
+            {/* <ExamSidebar
+                questions={qns}
+                selectedOption={selectedOptions}
+                examLength={examLength}
+            /> */}
         </Flex>
     );
 }

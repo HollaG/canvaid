@@ -9,7 +9,7 @@ import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
-import { Quiz } from "@/types/canvas";
+import { Quiz, QuizResponse } from "@/types/canvas";
 import { getUploads } from "@/lib/functions";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/database";
@@ -20,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <CacheProvider>
             <ChakraProvider theme={customTheme}>
                 <UserProvider>
-                    <QuizStorageProvider>{children}</QuizStorageProvider>
+                    <QuizStorageProvider>
+                        <SidebarProvider>{children}</SidebarProvider>
+                    </QuizStorageProvider>
                 </UserProvider>
             </ChakraProvider>
         </CacheProvider>
@@ -28,6 +30,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 
 interface IQuizStorageContext {
+    selectedOptions: QuizResponse;
+    setSelectedOptions: React.Dispatch<React.SetStateAction<QuizResponse>>;
     quizzes: (Quiz & { id: string })[];
     setQuizzes: React.Dispatch<React.SetStateAction<(Quiz & { id: string })[]>>;
     setQuiz: (
@@ -40,6 +44,8 @@ interface IQuizStorageContext {
 }
 
 export const QuizStorageContext = createContext<IQuizStorageContext>({
+    selectedOptions: {},
+    setSelectedOptions: () => {},
     quizzes: [],
     setQuizzes: () => {},
     setQuiz: (quiz) => {},
@@ -52,6 +58,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
     const user = authCtx.user;
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
+    const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({}); // [qnId: string]: QuizResponse
     const [searchString, setSearchString] = useState<string>("");
 
     // initial fetch
@@ -59,11 +66,14 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         if (user) {
             getUploads(user.uid).then((data) => {
                 setQuizzes(data.data || []);
+                setSelectedOptions(data.selectedOptions || {});
             });
         }
     }, [user]);
 
     const QuizStorageContainer: IQuizStorageContext = {
+        selectedOptions,
+        setSelectedOptions,
         quizzes,
         setQuizzes,
         setQuiz: (
@@ -209,3 +219,27 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useAuthContainer = () => useContext(UserContext);
+export const useSidebarContainer = () => useContext(SidebarContext);
+
+interface ISidebarContext {
+    isOpenSidebar: boolean;
+    setIsOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export const SidebarContext = createContext<ISidebarContext>({
+    isOpenSidebar: true, // Set the default value for isOpen
+    setIsOpenSidebar: () => {}, // Set a dummy function for setIsOpen
+});
+export const SidebarProvider = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
+    const [isOpenSidebar, setIsOpenSidebar] = useState(true);
+
+    useEffect(() => {}, [isOpenSidebar]);
+    return (
+        <SidebarContext.Provider value={{ isOpenSidebar, setIsOpenSidebar }}>
+            {children}
+        </SidebarContext.Provider>
+    );
+};

@@ -1,5 +1,9 @@
 "use client";
-import { useAuthContainer, useQuizContainer } from "@/app/providers";
+import {
+    useAuthContainer,
+    useQuizContainer,
+    useSidebarContainer,
+} from "@/app/providers";
 import {
     Accordion,
     AccordionButton,
@@ -29,7 +33,7 @@ import {
     useMediaQuery,
     Tooltip,
 } from "@chakra-ui/react";
-
+import { useParams, useSearchParams, usePathname } from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
 
 import {
@@ -47,15 +51,25 @@ import NextLink from "next/link";
 import { getUploads } from "@/lib/functions";
 import { SIDEBAR_WIDTH, NAVBAR_HEIGHT, FOOTER_HEIGHT } from "@/lib/constants";
 import useSidebar from "@/hooks/useSidebar";
+import { SidebarContext } from "@/app/providers";
 
 import MainLogo from "@/public/logos/main.png";
+import MainLogoCA from "@/public/logos/mainLogoCA.png";
 import Image from "next/image";
 
-import { TbDoorExit, TbMoon, TbSun, TbSunLow } from "react-icons/tb";
+import {
+    TbDoorExit,
+    TbMoon,
+    TbSun,
+    TbSunLow,
+    TbArrowRight,
+    TbArrowLeft,
+} from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
 import Navbar from "../Navbar/Navbar";
 import CustomAlertDialog from "../Alert/CustomAlertDialog";
+import { ExamSidebar } from "./ExamSidebar";
 /**
  * Sidebar component.
  *
@@ -80,7 +94,8 @@ const Sidebar = () => {
     //     //   setHasToken(false);
     //     // }
     // }, [user]);
-    const { quizzes } = useQuizContainer();
+    const { quizzes, selectedOptions } = useQuizContainer();
+    const { isOpenSidebar, setIsOpenSidebar } = useSidebarContainer();
 
     // group the quiz by course name
     const quizzesByCourse = quizzes
@@ -100,7 +115,13 @@ const Sidebar = () => {
                 })[]
             >
         );
-
+    const params = useParams();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    //console.log("pathnaem" +  pathname);
+    const quizUploadId = params.quizUploadId;
+    const quiz = quizzes.find((quiz) => quiz.id === quizUploadId);
+    const examLength = parseInt(searchParams.get("length") || "0");
     const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
     const customQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isCustom);
 
@@ -130,10 +151,15 @@ const Sidebar = () => {
     // for sign out alert
     const alertProps = useDisclosure();
     if (!user) return null;
-
+    const handleToggleSidebar = () => {
+        console.log("toggle sidebar" + isOpenSidebar);
+        setIsOpenSidebar(!isOpenSidebar);
+    };
     console.log(user.courseColors);
     return (
         <>
+            {/* {!isOpen && ()}
+        {isOpen && (<> */}
             <CustomAlertDialog
                 headerText="Sign out"
                 bodyText="Are you sure you want to sign out?"
@@ -156,7 +182,7 @@ const Sidebar = () => {
             </Box>
             <Box
                 flexShrink={0}
-                width={SIDEBAR_WIDTH}
+                width={isOpenSidebar ? SIDEBAR_WIDTH : "60px"} // why does this not work but works iwth 15px
                 height="100%"
                 position="fixed"
                 top={0}
@@ -164,8 +190,75 @@ const Sidebar = () => {
                 // bottom={FOOTER_HEIGHT}
                 display={{ base: "none", md: "block" }}
                 bgColor={sidebarColor}
+                transition="width 0.1s ease-in-out"
             >
-                <Flex p={6} height="full" flexDir={"column"}>
+                <Flex
+                    alignItems="center"
+                    mb={6}
+                    flexDir={"column"}
+                    justifyContent={"space-between"}
+                    height="100%"
+                    display={!isOpenSidebar ? "flex" : "none"}
+                    p={6}
+                    w="full"
+                >
+                    <Box marginTop="10px">
+                        <Link as={NextLink} href="/">
+                            <Image
+                                src={MainLogoCA}
+                                height="34"
+                                alt="Website logo"
+                                style={{
+                                    transform: "translate(10px) scale(5);",
+                                }}
+                            />
+                        </Link>
+                    </Box>
+                    <Flex
+                        flexDir={"column"}
+                        alignItems={"center"}
+                        justifyContent="space-between"
+                    >
+                        <Tooltip
+                            label={`Toggle ${
+                                colorMode === "light" ? "dark" : "light"
+                            } mode`}
+                        >
+                            <Button
+                                onClick={toggleColorMode}
+                                variant="ghost"
+                                colorScheme="gray"
+                            >
+                                {colorMode === "light" ? <TbMoon /> : <TbSun />}
+                            </Button>
+                        </Tooltip>
+                        <Tooltip label="Sign out">
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={() => alertProps.onOpen()}
+                            >
+                                <TbDoorExit />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip label={"Expand Sidebar"}>
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={handleToggleSidebar}
+                            >
+                                <TbArrowRight />
+                            </Button>
+                        </Tooltip>
+                    </Flex>
+                </Flex>
+
+                <Flex
+                    p={6}
+                    height="full"
+                    flexDir={"column"}
+                    display={isOpenSidebar ? "flex" : "none"}
+                >
                     <Flex alignItems="center" mb={6}>
                         <Link as={NextLink} href="/">
                             <Image
@@ -203,225 +296,279 @@ const Sidebar = () => {
                             </span>
                         </Text>
                     )}
-                    <Text
-                        textColor={helperColor}
-                        fontWeight="bold"
-                        fontSize="sm"
-                        mb={3}
-                    >
-                        Pinned
-                    </Text>
-                    {pinnedQuizzes.length > 0 ? (
-                        <Stack mb={6}>
-                            {pinnedQuizzes.map((quiz, i) => (
-                                <Button
-                                    size="sm"
-                                    colorScheme={"gray"}
-                                    variant="ghost"
-                                    textAlign={"left"}
-                                    justifyContent="left"
-                                    pl={0}
-                                    textDecor="none"
-                                    key={i}
-                                >
-                                    <NextLink
-                                        href={`/uploads/${quiz.id}`}
-                                        className="sidebar-link"
-                                    >
-                                        <Flex
-                                            alignItems={"center"}
-                                            justifyContent="left"
-                                        >
-                                            <Box
-                                                w="12px"
-                                                height="12px"
-                                                borderRadius="4px"
-                                                flexShrink={0}
-                                                bgColor={
-                                                    user?.courseColors[
-                                                        quiz.course.split(
-                                                            " "
-                                                        )[0]
-                                                    ] || "gray.500"
-                                                }
-                                                mr={2}
-                                            ></Box>
-                                            {quiz.quizName}
-                                        </Flex>
-                                    </NextLink>
-                                </Button>
-                            ))}
-                        </Stack>
+                    {pathname.includes("exam") ? (
+                        <Flex
+                            //alignItems={"center"}
+                            flexDir={"column"}
+                            justifyContent="space-between"
+                            height="100%"
+                            overflowY={"scroll"}
+                            id="exam-sidebar"
+                        >
+                            <ExamSidebar
+                                questions={quiz?.questions}
+                                selectedOption={selectedOptions}
+                                examLength={examLength}
+                            />
+                        </Flex>
                     ) : (
-                        <></>
-                    )}
-
-                    <Text
-                        textColor={helperColor}
-                        fontWeight="bold"
-                        fontSize="sm"
-                        mb={3}
-                    >
-                        Quick Access
-                    </Text>
-                    <Accordion overflowY="auto">
-                        {Object.keys(quizzesByCourse).map((courseCode) => {
-                            const quizzes = quizzesByCourse[courseCode];
-                            return (
-                                <AccordionItem key={courseCode} border={0}>
-                                    <h2>
-                                        <AccordionButton>
-                                            <Box
-                                                as="span"
-                                                flex="1"
-                                                textAlign="left"
-                                                alignItems={"center"}
-                                                display="flex"
+                        <>
+                            {" "}
+                            <Text
+                                textColor={helperColor}
+                                fontWeight="bold"
+                                fontSize="sm"
+                                mb={3}
+                            >
+                                Pinned
+                            </Text>
+                            {pinnedQuizzes.length > 0 ? (
+                                <Stack mb={6}>
+                                    {pinnedQuizzes.map((quiz, i) => (
+                                        <Button
+                                            size="sm"
+                                            colorScheme={"gray"}
+                                            variant="ghost"
+                                            textAlign={"left"}
+                                            justifyContent="left"
+                                            pl={0}
+                                            textDecor="none"
+                                            key={i}
+                                        >
+                                            <NextLink
+                                                href={`/uploads/${quiz.id}`}
                                                 className="sidebar-link"
                                             >
-                                                {/* <Icon
-                                                    viewBox="0 0 200 200"
-                                                    color={
-                                                        user?.courseColors[
-                                                            courseCode
-                                                        ] || "gray.500"
-                                                    }
-                                                    mr={1}
-                                                >
-                                                    <path
-                                                        fill="currentColor"
-                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                                                    />
-                                                </Icon> */}
-                                                <Box
-                                                    w="12px"
-                                                    h="12px"
-                                                    borderRadius="4px"
-                                                    bgColor={
-                                                        user?.courseColors[
-                                                            courseCode
-                                                        ] || "gray.500"
-                                                    }
-                                                    mr={2}
-                                                    flexShrink={0}
-                                                ></Box>
-                                                {courseCode}
-                                            </Box>
-                                            <AccordionIcon />
-                                        </AccordionButton>
-                                    </h2>
-                                    <AccordionPanel pb={4} px={1}>
-                                        <Stack>
-                                            {quizzes.map((quiz, i) => (
-                                                <Button
-                                                    size="sm"
-                                                    colorScheme={"gray"}
-                                                    variant="ghost"
-                                                    textAlign={"left"}
-                                                    justifyContent="left"
-                                                    pl={2}
-                                                    textDecor="none"
-                                                    key={i}
-                                                >
-                                                    <NextLink
-                                                        href={`/uploads/${quiz.id}`}
-                                                        className="sidebar-link"
-                                                    >
-                                                        {quiz.quizName}
-                                                    </NextLink>
-                                                </Button>
-                                            ))}
-                                        </Stack>
-                                    </AccordionPanel>
-                                </AccordionItem>
-                            );
-                        })}
-                    </Accordion>
-                    <Text
-                        textColor={helperColor}
-                        fontWeight="bold"
-                        fontSize="sm"
-                        mb={3}
-                    >
-                        Custom
-                    </Text>
-                    <Accordion overflowY="auto" flexGrow={1}>
-                        {Object.keys(customQuizzesByCourse).map(
-                            (courseCode) => {
-                                const quizzes =
-                                    customQuizzesByCourse[courseCode];
-                                return (
-                                    <AccordionItem key={courseCode} border={0}>
-                                        <h2>
-                                            <AccordionButton>
-                                                <Box
-                                                    as="span"
-                                                    flex="1"
-                                                    textAlign="left"
+                                                <Flex
                                                     alignItems={"center"}
-                                                    display="flex"
-                                                    className="sidebar-link"
+                                                    justifyContent="left"
                                                 >
-                                                    {/* <Icon
-                                                    viewBox="0 0 200 200"
-                                                    color={
-                                                        user?.courseColors[
-                                                            courseCode
-                                                        ] || "gray.500"
-                                                    }
-                                                    mr={1}
-                                                >
-                                                    <path
-                                                        fill="currentColor"
-                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                                                    />
-                                                </Icon> */}
                                                     <Box
                                                         w="12px"
-                                                        h="12px"
+                                                        height="12px"
                                                         borderRadius="4px"
+                                                        flexShrink={0}
                                                         bgColor={
                                                             user?.courseColors[
-                                                                courseCode
+                                                                quiz.course.split(
+                                                                    " "
+                                                                )[0]
                                                             ] || "gray.500"
                                                         }
-                                                        data-help={courseCode}
-                                                        flexShrink={0}
                                                         mr={2}
                                                     ></Box>
-                                                    {courseCode}
-                                                </Box>
-                                                <AccordionIcon />
-                                            </AccordionButton>
-                                        </h2>
-                                        <AccordionPanel pb={4} px={1}>
-                                            <Stack>
-                                                {quizzes.map((quiz, i) => (
-                                                    <Button
-                                                        size="sm"
-                                                        colorScheme={"gray"}
-                                                        variant="ghost"
-                                                        textAlign={"left"}
-                                                        justifyContent="left"
-                                                        pl={2}
-                                                        textDecor="none"
-                                                        key={i}
-                                                    >
-                                                        <NextLink
-                                                            href={`/uploads/${quiz.id}`}
+                                                    {quiz.quizName}
+                                                </Flex>
+                                            </NextLink>
+                                        </Button>
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <></>
+                            )}
+                            <Text
+                                textColor={helperColor}
+                                fontWeight="bold"
+                                fontSize="sm"
+                                mb={3}
+                            >
+                                Quick Access
+                            </Text>
+                            <Accordion overflowY="auto">
+                                {Object.keys(quizzesByCourse).map(
+                                    (courseCode) => {
+                                        const quizzes =
+                                            quizzesByCourse[courseCode];
+                                        return (
+                                            <AccordionItem
+                                                key={courseCode}
+                                                border={0}
+                                            >
+                                                <h2>
+                                                    <AccordionButton>
+                                                        <Box
+                                                            as="span"
+                                                            flex="1"
+                                                            textAlign="left"
+                                                            alignItems={
+                                                                "center"
+                                                            }
+                                                            display="flex"
                                                             className="sidebar-link"
                                                         >
-                                                            {quiz.quizName}
-                                                        </NextLink>
-                                                    </Button>
-                                                ))}
-                                            </Stack>
-                                        </AccordionPanel>
-                                    </AccordionItem>
-                                );
-                            }
-                        )}
-                    </Accordion>
+                                                            {/* <Icon
+                                                    viewBox="0 0 200 200"
+                                                    color={
+                                                        user?.courseColors[
+                                                            courseCode
+                                                        ] || "gray.500"
+                                                    }
+                                                    mr={1}
+                                                >
+                                                    <path
+                                                        fill="currentColor"
+                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                    />
+                                                </Icon> */}
+                                                            <Box
+                                                                w="12px"
+                                                                h="12px"
+                                                                borderRadius="4px"
+                                                                bgColor={
+                                                                    user
+                                                                        ?.courseColors[
+                                                                        courseCode
+                                                                    ] ||
+                                                                    "gray.500"
+                                                                }
+                                                                mr={2}
+                                                                flexShrink={0}
+                                                            ></Box>
+                                                            {courseCode}
+                                                        </Box>
+                                                        <AccordionIcon />
+                                                    </AccordionButton>
+                                                </h2>
+                                                <AccordionPanel pb={4} px={1}>
+                                                    <Stack>
+                                                        {quizzes.map(
+                                                            (quiz, i) => (
+                                                                <Button
+                                                                    size="sm"
+                                                                    colorScheme={
+                                                                        "gray"
+                                                                    }
+                                                                    variant="ghost"
+                                                                    textAlign={
+                                                                        "left"
+                                                                    }
+                                                                    justifyContent="left"
+                                                                    pl={2}
+                                                                    textDecor="none"
+                                                                    key={i}
+                                                                >
+                                                                    <NextLink
+                                                                        href={`/uploads/${quiz.id}`}
+                                                                        className="sidebar-link"
+                                                                    >
+                                                                        {
+                                                                            quiz.quizName
+                                                                        }
+                                                                    </NextLink>
+                                                                </Button>
+                                                            )
+                                                        )}
+                                                    </Stack>
+                                                </AccordionPanel>
+                                            </AccordionItem>
+                                        );
+                                    }
+                                )}
+                            </Accordion>
+                            <Text
+                                textColor={helperColor}
+                                fontWeight="bold"
+                                fontSize="sm"
+                                mb={3}
+                            >
+                                Custom
+                            </Text>
+                            <Accordion overflowY="auto" flexGrow={1}>
+                                {Object.keys(customQuizzesByCourse).map(
+                                    (courseCode) => {
+                                        const quizzes =
+                                            customQuizzesByCourse[courseCode];
+                                        return (
+                                            <AccordionItem
+                                                key={courseCode}
+                                                border={0}
+                                            >
+                                                <h2>
+                                                    <AccordionButton>
+                                                        <Box
+                                                            as="span"
+                                                            flex="1"
+                                                            textAlign="left"
+                                                            alignItems={
+                                                                "center"
+                                                            }
+                                                            display="flex"
+                                                            className="sidebar-link"
+                                                        >
+                                                            {/* <Icon
+                                                    viewBox="0 0 200 200"
+                                                    color={
+                                                        user?.courseColors[
+                                                            courseCode
+                                                        ] || "gray.500"
+                                                    }
+                                                    mr={1}
+                                                >
+                                                    <path
+                                                        fill="currentColor"
+                                                        d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                    />
+                                                </Icon> */}
+                                                            <Box
+                                                                w="12px"
+                                                                h="12px"
+                                                                borderRadius="4px"
+                                                                bgColor={
+                                                                    user
+                                                                        ?.courseColors[
+                                                                        courseCode
+                                                                    ] ||
+                                                                    "gray.500"
+                                                                }
+                                                                data-help={
+                                                                    courseCode
+                                                                }
+                                                                flexShrink={0}
+                                                                mr={2}
+                                                            ></Box>
+                                                            {courseCode}
+                                                        </Box>
+                                                        <AccordionIcon />
+                                                    </AccordionButton>
+                                                </h2>
+                                                <AccordionPanel pb={4} px={1}>
+                                                    <Stack>
+                                                        {quizzes.map(
+                                                            (quiz, i) => (
+                                                                <Button
+                                                                    size="sm"
+                                                                    colorScheme={
+                                                                        "gray"
+                                                                    }
+                                                                    variant="ghost"
+                                                                    textAlign={
+                                                                        "left"
+                                                                    }
+                                                                    justifyContent="left"
+                                                                    pl={2}
+                                                                    textDecor="none"
+                                                                    key={i}
+                                                                >
+                                                                    <NextLink
+                                                                        href={`/uploads/${quiz.id}`}
+                                                                        className="sidebar-link"
+                                                                    >
+                                                                        {
+                                                                            quiz.quizName
+                                                                        }
+                                                                    </NextLink>
+                                                                </Button>
+                                                            )
+                                                        )}
+                                                    </Stack>
+                                                </AccordionPanel>
+                                            </AccordionItem>
+                                        );
+                                    }
+                                )}
+                            </Accordion>
+                        </>
+                    )}
                     <Flex alignItems={"center"} justifyContent="space-between">
                         <Tooltip
                             label={`Toggle ${
@@ -445,8 +592,25 @@ const Sidebar = () => {
                                 <TbDoorExit />
                             </Button>
                         </Tooltip>
+                        <Tooltip
+                            label={
+                                isOpenSidebar
+                                    ? "Minimize Sidebar"
+                                    : "Expand Sidebar"
+                            }
+                        >
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={handleToggleSidebar}
+                            >
+                                <TbArrowLeft />
+                            </Button>
+                        </Tooltip>
                     </Flex>
-                    {/* <Flex textAlign="right">
+                </Flex>
+
+                {/* <Flex textAlign="right">
                     <Text
                         textColor={"gray.600"}
                         fontWeight="bold"
@@ -457,8 +621,8 @@ const Sidebar = () => {
                         About us
                     </Text>
                 </Flex> */}
-                </Flex>
             </Box>
+            {/* </>)} */}
         </>
     );
 };

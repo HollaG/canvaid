@@ -69,7 +69,8 @@ const NotCanvasApiTokenPage = () => {
                 console.log(e);
 
                 setErrorMessage("Invalid Canvas API Token!");
-            });
+            })
+            .finally(() => setIsSubmitting(false));
     };
     return (
         <>
