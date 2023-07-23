@@ -113,6 +113,10 @@ const NotCanvasApiTokenPage = () => {
                                 </Link>{" "}
                                 to get your Canvas API Access Token.
                             </FormHelperText>
+                            <FormHelperText>
+                                Your token is not saved in our database. It is
+                                only stored locally.
+                            </FormHelperText>
                         </FormControl>
 
                         <Alert
