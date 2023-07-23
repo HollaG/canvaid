@@ -181,19 +181,21 @@ export default function NotAuthedHomePage() {
                     position="relative"
                     ref={getStartedRef}
                 >
-                    <Container maxW={PAGE_CONTAINER_SIZE} minH="65vh">
-                        <Stack spacing={8} mb={24}>
-                            <Center mt={36}>
-                                <Heading>
-                                    {" "}
-                                    Get started in{" "}
-                                    <Text as={"span"} color={"teal.400"}>
-                                        three easy steps
-                                    </Text>
-                                </Heading>
-                            </Center>
-                            <Instructions />
-                        </Stack>
+                    <Container maxW={PAGE_CONTAINER_SIZE} py={16}>
+                        <Center minH="65vh">
+                            <Stack spacing={8}>
+                                <Center>
+                                    <Heading>
+                                        {" "}
+                                        Get started in{" "}
+                                        <Text as={"span"} color={"teal.400"}>
+                                            three easy steps
+                                        </Text>
+                                    </Heading>
+                                </Center>
+                                <Instructions />
+                            </Stack>
+                        </Center>
                     </Container>
                     <Center>
                         {showSecondPerson && (
