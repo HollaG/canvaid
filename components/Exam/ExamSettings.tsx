@@ -188,7 +188,7 @@ export const GeneralExamSettings1 = ({
                                     marginLeft: "4px",
                                 }}
                             >
-                                go to the quiz's page here
+                                go to the quiz&apos;s page here
                             </span>
                         </Link>
                         .
