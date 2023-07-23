@@ -85,13 +85,13 @@ export default function Footer() {
             >
                 <Image src={MainLogo} height="48" alt="Website Logo" />
 
-                <Stack direction={"row"} spacing={6}>
+                {/* <Stack direction={"row"} spacing={6}>
                     <Link href={"#"}>Home</Link>
                     <Link href={"#"}>About</Link>
 
                     <Link href={"#"}>Privacy Policy</Link>
                     <Link href={"#"}>Terms & Conditions</Link>
-                </Stack>
+                </Stack> */}
             </Container>
 
             <Box
