@@ -1,3 +1,44 @@
 .question-text > img {
     max-width: "300px";
 }
+
+.wrapper:hover .cust-shadow {
+    opacity: 1 !important;
+}
+
+.sidebar-link {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 144px;
+    overflow: hidden;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: blue orange;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+    /* padding-left: 4px;
+    padding-right: 4px; */
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #319795;
+    border-radius: 20px;
+}
+
+#exam-sidebar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+#exam-sidebar:hover::-webkit-scrollbar-thumb {
+    background-color: #319795;
+    border-radius: 20px;
+}

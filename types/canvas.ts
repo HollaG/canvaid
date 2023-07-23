@@ -38,14 +38,28 @@ export type CanvasQuizSubmissionQuestion = {
     //isFlagged: boolean;// actuall flagging
     //annotations : string[];
 };
+export type annotations = {
+    annotationID: number;
+    annotation: string;
+};
 export type QuizSubmissionQuestion = CanvasQuizSubmissionQuestion & {
-    annotations: string[];
+    annotations: annotations[];
     isFlagged: boolean;
 };
 export type Answer = {
     id: number;
     text: string;
     html: string;
+};
+export type ExamDetails = {
+    courseName: string;
+    quizName?: string;
+    numQns: number;
+    timeLimit?: number;
+};
+export type Exam = {
+    examDetails: ExamDetails;
+    examResponses: any;
 };
 
 export interface CanvasQuizSubmission {
@@ -112,6 +126,16 @@ export type QuizAttempt = {
     userUid: string;
 };
 
+export type QuizSettings = {
+    // semester
+    semester: 1 | 2 | 3 | 4;
+    academicYear: number; // 2022-2023 --> 2022, 2023-2024 --> 2024
+
+    // pinned
+    isPinned: boolean;
+    isCustom?: boolean;
+};
+
 export type Quiz = {
     submissions: CanvasQuizSubmission[];
     questions: QuizSubmissionQuestion[];
@@ -124,6 +148,12 @@ export type Quiz = {
     lastUpdated: Date;
 
     quizInfo: CanvasQuiz;
+
+    quizAnswers: QuizAnswers;
+
+    quizSettings: QuizSettings;
+
+    sources?: string[]; // the uids that this quiz was taken from
 };
 
 export type QuizResponse = {
@@ -137,6 +167,14 @@ export type QuestionResponse = {
     correct_answer_ids?: number[]; // for multiple answer / mcq
     total_score?: number;
     your_score?: number;
+};
+
+export type QuizAnswers = {
+    [assessment_question_id: number]: {
+        correct_answer_text?: string[]; // for text input
+        correct_answer_ids?: number[];
+        total_score?: number;
+    };
 };
 
 export type CanvasQuiz = {

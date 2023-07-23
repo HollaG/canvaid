@@ -1,13 +1,24 @@
 "use client";
 import { Button, Flex, Text, IconButton } from "@chakra-ui/react";
-import { deleteDoc, doc } from "firebase/firestore";
-import { BsTrash } from "react-icons/bs";
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/database/index";
+import { Quiz, QuizSubmissionQuestion } from "../types/canvas";
+import { Dispatch, SetStateAction } from "react";
+import { DeleteIcon } from "@chakra-ui/icons";
+import { TbTrashX } from "react-icons/tb";
+import { deleteQuizQuestionAnnotation } from "@/firebase/database/repositories/uploads";
 const COLLECTION_NAME = process.env.NEXT_PUBLIC_COLLECTION_NAME || "uploads";
+
 type DeleteButtonProps = {
     ID: string;
     onDelete: () => void;
 };
+
+/**
+ * @deprecated Use deleteQuiz instead
+ * @param param0
+ * @returns
+ */
 function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
     const handleDelete = async () => {
         try {
@@ -20,18 +31,43 @@ function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
         }
     };
 
-    return <BsTrash fontSize={"24px"} onClick={() => handleDelete()} />;
+    return <TbTrashX fontSize={"24px"} onClick={() => handleDelete()} />;
 }
 export default DeleteButton;
-// return (
-//   <Flex align="center" justify="space-between" mb={4}>
-//       <Flex align="center">
-//         {/* Add Canvaid icon */}
-//         ADD CANVAID ICON HERE
-//         <Text fontSize="xl" fontWeight="bold">Canvaid</Text>
-//       </Flex>
-// <Button colorScheme="blue" > {/* onClick={handleSignOut} */}
-//   Sign Out
-// </Button>
-// </Flex>
-// )
+
+export function DeleteAnnotationButton({
+    ID,
+    annotationID,
+    setQuiz,
+    question,
+}: {
+    ID: string;
+    annotationID: number;
+    question: QuizSubmissionQuestion;
+    setQuiz: (quiz: Quiz & { id: string }) => void;
+}) {
+    const handleDelete = async () => {
+        try {
+            const updatedQuiz = await deleteQuizQuestionAnnotation(
+                ID,
+                annotationID,
+                question
+            );
+            setQuiz(updatedQuiz);
+            return updatedQuiz;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    return (
+        <IconButton
+            aria-label={"Delete annotation"}
+            icon={<TbTrashX />}
+            size="sm"
+            onClick={() => handleDelete()}
+            colorScheme="red"
+            variant="ghost"
+        />
+    );
+}

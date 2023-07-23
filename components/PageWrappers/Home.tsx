@@ -9,12 +9,50 @@ import {
     Icon,
     useColorModeValue,
     createIcon,
+    Flex,
+    Center,
+    SimpleGrid,
+    Avatar,
+    useBreakpoint,
+    useMediaQuery,
+    Link,
 } from "@chakra-ui/react";
 import { signInWithGoogle } from "@/firebase/auth/google";
-import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import NextLink from "next/link";
 
+import HomePageImage from "@/public/assets/homepage.svg";
+import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
+import GetStartedImage from "@/public/assets/get_started.svg";
+import GetStartedDarkImage from "@/public/assets/get_started-dark.svg";
+import Features1 from "@/public/assets/features_1.svg";
+import Features1Dark from "@/public/assets/features_1-dark.svg";
+import Features2 from "@/public/assets/features_2.svg";
+
+import Image from "next/image";
+import {
+    ArrowDownIcon,
+    ArrowForwardIcon,
+    ArrowRightIcon,
+} from "@chakra-ui/icons";
+import { ReactElement, ReactNode } from "react";
+import {
+    FcAssistant,
+    FcDonate,
+    FcElectroDevices,
+    FcEnteringHeavenAlive,
+    FcInTransit,
+    FcMindMap,
+} from "react-icons/fc";
+import Navbar from "../Navbar/Navbar";
+import Footer from "../Footer/Footer";
+import { TbArrowNarrowDown, TbArrowNarrowRight } from "react-icons/tb";
+
 export default function NotAuthedHomePage() {
+    const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
+    const [showSecondPerson] = useMediaQuery("(min-width: 48em)");
+
+    const darkMode = useColorModeValue(false, true);
     return (
         <>
             <Head>
@@ -23,85 +61,171 @@ export default function NotAuthedHomePage() {
                     rel="stylesheet"
                 />
             </Head>
-
-            <Container maxW={"3xl"}>
-                <Stack
-                    as={Box}
-                    textAlign={"center"}
-                    spacing={{ base: 8, md: 14 }}
-                    py={{ base: 20, md: 36 }}
+            <Navbar />
+            <Stack spacing={0}>
+                <Center
+                    background={useColorModeValue("gray.100", "gray.900")}
+                    backgroundImage={useColorModeValue(
+                        "url(/assets/background.svg)",
+                        "url(/assets/background-dark.svg)"
+                    )}
+                    backgroundAttachment="fixed"
+                    minH={`100vh`}
+                    position="relative"
                 >
-                    <Heading
-                        fontWeight={600}
-                        fontSize={{ base: "2xl", sm: "4xl", md: "6xl" }}
-                        lineHeight={"110%"}
-                    >
-                        Study better <br />
-                        <Text as={"span"} color={"green.400"}>
-                            with Canvaid!
-                        </Text>
-                    </Heading>
-                    <Text color={"gray.500"}>
-                        Canvaid is a website that helps you revise for your
-                        important exams by collating all your quiz questions
-                        done on Canvas! You can redo quiz questions for
-                        additional practice & also review your previous
-                        mistakes!
-                    </Text>
-                    <Stack
-                        direction={"column"}
-                        spacing={3}
-                        align={"center"}
-                        alignSelf={"center"}
-                        position={"relative"}
-                    >
-                        <Button
-                            colorScheme={"green"}
-                            bg={"green.400"}
-                            rounded={"full"}
-                            px={6}
-                            _hover={{
-                                bg: "green.500",
-                            }}
-                            // onClick={signInWithGoogle}
-                            as={NextLink}
-                            href="/auth"
+                    <Container maxW={PAGE_CONTAINER_SIZE} mt="-36" mb={24}>
+                        <Stack
+                            as={Box}
+                            spacing={{ base: 8, md: 14 }}
+                            py={{ base: 20, md: 36 }}
                         >
-                            Get Started
-                        </Button>
-                        {/* <Button
-                            variant={"link"}
-                            colorScheme={"blue"}
-                            size={"sm"}
-                        >
-                            Learn more
-                        </Button> */}
-                        {/* <Box>
-                            <Icon
-                                as={Arrow}
-                                color={useColorModeValue(
-                                    "gray.800",
-                                    "gray.300"
+                            <Flex justifyContent={"space-between"}>
+                                <Box maxWidth="900px" flexGrow="1">
+                                    <Heading
+                                        fontWeight={800}
+                                        fontSize={{
+                                            base: "5xl",
+                                            sm: "6xl",
+                                            md: "7xl",
+                                        }}
+                                        lineHeight={"110%"}
+                                        letterSpacing="wide"
+                                    >
+                                        Study better <br />
+                                        <Text as={"span"} color={"teal.400"}>
+                                            with Canvaid!
+                                        </Text>
+                                    </Heading>
+                                    <Text
+                                        color={useColorModeValue(
+                                            "gray.600",
+                                            "gray.300"
+                                        )}
+                                        maxWidth="650px"
+                                        fontSize="lg"
+                                        mt={6}
+                                        letterSpacing="wide"
+                                    >
+                                        A handy tool for redoing and reviewing
+                                        any Canvas quiz! <br />
+                                        Check your answers and learn from your
+                                        mistakes!
+                                    </Text>
+                                    <Flex mt={10} flexWrap="wrap">
+                                        <Box mr={6} mb={4}>
+                                            <Button
+                                                px={6}
+                                                // onClick={signInWithGoogle}
+                                                as={NextLink}
+                                                href="/?login=true"
+                                                data-testid="cta-btn"
+                                                rightIcon={
+                                                    <TbArrowNarrowRight />
+                                                }
+                                                size="lg"
+                                            >
+                                                Get Started
+                                            </Button>
+                                        </Box>
+                                        <Box>
+                                            <Button
+                                                // onClick={signInWithGoogle}
+
+                                                data-testid="learn-more-btn"
+                                                rightIcon={
+                                                    <TbArrowNarrowDown />
+                                                }
+                                                variant="outline"
+                                                size="lg"
+                                            >
+                                                Learn more
+                                            </Button>
+                                        </Box>
+                                    </Flex>
+                                </Box>
+                                {showMainPhoto && (
+                                    <Box flexGrow={0} maxWidth="400px">
+                                        <Image
+                                            src={
+                                                darkMode
+                                                    ? HomePageDarkImage
+                                                    : HomePageImage
+                                            }
+                                            alt="Home page image"
+                                        />
+                                    </Box>
                                 )}
-                                w={71}
-                                position={"absolute"}
-                                right={-71}
-                                top={"10px"}
-                            />
-                            <Text
-                                fontSize={"lg"}
-                                fontFamily={"Caveat"}
-                                position={"absolute"}
-                                right={"-125px"}
-                                top={"-15px"}
-                                transform={"rotate(10deg)"}
+                            </Flex>
+                        </Stack>
+                    </Container>{" "}
+                    <Box
+                        position="absolute"
+                        bottom={"-73px"}
+                        overflow="hidden"
+                        width="400px"
+                    >
+                        <Image
+                            src={
+                                darkMode ? GetStartedDarkImage : GetStartedImage
+                            }
+                            alt="Get started"
+                            width="400"
+                        />
+                    </Box>
+                </Center>
+                <Box boxShadow={"inner"} position="relative">
+                    <Container maxW={PAGE_CONTAINER_SIZE} minH="65vh">
+                        <Stack spacing={8} mb={24}>
+                            <Center mt={36}>
+                                <Heading>
+                                    {" "}
+                                    Get started in{" "}
+                                    <Text as={"span"} color={"teal.400"}>
+                                        three easy steps
+                                    </Text>
+                                </Heading>
+                            </Center>
+                            <Instructions />
+                        </Stack>
+                    </Container>
+                    <Center>
+                        {showSecondPerson && (
+                            <Box
+                                position="absolute"
+                                overflow="hidden"
+                                width="200px"
+                                transform={"scaleX(-1)"}
+                                right="70%"
+                                bottom="-22px"
                             >
-                                It's free!
-                            </Text>
-                        </Box> */}
-                    </Stack>
-                </Stack>
-            </Container>
+                                <Image
+                                    src={darkMode ? Features1Dark : Features1}
+                                    alt="Get started"
+                                    width="200"
+                                />
+                            </Box>
+                        )}
+                        <Box
+                            position="absolute"
+                            overflow="hidden"
+                            width="200px"
+                            bottom={"-60px"}
+                            left={showSecondPerson ? "70%" : "45%"}
+                        >
+                            <Image
+                                src={Features2}
+                                alt="Get started"
+                                width="200"
+                            />
+                        </Box>{" "}
+                    </Center>
+                </Box>
+                <Features />{" "}
+                <Box>
+                    <Container maxW={PAGE_CONTAINER_SIZE}></Container>
+                </Box>
+            </Stack>
+            <Footer />
         </>
     );
 }
@@ -118,3 +242,223 @@ const Arrow = createIcon({
         />
     ),
 });
+
+interface FeatureProps {
+    title: string;
+    text: React.ReactNode;
+    icon: ReactElement;
+}
+
+const Feature = ({ title, text, icon }: FeatureProps) => {
+    return (
+        <Stack>
+            <Flex
+                w={16}
+                h={16}
+                align={"center"}
+                justify={"center"}
+                color={"white"}
+                rounded={"full"}
+                bg={"gray.100"}
+                mb={1}
+            >
+                {icon}
+            </Flex>
+            <Text fontWeight={600}>{title}</Text>
+            <Text color={useColorModeValue("gray.700", "gray.300")}>
+                {text}
+            </Text>
+        </Stack>
+    );
+};
+
+function Instructions() {
+    return (
+        <Box p={4}>
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={20}>
+                <Feature
+                    icon={<Icon as={FcEnteringHeavenAlive} w={10} h={10} />}
+                    title={"Sign in"}
+                    text={
+                        "By signing in, you can access your quizzes and study anytime, anywhere."
+                    }
+                />
+                <Feature
+                    icon={<Icon as={FcElectroDevices} w={10} h={10} />}
+                    title={"Register your Canvas Token"}
+                    text={
+                        <>
+                            Your Canvas Token allows us to streamline the
+                            collection of your quiz data, making it easier for
+                            you. Find your token{" "}
+                            <Link
+                                isExternal
+                                href="https://canvas.nus.edu.sg/profile/settings#access_tokens_holder"
+                                textDecor={"underline"}
+                            >
+                                here
+                            </Link>
+                            .
+                        </>
+                    }
+                />
+                <Feature
+                    icon={<Icon as={FcMindMap} w={10} h={10} />}
+                    title={"Upload quizzes"}
+                    text={"Start your learning journey by uploading quizzes!"}
+                />
+            </SimpleGrid>
+        </Box>
+    );
+}
+
+const Testimonial = ({ children }: { children: ReactNode }) => {
+    return <Box>{children}</Box>;
+};
+
+const TestimonialContent = ({ children }: { children: ReactNode }) => {
+    return (
+        <Stack
+            bg={useColorModeValue("white", "gray.800")}
+            boxShadow={"lg"}
+            p={8}
+            rounded={"xl"}
+            align={"center"}
+            pos={"relative"}
+            _after={{
+                content: `""`,
+                w: 0,
+                h: 0,
+                borderLeft: "solid transparent",
+                borderLeftWidth: 16,
+                borderRight: "solid transparent",
+                borderRightWidth: 16,
+                borderTop: "solid",
+                borderTopWidth: 16,
+                borderTopColor: useColorModeValue("white", "gray.800"),
+                pos: "absolute",
+                bottom: "-16px",
+                left: "50%",
+                transform: "translateX(-50%)",
+            }}
+        >
+            {children}
+        </Stack>
+    );
+};
+
+const TestimonialHeading = ({ children }: { children: ReactNode }) => {
+    return (
+        <Heading as={"h3"} fontSize={"xl"}>
+            {children}
+        </Heading>
+    );
+};
+
+const TestimonialText = ({ children }: { children: ReactNode }) => {
+    return (
+        <Text
+            textAlign={"center"}
+            color={useColorModeValue("gray.600", "gray.400")}
+            fontSize={"sm"}
+        >
+            {children}
+        </Text>
+    );
+};
+
+const TestimonialAvatar = ({
+    name,
+    title,
+}: {
+    name: string;
+    title: string;
+}) => {
+    return (
+        <Flex align={"center"} mt={8} direction={"column"}>
+            <Avatar bg="teal.500" mb={2} />
+            <Stack spacing={-1} align={"center"}>
+                <Text fontWeight={600}>{name}</Text>
+                <Text
+                    fontSize={"sm"}
+                    color={useColorModeValue("gray.600", "gray.400")}
+                >
+                    {title}
+                </Text>
+            </Stack>
+        </Flex>
+    );
+};
+
+function Features() {
+    return (
+        <Box bg={useColorModeValue("gray.50", "gray.700")}>
+            <Container
+                maxW={"7xl"}
+                py={16}
+                as={Stack}
+                spacing={12}
+                // borderTop="1px solid black"
+            >
+                <Stack spacing={0} align={"center"}>
+                    <Heading> Features and benefits 🙌</Heading>
+                    <Text>
+                        Canvaid is designed to give you everything you need to
+                        get that A for the exams.
+                    </Text>
+                </Stack>
+                <SimpleGrid
+                    columns={{ base: 1, md: 3 }}
+                    spacing={{ base: 10, md: 4, lg: 10 }}
+                >
+                    <Testimonial>
+                        <TestimonialContent>
+                            <TestimonialHeading>
+                                Question Compilation
+                            </TestimonialHeading>
+                            <TestimonialText>
+                                I'm able to see all my questions for each course
+                                in one place! It makes it so easy for me to
+                                revise!
+                            </TestimonialText>
+                        </TestimonialContent>
+                        <TestimonialAvatar
+                            name={"Sarah"}
+                            title={"Year 1, NUS"}
+                        />
+                    </Testimonial>
+                    <Testimonial>
+                        <TestimonialContent>
+                            <TestimonialHeading>
+                                Annotating questions
+                            </TestimonialHeading>
+                            <TestimonialText>
+                                I am quite forgetful, and being able to leave a
+                                comment for myself on each question on why I got
+                                it wrong is soo helpful!
+                            </TestimonialText>
+                        </TestimonialContent>
+                        <TestimonialAvatar
+                            name={"Jane"}
+                            title={"Year 2, NUS"}
+                        />
+                    </Testimonial>
+                    <Testimonial>
+                        <TestimonialContent>
+                            <TestimonialHeading>
+                                The best study buddy
+                            </TestimonialHeading>
+                            <TestimonialText>
+                                Some of my courses don't have past year papers,
+                                and Canvaid allows me to easily redo all my
+                                course quizzes so I have at least something to
+                                refer to!
+                            </TestimonialText>
+                        </TestimonialContent>
+                        <TestimonialAvatar name={"Max"} title={"Year 2, NUS"} />
+                    </Testimonial>
+                </SimpleGrid>
+            </Container>
+        </Box>
+    );
+}
