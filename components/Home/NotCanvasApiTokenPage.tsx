@@ -50,17 +50,20 @@ const NotCanvasApiTokenPage = () => {
             })
             .then((data) => {
                 if (data.success) {
-                    const docRef = doc(db, "users", user.uid);
+                    // set it in localstorage
+                    localStorage.setItem("canvasApiToken", token);
+                    const updatedUser = { ...user, canvasApiToken: token };
+                    // const docRef = doc(db, "users", user.uid);
 
-                    const firebaseUser = JSON.parse(
-                        JSON.stringify({ ...user, canvasApiToken: token })
-                    );
-                    updateDoc(docRef, firebaseUser);
+                    // const firebaseUser = JSON.parse(
+                    //     JSON.stringify({ ...user, canvasApiToken: token })
+                    // );
+                    // updateDoc(docRef, firebaseUser);
 
                     // Update the hasToken state and redirect to the main page
                     // update the user's state in the auth container
 
-                    setUser(firebaseUser);
+                    setUser(updatedUser);
                 } else {
                     throw new Error("Invalid token");
                 }
@@ -69,7 +72,8 @@ const NotCanvasApiTokenPage = () => {
                 console.log(e);
 
                 setErrorMessage("Invalid Canvas API Token!");
-            });
+            })
+            .finally(() => setIsSubmitting(false));
     };
     return (
         <>

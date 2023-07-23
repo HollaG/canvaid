@@ -30,7 +30,11 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
-import { useAuthContainer, useQuizContainer } from "./providers";
+import {
+    useAuthContainer,
+    useQuizContainer,
+    useSidebarContainer,
+} from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
 import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
@@ -61,7 +65,7 @@ export default function Page() {
     const authCtx = useAuthContainer();
     const { quizzes, setQuizzes, searchString, setSearchString } =
         useQuizContainer();
-
+    const { isOpenSidebar } = useSidebarContainer();
     const user = authCtx?.user;
 
     // useEffect(() => {
@@ -87,6 +91,10 @@ export default function Page() {
     const router = useRouter();
     const params = useSearchParams();
     const showLogIn = params && params.get("login") === "true";
+
+    // for login modal
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     useEffect(() => {
         // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
 
@@ -96,10 +104,7 @@ export default function Page() {
             onClose();
             router.replace("/");
         }
-    }, [showLogIn, user]);
-
-    // for login modal
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    }, [showLogIn, user, onClose, onOpen, router]);
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
@@ -122,6 +127,16 @@ export default function Page() {
         onClose: onCloseExam,
     } = useDisclosure();
 
+    const bgColor = useColorModeValue("gray.50", "gray.900");
+    const bgImage = useColorModeValue(
+        "url(/assets/background.svg)",
+        "url(/assets/background-dark.svg)"
+    );
+    const bgColorHeader = useColorModeValue("teal.700", "teal.900");
+    const backgroundImage = useColorModeValue(
+        "url(/assets/background.svg)",
+        "url(/assets/background-dark.svg)"
+    );
     return (
         <>
             <DrawerContainer
@@ -151,28 +166,23 @@ export default function Page() {
                     <Stack
                         flexGrow={1}
                         mt={{ base: 0, md: 6 }}
-                        ml={{ base: 0, md: SIDEBAR_WIDTH }}
+                        ml={
+                            isOpenSidebar
+                                ? { base: 0, md: SIDEBAR_WIDTH }
+                                : { base: 0, md: "30px" }
+                        }
                         pt={6}
-                        bgColor={useColorModeValue("gray.50", "gray.900")}
-                        backgroundImage={useColorModeValue(
-                            "url(/assets/background.svg)",
-                            "url(/assets/background-dark.svg)"
-                        )}
+                        bgColor={bgColor}
+                        backgroundImage={bgImage}
                         backgroundSize={"200%"}
                         borderRadius={{ base: 0, md: "xl" }}
                     >
                         <Center px={12}>
                             <Box
                                 width="100%"
-                                bgColor={useColorModeValue(
-                                    "teal.700",
-                                    "teal.900"
-                                )}
+                                bgColor={bgColorHeader}
                                 borderRadius={"xl"}
-                                backgroundImage={useColorModeValue(
-                                    "url(/assets/background.svg)",
-                                    "url(/assets/background-dark.svg)"
-                                )}
+                                backgroundImage={backgroundImage}
                                 // backgroundAttachment="fixed"
                                 backgroundSize={"10%"}
                                 py={{ base: 2, sm: 4, md: 6, lg: 12 }}

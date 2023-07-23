@@ -6,7 +6,6 @@ import { db } from "..";
 const COLLECTION_NAME = "users";
 
 export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
-    console.log(user, "------------ in users.ts");
     const dbRef = doc(db, "users", user.uid.toString());
     const dbUser = await getDoc(dbRef);
     try {
