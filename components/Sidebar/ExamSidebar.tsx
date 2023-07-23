@@ -6,7 +6,7 @@ import { QuizSubmissionQuestion, QuizResponse } from "@/types/canvas";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
 import { TbCheck, TbX } from "react-icons/tb";
-import Timer from "../Timer/timer";
+import Timer from "@/components/Timer/Timer";
 export const ExamSidebar = ({
     questions,
     selectedOption,
