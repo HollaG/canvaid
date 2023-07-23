@@ -77,7 +77,7 @@ const NotCanvasApiTokenPage = () => {
     };
     return (
         <>
-            <Flex mt={8} direction="column">
+            <Flex mt={8} direction="column" pb={16}>
                 <Flex alignItems={"center"}>
                     <Heading fontWeight={"semibold"} fontSize="5xl">
                         We need your Canvas API token!
