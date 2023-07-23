@@ -227,7 +227,7 @@ export default function LoginComponent() {
                     </Stepper>
                 </Box>
                 <Collapse in={step === 1}>
-                    <Flex mt={8} direction="column" pb={8}>
+                    <Flex mt={8} direction="column" pb={16}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Do we know you?
