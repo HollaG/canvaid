@@ -119,6 +119,10 @@ export default function NotAuthedHomePage() {
                                                     <TbArrowNarrowRight />
                                                 }
                                                 size="lg"
+                                                bgColor={useColorModeValue(
+                                                    "teal.600",
+                                                    "teal.400"
+                                                )}
                                             >
                                                 Get Started
                                             </Button>
@@ -188,7 +192,7 @@ export default function NotAuthedHomePage() {
                                     <Heading>
                                         {" "}
                                         Get started in{" "}
-                                        <Text as={"span"} color={"teal.400"}>
+                                        <Text as={"span"} color={"teal.500"}>
                                             three easy steps
                                         </Text>
                                     </Heading>
@@ -299,13 +303,13 @@ function Instructions() {
                         <>
                             Your Canvas Token allows us to streamline the
                             collection of your quiz data, making it easier for
-                            you. Find your token{" "}
+                            you.{" "}
                             <Link
                                 isExternal
                                 href="https://canvas.nus.edu.sg/profile/settings#access_tokens_holder"
                                 textDecor={"underline"}
                             >
-                                here
+                                Find your token here
                             </Link>
                             .
                         </>
