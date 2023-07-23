@@ -71,8 +71,8 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
             // Do something with the files
-            console.log("ONDROP called");
             if (!user) return;
+            if (!user.canvasApiToken) return;
             if (acceptedFiles.length && acceptedFiles[0] instanceof File) {
                 setIsUploading(1);
                 const file = acceptedFiles[0];
@@ -91,6 +91,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                         quizName: name,
                         course,
                         uid: user.uid,
+                        canvasApiToken: user.canvasApiToken,
                     };
 
                     fetch("/api/add", {
