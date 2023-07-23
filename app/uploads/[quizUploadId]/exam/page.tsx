@@ -51,8 +51,13 @@ export default function Page() {
 
     const searchParams = useSearchParams();
     const params = useParams();
-    const { quizzes, setQuiz, selectedOptions, setSelectedOptions } =
-        useQuizContainer();
+    const {
+        quizzes,
+        setQuiz,
+        selectedOptions,
+        setSelectedOptions,
+        setExamQuestionList,
+    } = useQuizContainer();
 
     const toast = useToast();
     const router = useRouter();
@@ -74,7 +79,8 @@ export default function Page() {
     useEffect(() => {
         // reset selected options to nil when quiz changes
         setSelectedOptions({});
-    }, [setSelectedOptions]);
+        setExamQuestionList([]);
+    }, [setSelectedOptions, setExamQuestionList]);
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -109,22 +115,17 @@ export default function Page() {
         if (!examQuiz) return;
         const examinableQuestions = getExaminableQuestions(examQuiz);
 
-        if (numQuestions === 0) {
-            // all qns
-            setQns(
-                examinableQuestions.sort(() =>
-                    !isRandom ? 0 : Math.random() - Math.random()
-                )
-            );
-        } else {
-            // randomize
-            setQns(
-                examinableQuestions
-                    .sort(() => (!isRandom ? 0 : Math.random() - Math.random()))
-                    .slice(0, numQuestions)
-            );
+        let qns = examinableQuestions.sort(() =>
+            !isRandom ? 0 : Math.random() - Math.random()
+        );
+
+        if (numQuestions > 0) {
+            qns = qns.slice(0, numQuestions);
         }
-    }, [examQuiz, numQuestions, isRandom]);
+
+        setQns(qns);
+        setExamQuestionList(qns);
+    }, [examQuiz, numQuestions, isRandom, setExamQuestionList]);
 
     // TODO: ensure error handling
 
