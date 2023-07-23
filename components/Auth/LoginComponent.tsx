@@ -227,7 +227,7 @@ export default function LoginComponent() {
                     </Stepper>
                 </Box>
                 <Collapse in={step === 1}>
-                    <Flex mt={8} direction="column">
+                    <Flex mt={8} direction="column" pb={8}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Do we know you?
@@ -452,7 +452,11 @@ export default function LoginComponent() {
                                     </>
                                 )}
                                 <Box></Box>
-                                <Stack direction="row" mt={12} spacing={8}>
+                                <Stack
+                                    direction={{ base: "column", md: "row" }}
+                                    mt={12}
+                                    spacing={8}
+                                >
                                     <Box>
                                         {isNew ? (
                                             <Button
@@ -466,10 +470,10 @@ export default function LoginComponent() {
                                             </Button>
                                         ) : (
                                             <Button
-                                                width="120px"
                                                 onClick={signIn}
                                                 isLoading={isSubmitting}
                                                 type="submit"
+                                                width="120px"
                                             >
                                                 Sign in
                                             </Button>
