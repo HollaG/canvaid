@@ -123,10 +123,18 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             setErrorMessage("");
                         })
                         .catch((e) => {
-                            console.error(e.statusText);
+                            console.error(e);
                             setIsUploading(0);
 
-                            setErrorMessage(e.statusText);
+                            if (e.status === 400) {
+                                setErrorMessage(
+                                    "Invalid HTML File! Please ensure you have the correct HTML file of the quiz."
+                                );
+                            } else {
+                                setErrorMessage(
+                                    "You have already submitted this attempt!"
+                                );
+                            }
                         });
                 });
             } else {
