@@ -294,7 +294,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     return (
         <Container maxW={PAGE_CONTAINER_SIZE} data-testid="exam-component">
             {showIllustration && (
-                <Box position="fixed" bottom={-2} right={-50} w="600px">
+                <Box position="fixed" bottom={0} right={-50} w="600px">
                     <Image
                         src={isDarkMode ? ExamDarkImage : ExamImage}
                         alt="Image representing exam mode"
