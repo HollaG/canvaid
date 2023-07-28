@@ -394,6 +394,13 @@ export async function POST(request: Request) {
             });
         }
 
+        if (e.message === API_ERROR_MESSAGE) {
+            return NextResponse.json(null, {
+                status: 401,
+                statusText: e.message,
+            });
+        }
+
         if (e.message) {
             return NextResponse.json(null, {
                 status: 400,
