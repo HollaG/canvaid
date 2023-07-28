@@ -7,4 +7,5 @@ export interface AppUser {
     canvasApiToken: string;
 
     courseColors: { [courseCode: string]: string };
+    accessibility?: boolean;
 }
