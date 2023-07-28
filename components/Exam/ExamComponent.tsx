@@ -212,8 +212,8 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                 time_limit: 0,
                 shuffle_answers: false,
                 hide_results: null,
-                show_correct_answers: false,
-                show_correct_answers_last_attempt: false,
+                show_correct_answers: true,
+                show_correct_answers_last_attempt: true,
                 show_correct_answers_at: "",
                 hide_correct_answers_at: "",
                 one_time_results: false,
@@ -294,7 +294,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     return (
         <Container maxW={PAGE_CONTAINER_SIZE} data-testid="exam-component">
             {showIllustration && (
-                <Box position="fixed" bottom={-2} right={-50} w="600px">
+                <Box position="fixed" bottom={0} right={-50} w="600px">
                     <Image
                         src={isDarkMode ? ExamDarkImage : ExamImage}
                         alt="Image representing exam mode"

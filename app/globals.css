@@ -42,3 +42,13 @@
     background-color: #319795;
     border-radius: 20px;
 }
+
+/* Show dialog above navbar (at 10000) */
+.chakra-modal__content-container {
+    z-index: 10001;
+}
+
+/* Prevent horizontal scroll bar */
+.chakra-modal__content {
+    overflow-x: hidden;
+}

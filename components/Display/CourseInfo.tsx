@@ -87,11 +87,35 @@ const CourseInfo = ({
                     />
                 </Box>
                 <Box>
-                    <Text fontWeight="bold">{courseCode}</Text>
-                    <Text>{courseName}</Text>
+                    <Text
+                        fontWeight="bold"
+                        overflow={"hidden"}
+                        display="-webkit-box"
+                        style={{
+                            WebkitLineClamp: 2,
+                            lineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                        }}
+                        wordBreak="break-word"
+                    >
+                        {courseCode}
+                    </Text>
+                    <Text
+                        overflow={"hidden"}
+                        display="-webkit-box"
+                        style={{
+                            WebkitLineClamp: 2,
+                            lineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                        }}
+                        wordBreak="break-word"
+                    >
+                        {" "}
+                        {courseName}
+                    </Text>
                 </Box>
             </Flex>
-            {Button}
+            <Box flexShrink={0}>{Button}</Box>
         </Flex>
     );
 };

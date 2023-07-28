@@ -207,7 +207,18 @@ export default function QuizUploadCard({
                             />
                         </CardHeader>
                         <CardBody pt={0}>
-                            <Heading fontSize="lg" mb={3}>
+                            <Heading
+                                fontSize="lg"
+                                mb={3}
+                                overflow={"hidden"}
+                                display="-webkit-box"
+                                style={{
+                                    WebkitLineClamp: 2,
+                                    lineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                }}
+                                wordBreak="break-word"
+                            >
                                 {" "}
                                 {quiz.quizName}
                             </Heading>
