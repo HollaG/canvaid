@@ -105,7 +105,6 @@ export default function Page() {
             (updateToken && user) ||
             (showLogIn && (!user || !user.canvasApiToken))
         ) {
-            console.log("updating");
             onOpen();
         } else if (isResetting) {
             onOpenChangePassword();
