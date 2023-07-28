@@ -159,7 +159,7 @@ export default function LoginComponent() {
     const [step, setStep] = useState(0);
 
     useEffect(() => {
-        if (user && !user.canvasApiToken) {
+        if (user) {
             setStep(1);
         }
     }, [user]);

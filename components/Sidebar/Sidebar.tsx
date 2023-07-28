@@ -32,8 +32,19 @@ import {
     useColorMode,
     useMediaQuery,
     Tooltip,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Kbd,
+    useToast,
 } from "@chakra-ui/react";
-import { useParams, useSearchParams, usePathname } from "next/navigation";
+import {
+    useParams,
+    useSearchParams,
+    usePathname,
+    useRouter,
+} from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
 
 import {
@@ -64,12 +75,19 @@ import {
     TbSunLow,
     TbArrowRight,
     TbArrowLeft,
+    TbSettings,
+    TbExchange,
+    TbAccessibleOff,
+    TbAccessible,
 } from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
 import Navbar from "../Navbar/Navbar";
 import CustomAlertDialog from "../Alert/CustomAlertDialog";
 import { ExamSidebar } from "./ExamSidebar";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { updateUserAccessibility } from "@/firebase/database/repositories/users";
+import { AppUser } from "@/types/user";
 /**
  * Sidebar component.
  *
@@ -78,7 +96,9 @@ import { ExamSidebar } from "./ExamSidebar";
  * Also displays the quizzes that the user has uploaded, sorted by course
  */
 const Sidebar = () => {
-    const { user } = useAuthContainer();
+    const { user, setUser } = useAuthContainer();
+    const router = useRouter();
+    const toast = useToast();
     // const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
 
     // useEffect(() => {
@@ -144,6 +164,28 @@ const Sidebar = () => {
     const { colorMode, toggleColorMode } = useColorMode();
     const helperColor = useColorModeValue("gray.600", "gray.400");
     const sidebarColor = useColorModeValue("white", "gray.900");
+
+    // for accessibility setting
+    const toggleAccesibility = async (accessibility: boolean) => {
+        if (!user) return;
+        try {
+            const success = await updateUserAccessibility(
+                user.uid,
+                accessibility
+            );
+            if (success) {
+                setUser((prev) => ({ ...prev, accessibility } as AppUser));
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: accessibility
+                        ? "Animations reduced"
+                        : "Animations enabled",
+                });
+            } else {
+                throw new Error("Unknown error occured!");
+            }
+        } catch (e) {}
+    };
 
     // hide the welcome back and avatar if height is below 700px
     const [hideWelcome] = useMediaQuery("(max-height: 700px)");
@@ -245,6 +287,40 @@ const Sidebar = () => {
                                 aria-label="Sign out"
                             >
                                 <TbDoorExit />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip label={"Change Canvas API Token"}>
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={() =>
+                                    router.push("/?updateToken=true")
+                                }
+                                aria-label="Change Canvas API Token"
+                            >
+                                <TbExchange />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip
+                            label={
+                                user.accessibility
+                                    ? "Reduce animations"
+                                    : "Enable animations"
+                            }
+                        >
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={() =>
+                                    toggleAccesibility(!user.accessibility)
+                                }
+                                aria-label="Change Accesibility settings"
+                            >
+                                {user.accessibility ? (
+                                    <TbAccessibleOff />
+                                ) : (
+                                    <TbAccessible />
+                                )}
                             </Button>
                         </Tooltip>
                         <Tooltip label={"Expand Sidebar"}>
@@ -577,7 +653,83 @@ const Sidebar = () => {
                         </>
                     )}
                     <Flex alignItems={"center"} justifyContent="space-between">
-                        <Tooltip
+                        <Menu>
+                            <MenuButton
+                                as={Button}
+                                variant="ghost"
+                                colorScheme={"gray"}
+                                aria-label="Menu button"
+                            >
+                                <TbSettings />
+                            </MenuButton>
+                            <MenuList>
+                                <MenuItem
+                                    icon={
+                                        colorMode === "light" ? (
+                                            <TbMoon />
+                                        ) : (
+                                            <TbSun />
+                                        )
+                                    }
+                                    onClick={toggleColorMode}
+                                >
+                                    <Flex
+                                        justifyContent={"space-between"}
+                                        alignItems="center"
+                                    >
+                                        <span>
+                                            {colorMode === "light"
+                                                ? "Toggle Dark Mode"
+                                                : "Toggle Light Mode"}{" "}
+                                        </span>
+                                        <span>
+                                            <Kbd>x</Kbd>
+                                        </span>
+                                    </Flex>
+                                </MenuItem>
+                                <MenuItem
+                                    icon={<TbExchange />}
+                                    onClick={() =>
+                                        router.push("/?updateToken=true")
+                                    }
+                                >
+                                    Change Canvas API Token
+                                </MenuItem>
+                                <MenuItem
+                                    icon={
+                                        user.accessibility ? (
+                                            <TbAccessibleOff />
+                                        ) : (
+                                            <TbAccessible />
+                                        )
+                                    }
+                                    onClick={() =>
+                                        toggleAccesibility(!user.accessibility)
+                                    }
+                                >
+                                    <Flex
+                                        justifyContent={"space-between"}
+                                        alignItems="center"
+                                    >
+                                        <span>
+                                            {!user.accessibility
+                                                ? "Reduce animations"
+                                                : "Enable animations"}
+                                        </span>
+                                        <span>
+                                            <Kbd>a</Kbd>
+                                        </span>{" "}
+                                    </Flex>
+                                </MenuItem>
+                                <MenuItem
+                                    icon={<TbDoorExit />}
+                                    onClick={() => alertProps.onOpen()}
+                                >
+                                    Sign out
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
+                        {/* <Tooltip
                             label={`Toggle ${
                                 colorMode === "light" ? "dark" : "light"
                             } mode`}
@@ -590,8 +742,8 @@ const Sidebar = () => {
                             >
                                 {colorMode === "light" ? <TbMoon /> : <TbSun />}
                             </Button>
-                        </Tooltip>
-                        <Tooltip label="Sign out">
+                        </Tooltip> */}
+                        {/* <Tooltip label="Sign out">
                             <Button
                                 variant={"ghost"}
                                 colorScheme="gray"
@@ -600,7 +752,7 @@ const Sidebar = () => {
                             >
                                 <TbDoorExit />
                             </Button>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip
                             label={
                                 isOpenSidebar

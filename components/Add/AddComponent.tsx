@@ -130,6 +130,10 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 setErrorMessage(
                                     "Invalid HTML File! Please ensure you have the correct HTML file of the quiz."
                                 );
+                            } else if (e.status === 401) {
+                                setErrorMessage(
+                                    "Error accessing Canvas! Please ensure you have the correct Canvas API token. Change it by clicking the Change Canvas API Token button."
+                                );
                             } else {
                                 setErrorMessage(
                                     "You have already submitted this attempt!"

@@ -22,7 +22,9 @@ import {
     Input,
     Link,
     Stack,
+    useToast,
 } from "@chakra-ui/react";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 const NotCanvasApiTokenPage = () => {
     const [token, setToken] = useState("");
     //const history = useHistory();
@@ -30,6 +32,9 @@ const NotCanvasApiTokenPage = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const router = useRouter();
+    const toast = useToast();
     const handleTokenSubmit = async (event: any) => {
         if (!user) return;
 
@@ -64,6 +69,12 @@ const NotCanvasApiTokenPage = () => {
                     // update the user's state in the auth container
 
                     setUser(updatedUser);
+                    router.push("/");
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Canvas API Token updated.",
+                        description: "You can now upload quizzes!",
+                    });
                 } else {
                     throw new Error("Invalid token");
                 }
