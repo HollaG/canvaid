@@ -60,6 +60,7 @@ import AddComponent from "@/components/Add/AddComponent";
 import { getUploads } from "@/lib/functions";
 import { TbSearch } from "react-icons/tb";
 import ExamComponent from "@/components/Exam/ExamComponent";
+import ResetComponent from "@/components/Auth/ResetComponent";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -92,6 +93,7 @@ export default function Page() {
     const params = useSearchParams();
     const showLogIn = params && params.get("login") === "true";
     const updateToken = params && params.get("updateToken") === "true";
+    const isResetting = params && params.get("reset") === "true";
 
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -105,8 +107,11 @@ export default function Page() {
         ) {
             console.log("updating");
             onOpen();
+        } else if (isResetting) {
+            onOpenChangePassword();
         } else {
             onClose();
+            onCloseChangePassword();
             router.replace("/");
         }
 
@@ -135,6 +140,13 @@ export default function Page() {
         onClose: onCloseExam,
     } = useDisclosure();
 
+    // for change password
+    const {
+        isOpen: isOpenChangePassword,
+        onOpen: onOpenChangePassword,
+        onClose: onCloseChangePassword,
+    } = useDisclosure();
+
     const bgColor = useColorModeValue("gray.50", "gray.900");
     const bgImage = useColorModeValue(
         "url(/assets/background.svg)",
@@ -155,6 +167,13 @@ export default function Page() {
                 showNavbar
             >
                 <LoginComponent />
+            </DrawerContainer>
+            <DrawerContainer
+                onClose={onCloseChangePassword}
+                isOpen={isOpenChangePassword}
+                showNavbar
+            >
+                <ResetComponent />
             </DrawerContainer>
             <DrawerContainer
                 onClose={onCloseAddNewQuiz}

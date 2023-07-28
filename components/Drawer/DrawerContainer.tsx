@@ -33,7 +33,7 @@ const DrawerContainer = ({
                 // mt={showNavbar ? NAVBAR_HEIGHT : 0}
                 mt={0}
                 overflowY="scroll"
-                pb={showNavbar ? NAVBAR_HEIGHT : 0}
+                // pb={showNavbar ? NAVBAR_HEIGHT : 0}
             >
                 <DrawerCloseButton />
                 <DrawerHeader
