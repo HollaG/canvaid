@@ -6,7 +6,6 @@ import { db } from "..";
 const COLLECTION_NAME = "users";
 
 export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
-    console.log(user, "------------ in users.ts");
     const dbRef = doc(db, "users", user.uid.toString());
     const dbUser = await getDoc(dbRef);
     try {
@@ -15,6 +14,11 @@ export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
 
             return {
                 ...dbUser.data(),
+                // add the animation
+                accessibility:
+                    dbUser.data()?.accessibility === undefined
+                        ? false
+                        : dbUser.data()?.accessibility,
             } as AppUser;
         } else {
             const docRef = await setDoc(dbRef, user);
@@ -24,6 +28,7 @@ export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
                 canvasApiToken: "",
                 uploadedIds: [],
                 courseColors: {},
+                accessibility: true,
             } as AppUser;
         }
     } catch (e) {
@@ -55,6 +60,23 @@ export const updateUserColorChoice = async (
     try {
         await updateDoc(dbRef, {
             [`courseColors.${courseCode}`]: color,
+        });
+
+        return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const updateUserAccessibility = async (
+    uid: string,
+    accessibility: boolean
+) => {
+    const dbRef = doc(db, "users", uid);
+    try {
+        await updateDoc(dbRef, {
+            accessibility,
         });
 
         return true;

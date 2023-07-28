@@ -22,7 +22,6 @@ type DeleteButtonProps = {
 function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
     const handleDelete = async () => {
         try {
-            console.log("Attempting delete of ", ID);
             const docRef = doc(db, COLLECTION_NAME, ID);
             await deleteDoc(docRef);
             onDelete();

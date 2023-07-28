@@ -1,8 +1,10 @@
+import { useQuizContainer } from "@/app/providers";
 import { Quiz } from "@/types/canvas";
 import {
     Box,
     Checkbox,
     FormControl,
+    FormErrorMessage,
     FormHelperText,
     FormLabel,
     Input,
@@ -14,6 +16,7 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 
 /**
@@ -49,7 +52,7 @@ const ExamSettings = ({
                     min={1}
                     max={maxQns}
                 >
-                    <NumberInputField />
+                    <NumberInputField data-testid="input-numQns" />
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -66,7 +69,7 @@ const ExamSettings = ({
                     }
                     min={0}
                 >
-                    <NumberInputField />
+                    <NumberInputField data-testid="input-examLength" />
                     <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -81,6 +84,7 @@ const ExamSettings = ({
                 <Checkbox
                     isChecked={isRandom}
                     onChange={(e) => setIsRandom(e.target.checked)}
+                    data-testid="input-isRandom"
                 >
                     Randomise question order
                 </Checkbox>
@@ -109,6 +113,7 @@ export const GeneralExamSettings1 = ({
     setCategoryName,
     quizName,
     setQuizName,
+    setIsError,
 }: {
     groupedByCourseCode: {
         [courseCode: string]: (Quiz & { id: string })[];
@@ -120,7 +125,21 @@ export const GeneralExamSettings1 = ({
     setCategoryName: (categoryName: string) => void;
     quizName: string;
     setQuizName: (quizName: string) => void;
+    setIsError: Dispatch<SetStateAction<boolean>>;
 }) => {
+    const { quizzes } = useQuizContainer();
+
+    const hasConflict = (course: string, quizName: string) => {
+        const quizzesForCourse = quizzes.filter(
+            (quiz) => quiz.course === (course || "Custom")
+        );
+        const quiz = quizzesForCourse.find(
+            (quiz) => quiz.quizName === quizName
+        );
+        setIsError(!!quiz);
+        return quiz;
+    };
+
     return (
         <Stack spacing={6}>
             <FormControl id="category" variant="floating">
@@ -133,19 +152,48 @@ export const GeneralExamSettings1 = ({
                 <FormHelperText>
                     {" "}
                     Helps you categorise your custom quizzes. Defaults to
-                    'Custom'
+                    &apos;Custom&apos;
                 </FormHelperText>
             </FormControl>
-            <FormControl id="quizName" variant="floating" isRequired>
+            <FormControl
+                id="quizName"
+                variant="floating"
+                isRequired
+                isInvalid={!!hasConflict(categoryName, quizName)}
+            >
                 <Input
                     placeholder=" "
                     value={quizName}
                     onChange={(e) => setQuizName(e.target.value)}
+                    data-testid="input-quizName"
                 />
                 <FormLabel>Quiz name</FormLabel>
-                <FormHelperText>
-                    Remember your custom quiz by giving it a name.
-                </FormHelperText>
+                {!hasConflict(categoryName, quizName) ? (
+                    <FormHelperText>
+                        Remember your custom quiz by giving it a name.
+                    </FormHelperText>
+                ) : (
+                    <FormErrorMessage>
+                        This category and quiz name combination is already in
+                        use! To redo it,{" "}
+                        <Link
+                            href={`/uploads/${
+                                hasConflict(categoryName, quizName)?.id
+                            }`}
+                        >
+                            {" "}
+                            <span
+                                style={{
+                                    textDecoration: "underline",
+                                    marginLeft: "4px",
+                                }}
+                            >
+                                go to the quiz&apos;s page here
+                            </span>
+                        </Link>
+                        .
+                    </FormErrorMessage>
+                )}
             </FormControl>
             <Box>
                 <Text fontWeight={"bold"} fontSize="lg" mb={3}>
@@ -253,6 +301,7 @@ const CheckboxTree = ({
                                             }
                                         });
                                     }}
+                                    data-testid="checkbox-quiz"
                                 >
                                     {quiz.quizName}
                                 </Checkbox>

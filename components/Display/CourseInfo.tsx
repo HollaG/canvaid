@@ -25,7 +25,6 @@ const CourseInfo = ({
         const timeout = setTimeout(async () => {
             // update the selected color for this course
             try {
-                console.log("Updating...");
                 await updateUserColorChoice(
                     user.uid,
                     courseCode,
@@ -51,6 +50,9 @@ const CourseInfo = ({
         }, 500);
 
         return () => clearTimeout(timeout);
+
+        // Note: including the user in the dependency array will cause an infinite loop
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedColor, courseCode]);
 
     return (

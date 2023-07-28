@@ -91,19 +91,28 @@ export default function Page() {
     const router = useRouter();
     const params = useSearchParams();
     const showLogIn = params && params.get("login") === "true";
-    useEffect(() => {
-        // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
+    const updateToken = params && params.get("updateToken") === "true";
 
-        if (showLogIn && (!user || !user.canvasApiToken)) {
+    // for login modal
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    useEffect(() => {
+        // if showLogIn or updateToken, always show the login model if the user is not logged in or they don't have a canvasApiToken
+
+        if (
+            (updateToken && user) ||
+            (showLogIn && (!user || !user.canvasApiToken))
+        ) {
+            console.log("updating");
             onOpen();
         } else {
             onClose();
             router.replace("/");
         }
-    }, [showLogIn, user]);
 
-    // for login modal
-    const { isOpen, onOpen, onClose } = useDisclosure();
+        // cannot have router as dependency
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showLogIn, user, onClose, onOpen, updateToken]);
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
@@ -126,6 +135,16 @@ export default function Page() {
         onClose: onCloseExam,
     } = useDisclosure();
 
+    const bgColor = useColorModeValue("gray.50", "gray.900");
+    const bgImage = useColorModeValue(
+        "url(/assets/background.svg)",
+        "url(/assets/background-dark.svg)"
+    );
+    const bgColorHeader = useColorModeValue("teal.700", "teal.900");
+    const backgroundImage = useColorModeValue(
+        "url(/assets/background.svg)",
+        "url(/assets/background-dark.svg)"
+    );
     return (
         <>
             <DrawerContainer
@@ -161,26 +180,17 @@ export default function Page() {
                                 : { base: 0, md: "30px" }
                         }
                         pt={6}
-                        bgColor={useColorModeValue("gray.50", "gray.900")}
-                        backgroundImage={useColorModeValue(
-                            "url(/assets/background.svg)",
-                            "url(/assets/background-dark.svg)"
-                        )}
+                        bgColor={bgColor}
+                        backgroundImage={bgImage}
                         backgroundSize={"200%"}
                         borderRadius={{ base: 0, md: "xl" }}
                     >
                         <Center px={12}>
                             <Box
                                 width="100%"
-                                bgColor={useColorModeValue(
-                                    "teal.700",
-                                    "teal.900"
-                                )}
+                                bgColor={bgColorHeader}
                                 borderRadius={"xl"}
-                                backgroundImage={useColorModeValue(
-                                    "url(/assets/background.svg)",
-                                    "url(/assets/background-dark.svg)"
-                                )}
+                                backgroundImage={backgroundImage}
                                 // backgroundAttachment="fixed"
                                 backgroundSize={"10%"}
                                 py={{ base: 2, sm: 4, md: 6, lg: 12 }}
@@ -234,6 +244,7 @@ export default function Page() {
                                                     // router.push("/exam")
                                                     onOpenExam()
                                                 }
+                                                data-testid="exam-mode-btn"
                                             >
                                                 Exam
                                             </Button>

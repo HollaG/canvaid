@@ -17,6 +17,7 @@ import {
     MenuList,
     Stack,
     Text,
+    Tooltip,
     useColorMode,
     useColorModeValue,
 } from "@chakra-ui/react";
@@ -31,7 +32,14 @@ import { useEffect, useState } from "react";
 
 import MainLogo from "@/public/logos/main.png";
 import Image from "next/image";
-import { TbDoorExit, TbMoon, TbSun, TbSunLow } from "react-icons/tb";
+import {
+    TbDoorEnter,
+    TbDoorExit,
+    TbMoon,
+    TbSun,
+    TbSunLow,
+} from "react-icons/tb";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
     const { toggleColorMode, colorMode } = useColorMode();
@@ -50,6 +58,9 @@ const Navbar = () => {
     useEffect(() => {
         setDate(new Date().toLocaleDateString());
     }, []);
+
+    const router = useRouter();
+
     return (
         // <Box height={NAVBAR_HEIGHT} px={6} pt={3} position="fixed" w="100%">
         //     <Box
@@ -174,25 +185,48 @@ const Navbar = () => {
                         <Flex alignItems={"center"}>
                             <Stack direction={"row"} spacing={2}>
                                 {/* <Timer /> */}
-                                <Button
-                                    onClick={toggleColorMode}
-                                    variant="ghost"
-                                    colorScheme="gray"
+                                <Tooltip
+                                    label={`Toggle ${
+                                        colorMode === "light" ? "dark" : "light"
+                                    } mode`}
                                 >
-                                    {colorMode === "light" ? (
-                                        <TbMoon />
-                                    ) : (
-                                        <TbSun />
-                                    )}
-                                </Button>
-                                {user && (
                                     <Button
-                                        variant={"ghost"}
+                                        onClick={toggleColorMode}
+                                        variant="ghost"
                                         colorScheme="gray"
-                                        onClick={signOutAll}
+                                        aria-label="Dark / light mode toggle"
                                     >
-                                        <TbDoorExit />
+                                        {colorMode === "light" ? (
+                                            <TbMoon />
+                                        ) : (
+                                            <TbSun />
+                                        )}
                                     </Button>
+                                </Tooltip>
+                                {user ? (
+                                    <Tooltip label="Sign out">
+                                        <Button
+                                            variant={"ghost"}
+                                            colorScheme="gray"
+                                            onClick={signOutAll}
+                                            aria-label="Sign out button"
+                                        >
+                                            <TbDoorExit />
+                                        </Button>
+                                    </Tooltip>
+                                ) : (
+                                    <Tooltip label="Sign in">
+                                        <Button
+                                            variant={"ghost"}
+                                            colorScheme="gray"
+                                            onClick={() =>
+                                                router.push("/?login=true")
+                                            }
+                                            aria-label="Sign in button"
+                                        >
+                                            <TbDoorEnter />
+                                        </Button>
+                                    </Tooltip>
                                 )}
 
                                 {/* <Menu>

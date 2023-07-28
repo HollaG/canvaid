@@ -71,7 +71,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
 
     // ----------------------- generate data ----------------------------------
 
-    const { quizzes, setQuizzes } = useQuizContainer();
+    const { quizzes, setQuizzes, setExamQuestionList } = useQuizContainer();
     const { user } = useAuthContainer();
 
     const router = useRouter();
@@ -138,7 +138,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     // refresh the number of questions whenever the selected quizzes change
     useEffect(() => {
         setNumQns(totalAvailableQns);
-    }, [selectedQuizzes]);
+    }, [selectedQuizzes, totalAvailableQns]);
 
     const [examLength, setExamLength] = useState<number | undefined>();
 
@@ -188,7 +188,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
             if (compiledQuizAnswers[id])
                 chosenQuizAnswers[id] = compiledQuizAnswers[id];
         });
-        console.log({ chosenQuizAnswers });
+
         const quiz: Quiz = {
             submissions: [],
             selectedOptions: [],
@@ -289,8 +289,10 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
     const [showIllustration] = useMediaQuery("(min-width: 1000px)");
     const isDarkMode = useColorModeValue(false, true);
 
+    const [isError, setIsError] = useState<boolean>(false);
+
     return (
-        <Container maxW={PAGE_CONTAINER_SIZE}>
+        <Container maxW={PAGE_CONTAINER_SIZE} data-testid="exam-component">
             {showIllustration && (
                 <Box position="fixed" bottom={-2} right={-50} w="600px">
                     <Image
@@ -333,9 +335,9 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                     data-testid="step-1"
                 >
                     <Flex mt={8} direction="column">
-                        <Flex alignItems={"center"} mb={16}>
+                        <Flex alignItems={"center"} mb={{ base: 14, md: 28 }}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
-                                Let's create an exam
+                                Let&apos;s create an exam
                             </Heading>
                         </Flex>
 
@@ -347,6 +349,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                             setCategoryName={setCategoryName}
                             quizName={newQuizName}
                             setQuizName={setNewQuizName}
+                            setIsError={setIsError}
                         />
                         <Flex mt={16}>
                             <Button
@@ -363,7 +366,8 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                                 onClick={() => setActiveStep(1)}
                                 isDisabled={
                                     !selectedQuizzes.length ||
-                                    newQuizName === ""
+                                    newQuizName === "" ||
+                                    isError
                                 }
                             >
                                 Next step
@@ -376,7 +380,7 @@ const ExamComponent = ({ onClose }: { onClose: () => void }) => {
                     unmountOnExit
                     data-testid="step-2"
                 >
-                    <Flex mt={8} direction="column" mb={16}>
+                    <Flex mt={8} direction="column" mb={{ base: 14, md: 28 }}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Customize your quiz

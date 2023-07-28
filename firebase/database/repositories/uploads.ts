@@ -49,7 +49,7 @@ export const individualExamUpdate = async (
     const existingSnapshot = await getDocs(existingQuizQuery);
     const latestDoc = existingSnapshot.docs[0];
     const existingData = latestDoc.data() as Quiz;
-    console.log("Existing Data:", existingData);
+
     existingData.selectedOptions[index] = examAnswers;
     await updateDoc(latestDoc.ref, existingData);
 };
@@ -91,9 +91,6 @@ export const create = async (
     const existingSnapshot = await getDocs(existingQuizQuery);
     //console.log("existingSnap :" + existingSnapshot);
     if (existingSnapshot.size === 0) {
-        console.log("Creating new!");
-        console.log(quizAttempt.questions);
-
         // first, get the quiz data from canvas
         // const res = await fetch(`${CANVAS_URL}courses/${}`)
 
@@ -143,8 +140,7 @@ export const create = async (
                 isPinned: false,
             },
         };
-        // recursivelyReplaceNullToZero(newQuiz);
-        console.log(JSON.stringify(newQuiz, null, 2));
+
         const docRef = await addDoc(dbRef, newQuiz);
 
         return {
@@ -152,10 +148,9 @@ export const create = async (
             ...newQuiz,
         } as Quiz & { id: string };
     } else {
-        console.log("Updating with new attempt!");
         const latestDoc = existingSnapshot.docs[0];
         const existingData = latestDoc.data() as Quiz;
-        console.log("Existing Data:", existingData);
+
         const fieldDataSubmissions = existingData.submissions;
 
         const fieldDataSelectedOptions = existingData.selectedOptions || [];
@@ -183,8 +178,6 @@ export const create = async (
         if (hasSubmitted) {
             throw new Error("You have already submitted this attempt!");
         }
-
-        console.log("New Submission:", quizAttempt);
 
         fieldDataSubmissions.push(quizAttempt.submission);
         fieldDataSelectedOptions.push(quizAttempt.selectedOptions);
@@ -305,7 +298,6 @@ export const updateQuizQuestionFlag = async (
     isFlagged: boolean
 ) => {
     try {
-        console.log("flag number" + questionId);
         const existingQuiz = doc(db, COLLECTION_NAME, quiz.id);
         const existingQuizData = (await getDoc(existingQuiz)).data() as Quiz;
         const existingQuestions = existingQuizData.questions;
@@ -337,7 +329,6 @@ export const addQuizQuestionAnnotation = async (
     newAnnotation: string
 ) => {
     try {
-        console.log("annotation number" + questionId);
         const existingQuiz = doc(db, COLLECTION_NAME, quiz.id);
         const existingQuizData = (await getDoc(existingQuiz)).data() as Quiz;
         const existingQuestions = existingQuizData.questions;

@@ -9,11 +9,12 @@ import { User } from "firebase/auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
-import { Quiz, QuizResponse } from "@/types/canvas";
+import { Quiz, QuizResponse, QuizSubmissionQuestion } from "@/types/canvas";
 import { getUploads } from "@/lib/functions";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/database";
 import { COLLECTION_NAME } from "@/lib/constants";
+import { MotionConfig } from "framer-motion";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -32,6 +33,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 interface IQuizStorageContext {
     selectedOptions: QuizResponse;
     setSelectedOptions: React.Dispatch<React.SetStateAction<QuizResponse>>;
+    examQuestionList: QuizSubmissionQuestion[];
+    setExamQuestionList: React.Dispatch<
+        React.SetStateAction<QuizSubmissionQuestion[]>
+    >;
     quizzes: (Quiz & { id: string })[];
     setQuizzes: React.Dispatch<React.SetStateAction<(Quiz & { id: string })[]>>;
     setQuiz: (
@@ -46,6 +51,8 @@ interface IQuizStorageContext {
 export const QuizStorageContext = createContext<IQuizStorageContext>({
     selectedOptions: {},
     setSelectedOptions: () => {},
+    examQuestionList: [],
+    setExamQuestionList: () => {},
     quizzes: [],
     setQuizzes: () => {},
     setQuiz: (quiz) => {},
@@ -59,6 +66,10 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<QuizResponse>({}); // [qnId: string]: QuizResponse
+    const [examQuestionList, setExamQuestionList] = useState<
+        QuizSubmissionQuestion[]
+    >([]);
+
     const [searchString, setSearchString] = useState<string>("");
 
     // initial fetch
@@ -66,7 +77,8 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         if (user) {
             getUploads(user.uid).then((data) => {
                 setQuizzes(data.data || []);
-                setSelectedOptions(data.selectedOptions || {});
+                setSelectedOptions({});
+                setExamQuestionList([]);
             });
         }
     }, [user]);
@@ -92,6 +104,9 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         },
         searchString,
         setSearchString,
+
+        examQuestionList,
+        setExamQuestionList,
     };
 
     useEffect(() => {
@@ -159,17 +174,23 @@ interface IAuthContext {
 }
 
 // Load the user from localstorage
-const storedUser = localStorage.getItem("user");
+// const storedUser = localStorage.getItem("user");
 
 export const UserContext = createContext<IAuthContext>({
-    user: storedUser ? JSON.parse(storedUser) : undefined,
+    user: undefined,
     setUser: () => {},
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<AppUser | false | undefined>(
-        storedUser ? JSON.parse(storedUser) : undefined
-    );
+    const [user, setUser] = useState<AppUser | false | undefined>();
+
+    useEffect(() => {
+        setUser(
+            localStorage.getItem("user")
+                ? JSON.parse(localStorage.getItem("user") || "")
+                : undefined
+        );
+    }, [setUser]);
 
     const AuthContainer: IAuthContext = {
         user,
@@ -196,11 +217,17 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
                     JSON.parse(JSON.stringify(user))
                 ).catch(console.log);
                 if (appUser) {
-                    setUser(appUser);
+                    // get the token
+                    const token = localStorage.getItem("canvasApiToken");
+                    setUser({
+                        ...appUser,
+                        canvasApiToken: token || "",
+                    });
                     localStorage.setItem("user", JSON.stringify(appUser));
                 } else {
                     setUser(false);
                     localStorage.removeItem("user");
+                    localStorage.removeItem("canvasApiToken");
                 }
             } else {
                 setUser(false);
@@ -210,10 +237,13 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
         return () => unsubscribe();
     }, []);
-
     return (
         <UserContext.Provider value={AuthContainer}>
-            {children}
+            <MotionConfig
+                reducedMotion={user && user.accessibility ? "always" : "user"}
+            >
+                {user === undefined ? <></> : children}
+            </MotionConfig>
         </UserContext.Provider>
     );
 };

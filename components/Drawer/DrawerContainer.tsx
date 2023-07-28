@@ -29,7 +29,12 @@ const DrawerContainer = ({
             size={"full"}
         >
             <DrawerOverlay />
-            <DrawerContent mt={showNavbar ? NAVBAR_HEIGHT : 0}>
+            <DrawerContent
+                // mt={showNavbar ? NAVBAR_HEIGHT : 0}
+                mt={0}
+                overflowY="scroll"
+                pb={showNavbar ? NAVBAR_HEIGHT : 0}
+            >
                 <DrawerCloseButton />
                 <DrawerHeader
                     fontWeight={"normal"}

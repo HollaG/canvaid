@@ -52,6 +52,13 @@ import Image from "next/image";
 import { deleteAttempt } from "@/firebase/database/repositories/uploads";
 import { ERROR_TOAST_OPTIONS } from "@/lib/toasts";
 
+const steps = [
+    { title: "Upload", description: "Upload the HTML file of your quiz" },
+    {
+        title: "Review",
+        description: "Review the quiz to ensure it's correct",
+    },
+];
 export default function AddComponent({ onClose }: { onClose: () => void }) {
     const [course, setCourse] = useState("");
     const [name, setName] = useState("");
@@ -67,22 +74,25 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
     const [uploadedData, setUploadedData] = useState<ResponseData>();
 
     const [errorMessage, setErrorMessage] = useState("");
-
+    const { activeStep, setActiveStep } = useSteps({
+        index: 0,
+        count: steps.length,
+    });
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
             // Do something with the files
-            console.log("ONDROP called");
             if (!user) return;
+            if (!user.canvasApiToken) return;
             if (acceptedFiles.length && acceptedFiles[0] instanceof File) {
                 setIsUploading(1);
                 const file = acceptedFiles[0];
-                console.log(file.type, " -0--------------");
+
                 if (file.type !== "text/html") {
                     setIsUploading(0);
                     setErrorMessage(
                         "Invalid file type! Please only upload HTML files."
                     );
-                    console.log("invalid file type!!");
+
                     return;
                 }
                 file.text().then((txt: string) => {
@@ -91,6 +101,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                         quizName: name,
                         course,
                         uid: user.uid,
+                        canvasApiToken: user.canvasApiToken,
                     };
 
                     fetch("/api/add", {
@@ -105,7 +116,6 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             return res.json();
                         })
                         .then((data: ResponseData) => {
-                            console.log("Received finished data");
                             setIsUploading(0);
                             // router.push(`/uploads/${data.quiz?.id}`);
                             setUploadedData(data);
@@ -113,10 +123,22 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             setErrorMessage("");
                         })
                         .catch((e) => {
-                            console.error(e.statusText);
+                            console.error(e);
                             setIsUploading(0);
 
-                            setErrorMessage(e.statusText);
+                            if (e.status === 400) {
+                                setErrorMessage(
+                                    "Invalid HTML File! Please ensure you have the correct HTML file of the quiz."
+                                );
+                            } else if (e.status === 401) {
+                                setErrorMessage(
+                                    "Error accessing Canvas! Please ensure you have the correct Canvas API token. Change it by clicking the Change Canvas API Token button."
+                                );
+                            } else {
+                                setErrorMessage(
+                                    "You have already submitted this attempt!"
+                                );
+                            }
                         });
                 });
             } else {
@@ -126,7 +148,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                 );
             }
         },
-        [course, name, router, user]
+        [course, name, user, setActiveStep]
     );
     const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
         useDropzone({
@@ -136,21 +158,9 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
             },
         });
 
-    const steps = [
-        { title: "Upload", description: "Upload the HTML file of your quiz" },
-        {
-            title: "Review",
-            description: "Review the quiz to ensure it's correct",
-        },
-    ];
     const stepperOrienation = useBreakpointValue({
         base: "vertical",
         md: "horizontal",
-    });
-
-    const { activeStep, setActiveStep } = useSteps({
-        index: 0,
-        count: steps.length,
     });
 
     const [showIllustration] = useMediaQuery("(min-width: 1000px)");
@@ -233,7 +243,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                         <Flex mt={8} direction="column">
                             <Flex alignItems={"center"}>
                                 <Heading fontWeight={"semibold"} fontSize="5xl">
-                                    Let's upload a new quiz
+                                    Let&apos;s upload a new quiz
                                 </Heading>
                             </Flex>
 
@@ -247,7 +257,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 justifyContent="center"
                                 alignItems={"center"}
                                 borderRadius="3xl"
-                                mt={28}
+                                mt={{ base: 14, md: 28 }}
                                 border="2px dashed"
                                 borderColor={useColorModeValue(
                                     "gray.400",

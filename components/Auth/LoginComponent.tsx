@@ -156,11 +156,11 @@ export default function LoginComponent() {
 
     // step 1: login / register
     // step 2: token
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
 
     useEffect(() => {
-        if (user && !user.canvasApiToken) {
-            setStep(2);
+        if (user) {
+            setStep(1);
         }
     }, [user]);
     const steps = [
@@ -169,7 +169,7 @@ export default function LoginComponent() {
     ];
 
     const { activeStep } = useSteps({
-        index: 1,
+        index: 0,
         count: steps.length,
     });
 
@@ -226,8 +226,8 @@ export default function LoginComponent() {
                         ))}
                     </Stepper>
                 </Box>
-                <Collapse in={step === 1}>
-                    <Flex mt={8} direction="column">
+                <Collapse in={step === 0}>
+                    <Flex mt={8} direction="column" pb={16}>
                         <Flex alignItems={"center"}>
                             <Heading fontWeight={"semibold"} fontSize="5xl">
                                 Do we know you?
@@ -235,7 +235,7 @@ export default function LoginComponent() {
                         </Flex>
 
                         <form>
-                            <Stack spacing={8} mt={28}>
+                            <Stack spacing={8} mt={{ base: 14, md: 28 }}>
                                 {!isNew ? (
                                     <>
                                         <FormControl
@@ -452,7 +452,11 @@ export default function LoginComponent() {
                                     </>
                                 )}
                                 <Box></Box>
-                                <Stack direction="row" mt={12} spacing={8}>
+                                <Stack
+                                    direction={{ base: "column", md: "row" }}
+                                    mt={12}
+                                    spacing={8}
+                                >
                                     <Box>
                                         {isNew ? (
                                             <Button
@@ -466,10 +470,10 @@ export default function LoginComponent() {
                                             </Button>
                                         ) : (
                                             <Button
-                                                width="120px"
                                                 onClick={signIn}
                                                 isLoading={isSubmitting}
                                                 type="submit"
+                                                width="120px"
                                             >
                                                 Sign in
                                             </Button>
@@ -533,7 +537,7 @@ export default function LoginComponent() {
                         </form>
                     </Flex>
                 </Collapse>
-                <Collapse in={step === 2}>
+                <Collapse in={step === 1}>
                     <NotCanvasApiTokenPage />
                 </Collapse>
             </Container>

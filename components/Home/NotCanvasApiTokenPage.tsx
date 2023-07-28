@@ -22,7 +22,9 @@ import {
     Input,
     Link,
     Stack,
+    useToast,
 } from "@chakra-ui/react";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 const NotCanvasApiTokenPage = () => {
     const [token, setToken] = useState("");
     //const history = useHistory();
@@ -30,6 +32,9 @@ const NotCanvasApiTokenPage = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const router = useRouter();
+    const toast = useToast();
     const handleTokenSubmit = async (event: any) => {
         if (!user) return;
 
@@ -50,17 +55,26 @@ const NotCanvasApiTokenPage = () => {
             })
             .then((data) => {
                 if (data.success) {
-                    const docRef = doc(db, "users", user.uid);
+                    // set it in localstorage
+                    localStorage.setItem("canvasApiToken", token);
+                    const updatedUser = { ...user, canvasApiToken: token };
+                    // const docRef = doc(db, "users", user.uid);
 
-                    const firebaseUser = JSON.parse(
-                        JSON.stringify({ ...user, canvasApiToken: token })
-                    );
-                    updateDoc(docRef, firebaseUser);
+                    // const firebaseUser = JSON.parse(
+                    //     JSON.stringify({ ...user, canvasApiToken: token })
+                    // );
+                    // updateDoc(docRef, firebaseUser);
 
                     // Update the hasToken state and redirect to the main page
                     // update the user's state in the auth container
 
-                    setUser(firebaseUser);
+                    setUser(updatedUser);
+                    router.push("/");
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Canvas API Token updated.",
+                        description: "You can now upload quizzes!",
+                    });
                 } else {
                     throw new Error("Invalid token");
                 }
@@ -69,19 +83,19 @@ const NotCanvasApiTokenPage = () => {
                 console.log(e);
 
                 setErrorMessage("Invalid Canvas API Token!");
-            })
-            .finally(() => setIsSubmitting(false));
+                setIsSubmitting(false);
+            });
     };
     return (
         <>
-            <Flex mt={8} direction="column">
+            <Flex mt={8} direction="column" pb={16}>
                 <Flex alignItems={"center"}>
                     <Heading fontWeight={"semibold"} fontSize="5xl">
                         We need your Canvas API token!
                     </Heading>
                 </Flex>
                 <form onSubmit={handleTokenSubmit}>
-                    <Stack spacing={8} mt={28}>
+                    <Stack spacing={8} mt={{ base: 14, md: 28 }}>
                         <FormControl
                             id="token"
                             isRequired
@@ -109,6 +123,10 @@ const NotCanvasApiTokenPage = () => {
                                     here
                                 </Link>{" "}
                                 to get your Canvas API Access Token.
+                            </FormHelperText>
+                            <FormHelperText>
+                                Your token is not saved in our database. It is
+                                only stored locally.
                             </FormHelperText>
                         </FormControl>
 

@@ -3,8 +3,7 @@ import {
     StyleConfig,
     withDefaultColorScheme,
 } from "@chakra-ui/react";
-import { Inter } from "next/font/google";
-const inter = Inter({ subsets: ["latin"] });
+import { Lexend, Atkinson_Hyperlegible } from "next/font/google";
 
 const activeLabelStyles = {
     transform: "scale(0.85) translateY(-24px)",
@@ -141,11 +140,17 @@ const components: Record<string, StyleConfig> = {
         },
     },
 };
+const nextFontAtkinsonHyperlegible = Atkinson_Hyperlegible({
+    weight: ["400"],
+    subsets: ["latin"],
+});
+const nextFontLexend = Lexend({ weight: ["400"], subsets: ["latin"] });
+
 export const theme = extendTheme({
     components,
     fonts: {
-        body: inter.style.fontFamily,
-        heading: inter.style.fontFamily,
+        body: nextFontAtkinsonHyperlegible.style.fontFamily,
+        heading: nextFontLexend.style.fontFamily,
     },
 });
 

@@ -20,8 +20,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: null });
     }
 
-    console.log("found user", user);
-
     // get this user's attempts
     const quizAttempts = await getAttempts(uid);
     return NextResponse.json({ data: quizAttempts });

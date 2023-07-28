@@ -16,6 +16,10 @@ import {
     useBreakpoint,
     useMediaQuery,
     Link,
+    Alert,
+    AlertTitle,
+    AlertDescription,
+    AlertIcon,
 } from "@chakra-ui/react";
 import { signInWithGoogle } from "@/firebase/auth/google";
 import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
@@ -35,7 +39,7 @@ import {
     ArrowForwardIcon,
     ArrowRightIcon,
 } from "@chakra-ui/icons";
-import { ReactElement, ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import {
     FcAssistant,
     FcDonate,
@@ -47,20 +51,17 @@ import {
 import Navbar from "../Navbar/Navbar";
 import Footer from "../Footer/Footer";
 import { TbArrowNarrowDown, TbArrowNarrowRight } from "react-icons/tb";
+import { useAuthContainer } from "@/app/providers";
 
 export default function NotAuthedHomePage() {
     const [showMainPhoto] = useMediaQuery("(min-width: 64em)");
     const [showSecondPerson] = useMediaQuery("(min-width: 48em)");
 
     const darkMode = useColorModeValue(false, true);
+    const { user } = useAuthContainer();
+    const getStartedRef = React.useRef<HTMLDivElement>(null);
     return (
         <>
-            <Head>
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap"
-                    rel="stylesheet"
-                />
-            </Head>
             <Navbar />
             <Stack spacing={0}>
                 <Center
@@ -79,6 +80,28 @@ export default function NotAuthedHomePage() {
                             spacing={{ base: 8, md: 14 }}
                             py={{ base: 20, md: 36 }}
                         >
+                            {user && !user.canvasApiToken ? (
+                                <Alert status="error" data-testid="no-token">
+                                    <AlertIcon />
+                                    <AlertTitle>Missing token!</AlertTitle>
+                                    <AlertDescription>
+                                        You still need to enter your Canvas
+                                        Token before you can access this site.{" "}
+                                        <NextLink href="?login=true">
+                                            <span
+                                                style={{
+                                                    textDecoration: "underline",
+                                                }}
+                                            >
+                                                Please click here
+                                            </span>
+                                        </NextLink>{" "}
+                                        to enter it!
+                                    </AlertDescription>
+                                </Alert>
+                            ) : (
+                                <></>
+                            )}
                             <Flex justifyContent={"space-between"}>
                                 <Box maxWidth="900px" flexGrow="1">
                                     <Heading
@@ -123,6 +146,10 @@ export default function NotAuthedHomePage() {
                                                     <TbArrowNarrowRight />
                                                 }
                                                 size="lg"
+                                                bgColor={useColorModeValue(
+                                                    "teal.600",
+                                                    "teal.400"
+                                                )}
                                             >
                                                 Get Started
                                             </Button>
@@ -137,6 +164,13 @@ export default function NotAuthedHomePage() {
                                                 }
                                                 variant="outline"
                                                 size="lg"
+                                                onClick={() =>
+                                                    getStartedRef.current?.scrollIntoView(
+                                                        {
+                                                            behavior: "smooth",
+                                                        }
+                                                    )
+                                                }
                                             >
                                                 Learn more
                                             </Button>
@@ -173,20 +207,26 @@ export default function NotAuthedHomePage() {
                         />
                     </Box>
                 </Center>
-                <Box boxShadow={"inner"} position="relative">
-                    <Container maxW={PAGE_CONTAINER_SIZE} minH="65vh">
-                        <Stack spacing={8} mb={24}>
-                            <Center mt={36}>
-                                <Heading>
-                                    {" "}
-                                    Get started in{" "}
-                                    <Text as={"span"} color={"teal.400"}>
-                                        three easy steps
-                                    </Text>
-                                </Heading>
-                            </Center>
-                            <Instructions />
-                        </Stack>
+                <Box
+                    boxShadow={"inner"}
+                    position="relative"
+                    ref={getStartedRef}
+                >
+                    <Container maxW={PAGE_CONTAINER_SIZE} py={16}>
+                        <Center minH="65vh">
+                            <Stack spacing={8}>
+                                <Center>
+                                    <Heading>
+                                        {" "}
+                                        Get started in{" "}
+                                        <Text as={"span"} color={"teal.500"}>
+                                            three easy steps
+                                        </Text>
+                                    </Heading>
+                                </Center>
+                                <Instructions />
+                            </Stack>
+                        </Center>
                     </Container>
                     <Center>
                         {showSecondPerson && (
@@ -290,13 +330,13 @@ function Instructions() {
                         <>
                             Your Canvas Token allows us to streamline the
                             collection of your quiz data, making it easier for
-                            you. Find your token{" "}
+                            you.{" "}
                             <Link
                                 isExternal
                                 href="https://canvas.nus.edu.sg/profile/settings#access_tokens_holder"
                                 textDecor={"underline"}
                             >
-                                here
+                                Find your token here
                             </Link>
                             .
                         </>
@@ -417,9 +457,9 @@ function Features() {
                                 Question Compilation
                             </TestimonialHeading>
                             <TestimonialText>
-                                I'm able to see all my questions for each course
-                                in one place! It makes it so easy for me to
-                                revise!
+                                I&apos;m able to see all my questions for each
+                                course in one place! It makes it so easy for me
+                                to revise!
                             </TestimonialText>
                         </TestimonialContent>
                         <TestimonialAvatar
@@ -449,10 +489,10 @@ function Features() {
                                 The best study buddy
                             </TestimonialHeading>
                             <TestimonialText>
-                                Some of my courses don't have past year papers,
-                                and Canvaid allows me to easily redo all my
-                                course quizzes so I have at least something to
-                                refer to!
+                                Some of my courses don&apos;t have past year
+                                papers, and Canvaid allows me to easily redo all
+                                my course quizzes so I have at least something
+                                to refer to!
                             </TestimonialText>
                         </TestimonialContent>
                         <TestimonialAvatar name={"Max"} title={"Year 2, NUS"} />

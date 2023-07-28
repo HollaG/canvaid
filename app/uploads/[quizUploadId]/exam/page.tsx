@@ -51,8 +51,13 @@ export default function Page() {
 
     const searchParams = useSearchParams();
     const params = useParams();
-    const { quizzes, setQuiz, selectedOptions, setSelectedOptions } =
-        useQuizContainer();
+    const {
+        quizzes,
+        setQuiz,
+        selectedOptions,
+        setSelectedOptions,
+        setExamQuestionList,
+    } = useQuizContainer();
 
     const toast = useToast();
     const router = useRouter();
@@ -74,7 +79,8 @@ export default function Page() {
     useEffect(() => {
         // reset selected options to nil when quiz changes
         setSelectedOptions({});
-    }, []);
+        setExamQuestionList([]);
+    }, [setSelectedOptions, setExamQuestionList]);
 
     // fetch quiz incase this is not this user's quiz
     useEffect(() => {
@@ -88,7 +94,7 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [quizUploadId, examQuiz, setQuiz]);
+    }, [quizUploadId, examQuiz, setQuiz, router]);
 
     // calculate the questions to be examined
     // we expect `num` to ALWAYS be in the URL. if not in URL, default to all qns
@@ -105,32 +111,19 @@ export default function Page() {
         parseInt(searchParams.get("length") || "0")
     );
 
-    console.log({
-        isRandom,
-        examLength,
-        numQuestions,
-    });
-
     useEffect(() => {
-        if (!examQuiz) return;
         const examinableQuestions = getExaminableQuestions(examQuiz);
 
-        if (numQuestions === 0) {
-            // all qns
-            setQns(
-                examinableQuestions.sort(() =>
-                    !isRandom ? 0 : Math.random() - Math.random()
-                )
-            );
-        } else {
-            // randomize
-            setQns(
-                examinableQuestions
-                    .sort(() => (!isRandom ? 0 : Math.random() - Math.random()))
-                    .slice(0, numQuestions)
-            );
+        let qns = examinableQuestions.sort(() =>
+            !isRandom ? 0 : Math.random() - Math.random()
+        );
+
+        if (numQuestions > 0) {
+            qns = qns.slice(0, numQuestions);
         }
-    }, [examQuiz, numQuestions]);
+        setQns(qns);
+        setExamQuestionList(qns);
+    }, [examQuiz, numQuestions, isRandom, setExamQuestionList]);
 
     // TODO: ensure error handling
 
@@ -311,11 +304,16 @@ export default function Page() {
                             size="lg"
                             onClick={submitCustomQuiz}
                             colorScheme="orange"
+                            // Note, this is just checking more # answered than actual
+                            // because test case is difficult to test
+                            // because of randomness
                             isDisabled={
-                                Object.keys(selectedOptions).length !==
+                                Object.keys(selectedOptions).length <
                                 (numQuestions || qns.length)
                             }
                             isLoading={isSubmitting}
+                            type="submit"
+                            name="submit"
                         >
                             Submit Quiz
                         </Button>

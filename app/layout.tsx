@@ -21,6 +21,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className={inter.className}>
+            <link rel="icon" href="/favicon.ico" sizes="any" />
             <body>
                 <Providers>
                     {/* <Navbar /> */}

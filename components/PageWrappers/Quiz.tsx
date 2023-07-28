@@ -114,7 +114,7 @@ export default function QuizContainer({
         // } else {
         //   setHasToken(false);
         // }
-    }, [user]);
+    }, [user, dataId]);
 
     // useEffect(() => {
     //     if (dataId)
@@ -938,25 +938,6 @@ const CombinedQuestionList = ({
     // </Stack>
 };
 
-type DeleteButtonProps = {
-    ID: string;
-    onDelete: () => void;
-};
-function DeleteButton({ ID, onDelete }: DeleteButtonProps) {
-    const handleDelete = async () => {
-        try {
-            console.log("Attempting delete of ", ID);
-            const docRef = doc(db, COLLECTION_NAME, ID);
-            await deleteDoc(docRef);
-            onDelete();
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    return <TbTrashX fontSize={"24px"} onClick={() => handleDelete()} />;
-}
-
 function DeleteAnnotationButton({
     ID,
     annotationID,
@@ -976,7 +957,6 @@ function DeleteAnnotationButton({
 }) {
     const handleDelete = async () => {
         try {
-            console.log("Attempting delete of ");
             const existingQuiz = doc(db, COLLECTION_NAME, ID);
             const existingQuizData = (
                 await getDoc(existingQuiz)

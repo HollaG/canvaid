@@ -25,24 +25,19 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
-    const countdown = () => {
-        if (time > 0) {
-            setTime((prevTime) => prevTime - 1);
-        } else {
-            onOpen();
-            // if (!modalOpenRef.current) {
-            //     modalOpenRef.current = true; // Set the ref to true, indicating modal is open
-            //     onOpen(); // Open the modal when time is up
-            // }
-        }
-    };
 
     // Start the timer on component mount
     useEffect(() => {
-        const timerId = setInterval(countdown, 1000);
+        if (time == 0) {
+            onOpen();
+            return;
+        }
+        const timerId = setInterval(() => {
+            setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : prevTime));
+        }, 1000);
 
         return () => clearInterval(timerId); // Clear the interval on component unmount
-    }, [time]);
+    }, [time, onOpen]);
     // useEffect(() => {
     //     // Add modalOpenRef.current as a dependency to rerender when it changes
     // }, [modalOpenRef.current]);
@@ -55,14 +50,14 @@ const Timer = ({ startTimeInMinutes }: { startTimeInMinutes: number }) => {
         //router.push("../");
     };
     return (
-        <Center>
+        <Center data-testid="timer">
             {time == 0 && !modalOpened && (
                 <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay />
                     <ModalContent>
                         <ModalHeader>Exam has ended!</ModalHeader>
                         <ModalCloseButton onClick={handleClose} />
-                        <ModalBody>Time's up!</ModalBody>
+                        <ModalBody>Time&apos;s up!</ModalBody>
 
                         <ModalFooter>
                             <Button colorScheme="teal" onClick={handleClose}>

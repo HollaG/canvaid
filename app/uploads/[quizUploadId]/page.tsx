@@ -161,7 +161,7 @@ export default function Page() {
                     router.push("/");
                 });
         }
-    }, [dataId, quiz, setQuiz]);
+    }, [dataId, quiz, setQuiz, router]);
 
     const [submissionIndex, setSubmissionIndex] = useState(
         submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
@@ -412,6 +412,7 @@ export default function Page() {
                                     );
                                 }}
                                 colorScheme="orange"
+                                data-testid="start-exam-btn"
                             >
                                 Start Exam
                             </Button>
@@ -425,9 +426,11 @@ export default function Page() {
                     spacing={6}
                     flexGrow={1}
                     ml={
-                        isOpenSidebar
-                            ? { base: 0, md: SIDEBAR_WIDTH }
-                            : { base: 0, md: "60px" }
+                        user
+                            ? isOpenSidebar
+                                ? { base: 0, md: SIDEBAR_WIDTH }
+                                : { base: 0, md: "60px" }
+                            : 0
                     }
                     p={4}
                     bgColor={bgColor}
@@ -453,26 +456,30 @@ export default function Page() {
                         courseCode={quiz.course.split(" ")[0]}
                         courseName={quiz.course.split(" ").slice(1).join(" ")}
                         Button={
-                            <Tooltip label="Delete this quiz">
-                                <Button
-                                    colorScheme={"red"}
-                                    onClick={alertDeleteDisclosure.onOpen}
-                                    isLoading={isDeleting}
-                                    size="sm"
-                                    data-testid="delete-quiz"
-                                >
-                                    <TbTrashX />
-                                    <Text
-                                        display={{
-                                            md: "unset",
-                                            base: "none",
-                                        }}
-                                        ml={2}
+                            user && user.uid === quiz.userUid ? (
+                                <Tooltip label="Delete this quiz">
+                                    <Button
+                                        colorScheme={"red"}
+                                        onClick={alertDeleteDisclosure.onOpen}
+                                        isLoading={isDeleting}
+                                        size="sm"
+                                        data-testid="delete-quiz"
                                     >
-                                        Delete
-                                    </Text>
-                                </Button>
-                            </Tooltip>
+                                        <TbTrashX />
+                                        <Text
+                                            display={{
+                                                md: "unset",
+                                                base: "none",
+                                            }}
+                                            ml={2}
+                                        >
+                                            Delete
+                                        </Text>
+                                    </Button>
+                                </Tooltip>
+                            ) : (
+                                <></>
+                            )
                         }
                     />
                     <Heading>{quiz.quizName}</Heading>
@@ -512,13 +519,18 @@ export default function Page() {
                     >
                         <GridItem p={5}>
                             <Stack>
-                                <Button
-                                    onClick={onOpen}
-                                    colorScheme="orange"
-                                    variant="outline"
-                                >
-                                    Enter Exam Mode
-                                </Button>
+                                {user ? (
+                                    <Button
+                                        onClick={onOpen}
+                                        colorScheme="orange"
+                                        variant="outline"
+                                        data-testid="exam-mode-btn"
+                                    >
+                                        Enter Exam Mode
+                                    </Button>
+                                ) : (
+                                    <></>
+                                )}
                                 {quiz.submissions.length !== 0 ? (
                                     <>
                                         <Divider />
@@ -590,23 +602,29 @@ export default function Page() {
                                                     ].attempt
                                                 )}
                                             </Heading>
-                                            <Flex>
-                                                <Button
-                                                    size="sm"
-                                                    colorScheme={"red"}
-                                                    onClick={() => {
-                                                        attemptDeleteDisclosure.onOpen();
-                                                        setAttemptNumberToDelete(
-                                                            quiz.submissions[
-                                                                submissionIndex
-                                                            ].attempt
-                                                        );
-                                                    }}
-                                                    data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
-                                                >
-                                                    <TbTrashX />
-                                                </Button>
-                                            </Flex>
+                                            {user &&
+                                            user.uid === quiz.userUid ? (
+                                                <Flex>
+                                                    <Button
+                                                        size="sm"
+                                                        colorScheme={"red"}
+                                                        onClick={() => {
+                                                            attemptDeleteDisclosure.onOpen();
+                                                            setAttemptNumberToDelete(
+                                                                quiz
+                                                                    .submissions[
+                                                                    submissionIndex
+                                                                ].attempt
+                                                            );
+                                                        }}
+                                                        data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
+                                                    >
+                                                        <TbTrashX />
+                                                    </Button>
+                                                </Flex>
+                                            ) : (
+                                                <></>
+                                            )}
                                         </Flex>
                                         <Stack spacing="10">
                                             {getQuestionsForAttempt(
@@ -645,11 +663,21 @@ export default function Page() {
                                                                 }
                                                             />
                                                         </div>
-                                                        <FlaggingButton
-                                                            question={question}
-                                                            quiz={quiz}
-                                                            setQuiz={setQuiz}
-                                                        />
+                                                        {user &&
+                                                        user.uid ===
+                                                            quiz.userUid ? (
+                                                            <FlaggingButton
+                                                                question={
+                                                                    question
+                                                                }
+                                                                quiz={quiz}
+                                                                setQuiz={
+                                                                    setQuiz
+                                                                }
+                                                            />
+                                                        ) : (
+                                                            <></>
+                                                        )}
                                                     </Heading>
                                                     <div
                                                         className="question-text"
@@ -797,7 +825,6 @@ const FlaggingButton = ({
             });
         } catch (e: any) {
             console.log(e);
-            console.log("Error unflagging");
             toast({
                 ...ERROR_TOAST_OPTIONS,
                 title: `Error ${
@@ -831,6 +858,7 @@ const QuestionExtras = ({
     setQuiz: (quiz: Quiz & { id: string }) => void;
 }) => {
     // const [isChatboxOpen, setIsChatboxOpen] = useState(false);
+    const { user } = useAuthContainer();
     const [newAnnotation, setNewAnnotation] = useState("");
 
     const handleSubmitAnnotation = async (event: FormEvent, i: number) => {
@@ -853,29 +881,37 @@ const QuestionExtras = ({
     };
     return (
         <Stack mt={4}>
-            <form
-                onSubmit={(event) => handleSubmitAnnotation(event, question.id)}
-            >
-                <Flex>
-                    <Input
-                        placeholder="Add a comment..."
-                        type="text"
-                        value={newAnnotation}
-                        onChange={(e) => setNewAnnotation(e.target.value)}
-                        size="sm"
-                        //onBlur={() => setIsChatboxOpen(false)}
-                        variant="flushed"
-                    />
-                    <Button
-                        type="submit"
-                        colorScheme={"teal"}
-                        size="sm"
-                        variant="ghost"
-                    >
-                        Submit
-                    </Button>
-                </Flex>
-            </form>
+            {user && user.uid === quiz.userUid ? (
+                <form
+                    onSubmit={(event) =>
+                        handleSubmitAnnotation(event, question.id)
+                    }
+                >
+                    <Flex>
+                        <Input
+                            placeholder="Add a comment..."
+                            type="text"
+                            value={newAnnotation}
+                            onChange={(e) => setNewAnnotation(e.target.value)}
+                            size="sm"
+                            //onBlur={() => setIsChatboxOpen(false)}
+                            variant="flushed"
+                        />
+                        <Button
+                            type="submit"
+                            colorScheme={"teal"}
+                            size="sm"
+                            variant="ghost"
+                        >
+                            Submit
+                        </Button>
+                    </Flex>
+                </form>
+            ) : question.annotations.length ? (
+                <Text fontWeight={"semibold"}> Comments </Text>
+            ) : (
+                <></>
+            )}
 
             <Stack>
                 {question.annotations.length &&
@@ -886,12 +922,16 @@ const QuestionExtras = ({
                                     {" "}
                                     {annotation.annotation}
                                 </Text>
-                                <DeleteAnnotationButton
-                                    ID={quiz.id}
-                                    annotationID={annotation.annotationID}
-                                    setQuiz={setQuiz}
-                                    question={question}
-                                />
+                                {user && user.uid ? (
+                                    <DeleteAnnotationButton
+                                        ID={quiz.id}
+                                        annotationID={annotation.annotationID}
+                                        setQuiz={setQuiz}
+                                        question={question}
+                                    />
+                                ) : (
+                                    <></>
+                                )}
                             </Flex>
                         );
                     })}
