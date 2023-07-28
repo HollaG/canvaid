@@ -91,14 +91,19 @@ export default function Page() {
     const router = useRouter();
     const params = useSearchParams();
     const showLogIn = params && params.get("login") === "true";
+    const updateToken = params && params.get("updateToken") === "true";
 
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     useEffect(() => {
-        // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
+        // if showLogIn or updateToken, always show the login model if the user is not logged in or they don't have a canvasApiToken
 
-        if (showLogIn && (!user || !user.canvasApiToken)) {
+        if (
+            (updateToken && user) ||
+            (showLogIn && (!user || !user.canvasApiToken))
+        ) {
+            console.log("updating");
             onOpen();
         } else {
             onClose();
@@ -107,7 +112,7 @@ export default function Page() {
 
         // cannot have router as dependency
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showLogIn, user, onClose, onOpen]);
+    }, [showLogIn, user, onClose, onOpen, updateToken]);
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");

@@ -32,8 +32,18 @@ import {
     useColorMode,
     useMediaQuery,
     Tooltip,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Kbd,
 } from "@chakra-ui/react";
-import { useParams, useSearchParams, usePathname } from "next/navigation";
+import {
+    useParams,
+    useSearchParams,
+    usePathname,
+    useRouter,
+} from "next/navigation";
 import React, { ReactNode, useEffect, useState } from "react";
 
 import {
@@ -64,6 +74,8 @@ import {
     TbSunLow,
     TbArrowRight,
     TbArrowLeft,
+    TbSettings,
+    TbExchange,
 } from "react-icons/tb";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { signOutAll } from "@/firebase/auth";
@@ -79,6 +91,7 @@ import { ExamSidebar } from "./ExamSidebar";
  */
 const Sidebar = () => {
     const { user } = useAuthContainer();
+    const router = useRouter();
     // const [quizzes, setQuizzes] = useState<(Quiz & { id: string })[]>([]);
 
     // useEffect(() => {
@@ -245,6 +258,18 @@ const Sidebar = () => {
                                 aria-label="Sign out"
                             >
                                 <TbDoorExit />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip label={"Change Canvas API Token"}>
+                            <Button
+                                variant={"ghost"}
+                                colorScheme="gray"
+                                onClick={() =>
+                                    router.push("/?updateToken=true")
+                                }
+                                aria-label="Change Canvas API Token"
+                            >
+                                <TbExchange />
                             </Button>
                         </Tooltip>
                         <Tooltip label={"Expand Sidebar"}>
@@ -577,7 +602,57 @@ const Sidebar = () => {
                         </>
                     )}
                     <Flex alignItems={"center"} justifyContent="space-between">
-                        <Tooltip
+                        <Menu>
+                            <MenuButton
+                                as={Button}
+                                variant="ghost"
+                                colorScheme={"gray"}
+                                aria-label="Menu button"
+                            >
+                                <TbSettings />
+                            </MenuButton>
+                            <MenuList>
+                                <MenuItem
+                                    icon={
+                                        colorMode === "light" ? (
+                                            <TbMoon />
+                                        ) : (
+                                            <TbSun />
+                                        )
+                                    }
+                                    onClick={toggleColorMode}
+                                >
+                                    <Flex
+                                        justifyContent={"space-between"}
+                                        alignItems="center"
+                                    >
+                                        <span>
+                                            {colorMode === "light"
+                                                ? "Toggle Dark Mode"
+                                                : "Toggle Light Mode"}{" "}
+                                        </span>
+                                        <span>
+                                            <Kbd>x</Kbd>
+                                        </span>
+                                    </Flex>
+                                </MenuItem>
+                                <MenuItem
+                                    icon={<TbExchange />}
+                                    onClick={() =>
+                                        router.push("/?updateToken=true")
+                                    }
+                                >
+                                    Change Canvas API Token
+                                </MenuItem>
+                                <MenuItem
+                                    icon={<TbDoorExit />}
+                                    onClick={() => alertProps.onOpen()}
+                                >
+                                    Sign out
+                                </MenuItem>
+                            </MenuList>
+                        </Menu>
+                        {/* <Tooltip
                             label={`Toggle ${
                                 colorMode === "light" ? "dark" : "light"
                             } mode`}
@@ -590,8 +665,8 @@ const Sidebar = () => {
                             >
                                 {colorMode === "light" ? <TbMoon /> : <TbSun />}
                             </Button>
-                        </Tooltip>
-                        <Tooltip label="Sign out">
+                        </Tooltip> */}
+                        {/* <Tooltip label="Sign out">
                             <Button
                                 variant={"ghost"}
                                 colorScheme="gray"
@@ -600,7 +675,7 @@ const Sidebar = () => {
                             >
                                 <TbDoorExit />
                             </Button>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip
                             label={
                                 isOpenSidebar
