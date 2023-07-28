@@ -457,7 +457,7 @@ const Sidebar = () => {
                             >
                                 Quick Access
                             </Text>
-                            <Accordion overflowY="auto">
+                            <Accordion overflowY="auto" allowToggle>
                                 {Object.keys(quizzesByCourse).map(
                                     (courseCode) => {
                                         const quizzes =
@@ -556,7 +556,11 @@ const Sidebar = () => {
                             >
                                 Custom
                             </Text>
-                            <Accordion overflowY="auto" flexGrow={1}>
+                            <Accordion
+                                overflowY="auto"
+                                flexGrow={1}
+                                allowToggle
+                            >
                                 {Object.keys(customQuizzesByCourse).map(
                                     (courseCode) => {
                                         const quizzes =
