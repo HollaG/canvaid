@@ -232,7 +232,7 @@ export default function LoginComponent() {
         // redirect back to home page
         // close the modal then redirect
         // redirect("/");
-        // router.replace("/");
+        // router.replace("/");FormControl
     }
 
     return (
@@ -245,8 +245,104 @@ export default function LoginComponent() {
                     />
                 </Box>
             )}
-            <Container maxW="container.md" ml={0}>
-                <Box>
+            <Container maxW="container.md" ml={0} >
+            {!isNew && showResetEmail ? (
+                                        <Stack mt = {83}>
+                                        <Heading fontWeight={"semibold"} fontSize="5xl" mb = {150}>
+                               Reset Your Password
+                            </Heading>
+                                            <FormControl
+                                                id="reset-email"
+                                                isRequired
+                                                isInvalid={
+                                                    !(emailToReset === "") &&
+                                                    !resetEmailIsValid
+                                                }
+                                                variant="floating_lg"
+                                            >
+                                                <Input
+                                                    value={emailToReset}
+                                                    onChange={(e) =>
+                                                        setEmailToReset(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    type="email"
+                                                    size={"lg"}
+                                                    placeholder=" "
+                                                />
+                                                <FormLabel>Email</FormLabel>
+
+                                                {emailToReset === "" ||
+                                                resetEmailIsValid ? (
+                                                    <FormHelperText>
+                                                        Enter the email you want
+                                                        to reset the password
+                                                        for. We'll send you an
+                                                        email with password
+                                                        reset instructions.
+                                                    </FormHelperText>
+                                                ) : (
+                                                    <FormErrorMessage>
+                                                        Email is invalid!
+                                                    </FormErrorMessage>
+                                                )}
+                                                <Flex justifyContent={"space-between"} mt= {50}>
+                                                    
+                                                    
+                                            <Button
+                                                onClick={forgotPassword}
+                                                isLoading={isSendingResetEmail}
+                                                type="submit"
+                                                width="120px"
+                                                isDisabled={
+                                                    hasSentResetEmail ||
+                                                    !resetEmailIsValid
+                                                }
+                                            >
+                                                Reset password
+                                            </Button>
+                                            <Button
+                                                        // colorScheme="red"
+                                                        variant="ghost"
+                                                        onClick={() =>
+                                                            setShowResetEmail(
+                                                                false
+                                                            )
+                                                        }
+                                                        width="120px"
+                                                    >
+                                                        Go back
+                                                    </Button>
+                                                </Flex>
+                                            </FormControl>
+                                            {hasSentResetEmail && (
+                                                <Alert status="success">
+                                                    <AlertIcon />
+                                                    <AlertTitle mr={2}>
+                                                        Email sent!
+                                                    </AlertTitle>
+                                                    <AlertDescription>
+                                                        If you still don't see
+                                                        the email, please check
+                                                        your spam folder.
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                            {errorSendingResetEmail && (
+                                                <Alert status="error">
+                                                    <AlertIcon />
+                                                    <AlertTitle mr={2}>
+                                                        Error!
+                                                    </AlertTitle>
+                                                    <AlertDescription>
+                                                        {errorSendingResetEmail}
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                        </Stack>
+                                    ):(<>
+                                    <Box>
                     <Stepper
                         index={activeStep}
                         orientation={stepperOrienation as any}
@@ -283,8 +379,9 @@ export default function LoginComponent() {
 
                         <form onSubmit={(e) => e.preventDefault()}>
                             <Stack spacing={8} mt={{ base: 14, md: 28 }}>
+
                                 {!isNew ? (
-                                    !showResetEmail ? (
+                                    !showResetEmail && (
                                         <>
                                             <FormControl
                                                 id="email"
@@ -376,85 +473,7 @@ export default function LoginComponent() {
                                                 </Flex>
                                             </FormControl>
                                         </>
-                                    ) : (
-                                        <>
-                                            <FormControl
-                                                id="reset-email"
-                                                isRequired
-                                                isInvalid={
-                                                    !(emailToReset === "") &&
-                                                    !resetEmailIsValid
-                                                }
-                                                variant="floating_lg"
-                                            >
-                                                <Input
-                                                    value={emailToReset}
-                                                    onChange={(e) =>
-                                                        setEmailToReset(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    type="email"
-                                                    size={"lg"}
-                                                    placeholder=" "
-                                                />
-                                                <FormLabel>Email</FormLabel>
-
-                                                {emailToReset === "" ||
-                                                resetEmailIsValid ? (
-                                                    <FormHelperText>
-                                                        Enter the email you want
-                                                        to reset the password
-                                                        for. We'll send you an
-                                                        email with password
-                                                        reset instructions.
-                                                    </FormHelperText>
-                                                ) : (
-                                                    <FormErrorMessage>
-                                                        Email is invalid!
-                                                    </FormErrorMessage>
-                                                )}
-                                                <Flex justifyContent={"end"}>
-                                                    <Button
-                                                        // colorScheme="red"
-                                                        variant="ghost"
-                                                        onClick={() =>
-                                                            setShowResetEmail(
-                                                                false
-                                                            )
-                                                        }
-                                                        size="xs"
-                                                    >
-                                                        Go back
-                                                    </Button>
-                                                </Flex>
-                                            </FormControl>
-                                            {hasSentResetEmail && (
-                                                <Alert status="success">
-                                                    <AlertIcon />
-                                                    <AlertTitle mr={2}>
-                                                        Email sent!
-                                                    </AlertTitle>
-                                                    <AlertDescription>
-                                                        If you still don't see
-                                                        the email, please check
-                                                        your spam folder.
-                                                    </AlertDescription>
-                                                </Alert>
-                                            )}
-                                            {errorSendingResetEmail && (
-                                                <Alert status="error">
-                                                    <AlertIcon />
-                                                    <AlertTitle mr={2}>
-                                                        Error!
-                                                    </AlertTitle>
-                                                    <AlertDescription>
-                                                        {errorSendingResetEmail}
-                                                    </AlertDescription>
-                                                </Alert>
-                                            )}
-                                        </>
-                                    )
+                                    )  
                                 ) : (
                                     <></>
                                 )}{" "}
@@ -649,7 +668,7 @@ export default function LoginComponent() {
                                             >
                                                 Sign up
                                             </Button>
-                                        ) : !showResetEmail ? (
+                                        ) : (
                                             <Button
                                                 onClick={signIn}
                                                 isLoading={isSubmitting}
@@ -658,20 +677,8 @@ export default function LoginComponent() {
                                             >
                                                 Sign in
                                             </Button>
-                                        ) : (
-                                            <Button
-                                                onClick={forgotPassword}
-                                                isLoading={isSendingResetEmail}
-                                                type="submit"
-                                                width="120px"
-                                                isDisabled={
-                                                    hasSentResetEmail ||
-                                                    !resetEmailIsValid
-                                                }
-                                            >
-                                                Reset password
-                                            </Button>
-                                        )}
+                                        )  
+                                        }
                                     </Box>
                                     <Box>
                                         <Button
@@ -684,8 +691,8 @@ export default function LoginComponent() {
                                         >
                                             {" "}
                                             {!isNew
-                                                ? "I'm new!"
-                                                : "I've been here before"}{" "}
+                                                ? "Sign up"
+                                                : "Sign in"}{" "}
                                         </Button>
                                     </Box>
                                 </Stack>
@@ -732,7 +739,8 @@ export default function LoginComponent() {
                 </Collapse>
                 <Collapse in={step === 1}>
                     <NotCanvasApiTokenPage />
-                </Collapse>
+                </Collapse></>)}
+                
             </Container>
             {/* <Tabs variant="soft-rounded">
                 <TabList>
