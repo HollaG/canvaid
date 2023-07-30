@@ -204,6 +204,8 @@ export default function QuizUploadCard({
                                     .split(" ")
                                     .slice(1)
                                     .join(" ")}
+                                uploadId={quiz.id}
+                                key={quiz.id}
                             />
                         </CardHeader>
                         <CardBody pt={0}>
