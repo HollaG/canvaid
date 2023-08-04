@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteButton from "./DeleteButton";
 import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
 
@@ -158,4 +158,4 @@ const Courses = ({ onAddNew }: CourseProps) => {
     );
 };
 
-export default Courses;
+export default React.memo(Courses);
