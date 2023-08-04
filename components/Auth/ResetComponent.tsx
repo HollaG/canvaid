@@ -143,7 +143,7 @@ export default function ResetComponent() {
                                         }}
                                         type="password"
                                         // variant="flushed"
-                                        placeholder=" "
+                                        placeholder="Enter your new password"
                                         size={"lg"}
                                     />
                                     <FormLabel>Password</FormLabel>

@@ -8,17 +8,7 @@ import { AppRouterContextProviderMock } from "../../../__mocks__/wrappers";
 import { QuizStorageContext, UserContext } from "@/app/providers";
 import userEvent from "@testing-library/user-event";
 import { confirmPasswordReset, sendPasswordResetEmail } from "firebase/auth";
-import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 const mockRouterReplace = jest.fn();
-const onReset = jest.fn(async (data, toast, router) => {
-    // Mock the successful reset here
-    toast({
-      ...SUCCESS_TOAST_OPTIONS,
-      title: "Password reset successfully!",
-    });
-    router.replace("/?login=true");
-  });
-  jest.mock('./onReset')
 jest.mock('next/router', () => ({
     useRouter: () => ({
       replace: mockRouterReplace ,
@@ -62,8 +52,7 @@ render(
       //expect(screen.getByText('Do we know you?')).toBeInTheDocument();
     }
 )
-it("clicks reset button triggering password reset", async () => {
-   
+it("calls router.replace after successful password reset", async () => {
     jest.mock("next/navigation", () => ({
         useRouter: () => ({
           replace: jest.fn(), // Mock the router.replace function
@@ -88,8 +77,7 @@ it("clicks reset button triggering password reset", async () => {
     const newPassword = "testPassword";
     // Render the component
     //const { confirmPasswordReset, sendPasswordResetEmail } = require("firebase/auth");
-    const setIsResetting = jest.fn();
-    const setResetErrorMessage = jest.fn();
+
     render(
         //<UserContext.Provider value={{ user: false, setUser: jest.fn() }}>
     <AppRouterContextProviderMock router={{}}>
@@ -100,7 +88,7 @@ it("clicks reset button triggering password reset", async () => {
     //</UserContext.Provider>
     )
     // Get the input field and the reset button
-    const passwordInput = screen.getByPlaceholderText("Enter your password here");
+    const passwordInput = screen.getByPlaceholderText("Enter your new password");
     const resetButton = screen.getByText("Reset password");
 
     // Enter a new password
@@ -112,10 +100,7 @@ it("clicks reset button triggering password reset", async () => {
 
     // Click the reset button
     fireEvent.click(screen.getByRole('button', { name: "Reset password" }));
-    //expect(onReset).toHaveBeenCalled();
-    // expect(setIsResetting).toHaveBeenCalledTimes(1) 
-    // expect(setResetErrorMessage).toHaveBeenCalledTimes(1)
-     mockConfirmPasswordReset.mockResolvedValueOnce({});
+    mockConfirmPasswordReset.mockResolvedValueOnce({});
     // Expect that confirmPasswordReset was called with the correct parameters
     // await waitFor(() => {expect(mockConfirmPasswordReset).toHaveBeenCalledWith(
     //     {},
@@ -125,25 +110,10 @@ it("clicks reset button triggering password reset", async () => {
     
 
     // Expect that router.replace was called with the correct URL
-    // const mockRouterReplace = require("next/navigation").useRouter().replace;
-    // expect(mockRouterReplace).toHaveBeenCalledWith("/?login=true");
+    const mockRouterReplace = require("next/navigation").useRouter().replace;
+    expect(mockRouterReplace).toHaveBeenCalledWith("/?login=true");
   });
-it ('should show the success toast upon successful password reset', async () => {
-    render(
-        //<UserContext.Provider value={{ user: false, setUser: jest.fn() }}>
-    <AppRouterContextProviderMock router={{}}>
-        <ChakraProvider theme = {customTheme}>
-            <ResetComponent />
-        </ChakraProvider>
-    </AppRouterContextProviderMock>
-    //</UserContext.Provider>
-    )
-    
-  fireEvent.click(screen.getByRole('button', { name: "Reset password" }));
 
-expect(onReset).toHaveBeenCalled();
-}
-)
 // it ( 'should show an error message if the password is too short', async () => {
 //     const user = userEvent.setup();
 
