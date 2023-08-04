@@ -5,6 +5,10 @@ import { signInWithGoogle } from "@/firebase/auth/google";
 import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
+    Alert,
+    AlertDescription,
+    AlertIcon,
+    AlertTitle,
     Box,
     Button,
     Center,
@@ -40,7 +44,12 @@ import {
     useSteps,
     useToast,
 } from "@chakra-ui/react";
-import { redirect, useRouter } from "next/navigation";
+import {
+    redirect,
+    useParams,
+    useRouter,
+    useSearchParams,
+} from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaGithub, FaMicrosoft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
@@ -50,6 +59,8 @@ import NotCanvasApiTokenPage from "../Home/NotCanvasApiTokenPage";
 import AuthImage from "@/public/assets/auth.svg";
 import Image from "next/image";
 import DarkAuthImage from "@/public/assets/auth-dark.svg";
+import { auth } from "@/firebase/config";
+import { confirmPasswordReset, sendPasswordResetEmail } from "firebase/auth";
 
 export default function LoginComponent() {
     const { user } = useAuthContainer();
@@ -181,11 +192,47 @@ export default function LoginComponent() {
     const [showAuthPerson] = useMediaQuery("(min-width: 1000px)");
     const isDarkMode = useColorModeValue(false, true);
 
+    const params = useSearchParams();
+    const [emailToReset, setEmailToReset] = useState("");
+    const [showResetEmail, setShowResetEmail] = useState(
+        params.get("reset") === "true" || false
+    );
+    const resetEmailIsValid = emailToReset.includes("@");
+    const [hasSentResetEmail, setHasSentResetEmail] = useState(false);
+    const [isSendingResetEmail, setIsSendingResetEmail] = useState(false);
+    const [errorSendingResetEmail, setErrorSendingResetEmail] = useState("");
+    const forgotPassword = async () => {
+        try {
+            setErrorSendingResetEmail("");
+            console.log("is submitting");
+            setIsSendingResetEmail(true);
+            await sendPasswordResetEmail(auth, emailToReset, {
+                handleCodeInApp: true,
+                url: `http://localhost:3000/?login=true`,
+            });
+
+            setHasSentResetEmail(true);
+        } catch (e: any) {
+            console.log(e);
+            if (e.toString().includes("invalid-email")) {
+                setErrorSendingResetEmail("Invalid email!");
+            } else if (e.toString().includes("user-not-found")) {
+                setErrorSendingResetEmail(
+                    "User not found! Please sign up first!"
+                );
+            } else {
+                setErrorSendingResetEmail(e.toString());
+            }
+        } finally {
+            setIsSendingResetEmail(false);
+        }
+    };
+
     if (user && user.canvasApiToken) {
         // redirect back to home page
         // close the modal then redirect
         // redirect("/");
-        // router.replace("/");
+        // router.replace("/");FormControl
     }
 
     return (
@@ -198,8 +245,104 @@ export default function LoginComponent() {
                     />
                 </Box>
             )}
-            <Container maxW="container.md" ml={0}>
-                <Box>
+            <Container maxW="container.md" ml={0} >
+            {!isNew && showResetEmail ? (
+                                        <Stack mt = {83}>
+                                        <Heading fontWeight={"semibold"} fontSize="5xl" mb = {150}>
+                               Reset Your Password
+                            </Heading>
+                                            <FormControl
+                                                id="reset-email"
+                                                isRequired
+                                                isInvalid={
+                                                    !(emailToReset === "") &&
+                                                    !resetEmailIsValid
+                                                }
+                                                variant="floating_lg"
+                                            >
+                                                <Input
+                                                    value={emailToReset}
+                                                    onChange={(e) =>
+                                                        setEmailToReset(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    type="email"
+                                                    size={"lg"}
+                                                    placeholder=" "
+                                                />
+                                                <FormLabel>Email</FormLabel>
+
+                                                {emailToReset === "" ||
+                                                resetEmailIsValid ? (
+                                                    <FormHelperText>
+                                                        Enter the email you want
+                                                        to reset the password
+                                                        for. We'll send you an
+                                                        email with password
+                                                        reset instructions.
+                                                    </FormHelperText>
+                                                ) : (
+                                                    <FormErrorMessage>
+                                                        Email is invalid!
+                                                    </FormErrorMessage>
+                                                )}
+                                                <Flex justifyContent={"space-between"} mt= {50}>
+                                                    
+                                                    
+                                            <Button
+                                                onClick={forgotPassword}
+                                                isLoading={isSendingResetEmail}
+                                                type="submit"
+                                                width="120px"
+                                                isDisabled={
+                                                    hasSentResetEmail ||
+                                                    !resetEmailIsValid
+                                                }
+                                            >
+                                                Reset password
+                                            </Button>
+                                            <Button
+                                                        // colorScheme="red"
+                                                        variant="ghost"
+                                                        onClick={() =>
+                                                            setShowResetEmail(
+                                                                false
+                                                            )
+                                                        }
+                                                        width="120px"
+                                                    >
+                                                        Go back
+                                                    </Button>
+                                                </Flex>
+                                            </FormControl>
+                                            {hasSentResetEmail && (
+                                                <Alert status="success">
+                                                    <AlertIcon />
+                                                    <AlertTitle mr={2}>
+                                                        Email sent!
+                                                    </AlertTitle>
+                                                    <AlertDescription>
+                                                        If you still don't see
+                                                        the email, please check
+                                                        your spam folder.
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                            {errorSendingResetEmail && (
+                                                <Alert status="error">
+                                                    <AlertIcon />
+                                                    <AlertTitle mr={2}>
+                                                        Error!
+                                                    </AlertTitle>
+                                                    <AlertDescription>
+                                                        {errorSendingResetEmail}
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                        </Stack>
+                                    ):(<>
+                                    <Box>
                     <Stepper
                         index={activeStep}
                         orientation={stepperOrienation as any}
@@ -234,84 +377,107 @@ export default function LoginComponent() {
                             </Heading>
                         </Flex>
 
-                        <form>
+                        <form onSubmit={(e) => e.preventDefault()}>
                             <Stack spacing={8} mt={{ base: 14, md: 28 }}>
+
                                 {!isNew ? (
-                                    <>
-                                        <FormControl
-                                            id="email"
-                                            isRequired
-                                            isInvalid={returningEmailIncorrect}
-                                            variant="floating_lg"
-                                        >
-                                            <Input
-                                                value={returningEmail}
-                                                onChange={(e) => {
-                                                    setReturningEmail(
-                                                        e.target.value
-                                                    );
-                                                    setReturningEmailIncorrect(
-                                                        false
-                                                    );
-                                                }}
-                                                type="email"
-                                                // variant="flushed"
-                                                placeholder=" "
-                                                size={"lg"}
-                                                data-testid="email-signin"
-                                            />
-                                            <FormLabel>Email</FormLabel>
+                                    !showResetEmail && (
+                                        <>
+                                            <FormControl
+                                                id="email"
+                                                isRequired
+                                                isInvalid={
+                                                    returningEmailIncorrect
+                                                }
+                                                variant="floating_lg"
+                                            >
+                                                <Input
+                                                    value={returningEmail}
+                                                    onChange={(e) => {
+                                                        setReturningEmail(
+                                                            e.target.value
+                                                        );
+                                                        setReturningEmailIncorrect(
+                                                            false
+                                                        );
+                                                    }}
+                                                    type="email"
+                                                    // variant="flushed"
+                                                    placeholder=" "
+                                                    size={"lg"}
+                                                    data-testid="email-signin"
+                                                />
+                                                <FormLabel>Email</FormLabel>
 
-                                            {!returningEmailIncorrect ? (
-                                                <FormHelperText>
-                                                    Please enter the email you
-                                                    signed up with.
-                                                </FormHelperText>
-                                            ) : (
-                                                <FormErrorMessage>
-                                                    Email does not exist, please
-                                                    sign up first!
-                                                </FormErrorMessage>
-                                            )}
-                                        </FormControl>
-                                        <FormControl
-                                            id="password"
-                                            isRequired
-                                            isInvalid={
-                                                returningPasswordIncorrect
-                                            }
-                                            variant="floating_lg"
-                                        >
-                                            <Input
-                                                value={returningPassword}
-                                                onChange={(e) => {
-                                                    setReturningPassword(
-                                                        e.target.value
-                                                    );
-                                                    setReturningPasswordIncorrect(
-                                                        false
-                                                    );
-                                                }}
-                                                type="password"
-                                                // variant="flushed"
-                                                placeholder=" "
-                                                size={"lg"}
-                                            />
-                                            <FormLabel>Password</FormLabel>
+                                                {!returningEmailIncorrect ? (
+                                                    <FormHelperText>
+                                                        Please enter the email
+                                                        you signed up with.
+                                                    </FormHelperText>
+                                                ) : (
+                                                    <FormErrorMessage>
+                                                        Email does not exist,
+                                                        please sign up first!
+                                                    </FormErrorMessage>
+                                                )}
+                                            </FormControl>
+                                            <FormControl
+                                                id="password"
+                                                isRequired
+                                                isInvalid={
+                                                    returningPasswordIncorrect
+                                                }
+                                                variant="floating_lg"
+                                            >
+                                                <Input
+                                                    value={returningPassword}
+                                                    onChange={(e) => {
+                                                        setReturningPassword(
+                                                            e.target.value
+                                                        );
+                                                        setReturningPasswordIncorrect(
+                                                            false
+                                                        );
+                                                    }}
+                                                    type="password"
+                                                    // variant="flushed"
+                                                    placeholder=" "
+                                                    size={"lg"}
+                                                />
+                                                <FormLabel>Password</FormLabel>
 
-                                            {!returningPasswordIncorrect ? (
-                                                <FormHelperText>
-                                                    Your password must be at
-                                                    least 6 characters long.
-                                                </FormHelperText>
-                                            ) : (
-                                                <FormErrorMessage>
-                                                    Your password is incorrect!
-                                                </FormErrorMessage>
-                                            )}
-                                        </FormControl>
-                                    </>
+                                                {!returningPasswordIncorrect ? (
+                                                    <FormHelperText>
+                                                        Your password must be at
+                                                        least 6 characters long.
+                                                    </FormHelperText>
+                                                ) : (
+                                                    <FormErrorMessage>
+                                                        Your password is
+                                                        incorrect!
+                                                    </FormErrorMessage>
+                                                )}
+                                                <Flex justifyContent={"end"}>
+                                                    <Button
+                                                        colorScheme="red"
+                                                        variant="ghost"
+                                                        onClick={() =>
+                                                            setShowResetEmail(
+                                                                true
+                                                            )
+                                                        }
+                                                        size="xs"
+                                                    >
+                                                        Forgot password?
+                                                    </Button>
+                                                </Flex>
+                                            </FormControl>
+                                        </>
+                                    )  
                                 ) : (
+                                    <></>
+                                )}{" "}
+                                {isNew ? (
                                     <>
                                         <FormControl
                                             id="new-email"
@@ -450,7 +616,41 @@ export default function LoginComponent() {
                                             </FormControl>
                                         </Flex>
                                     </>
+                                ) : (
+                                    <></>
                                 )}
+                                {/* {showResetEmail ? (
+                                    <FormControl
+                                        id="reset-email"
+                                        isRequired
+                                        isInvalid={!(emailToReset === "")}
+                                        variant="floating_lg"
+                                    >
+                                        <Input
+                                            value={emailToReset}
+                                            onChange={(e) =>
+                                                setEmailToReset(e.target.value)
+                                            }
+                                            type="email"
+                                            size={"lg"}
+                                            placeholder=" "
+                                        />
+                                        <FormLabel>Email</FormLabel>
+
+                                        {newEmail === "" || emailIsValid ? (
+                                            <FormHelperText>
+                                                Enter the email you want to
+                                                reset the password for.
+                                            </FormHelperText>
+                                        ) : (
+                                            <FormErrorMessage>
+                                                Email is invalid!
+                                            </FormErrorMessage>
+                                        )}
+                                    </FormControl>
+                                ) : (
+                                    <></>
+                                )} */}
                                 <Box></Box>
                                 <Stack
                                     direction={{ base: "column", md: "row" }}
@@ -477,7 +677,8 @@ export default function LoginComponent() {
                                             >
                                                 Sign in
                                             </Button>
-                                        )}
+                                        )  
+                                        }
                                     </Box>
                                     <Box>
                                         <Button
@@ -490,8 +691,8 @@ export default function LoginComponent() {
                                         >
                                             {" "}
                                             {!isNew
-                                                ? "I'm new!"
-                                                : "I've been here before"}{" "}
+                                                ? "Sign up"
+                                                : "Sign in"}{" "}
                                         </Button>
                                     </Box>
                                 </Stack>
@@ -507,7 +708,6 @@ export default function LoginComponent() {
                                         </Center>
                                     </Button>
                                 </Box>
-
                                 {/* <Divider />
 
                             <Button
@@ -539,7 +739,8 @@ export default function LoginComponent() {
                 </Collapse>
                 <Collapse in={step === 1}>
                     <NotCanvasApiTokenPage />
-                </Collapse>
+                </Collapse></>)}
+                
             </Container>
             {/* <Tabs variant="soft-rounded">
                 <TabList>
