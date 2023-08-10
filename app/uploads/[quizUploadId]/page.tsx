@@ -77,6 +77,7 @@ import {
     StepStatus,
     StepTitle,
     useMediaQuery,
+    useBoolean,
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -88,6 +89,7 @@ import {
     SetStateAction,
 } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
+import { TbEye, TbEyeFilled } from "react-icons/tb";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
 import CourseInfo from "@/components/Display/CourseInfo";
 import {
@@ -295,6 +297,10 @@ export default function Page() {
 
     const [showIllustration] = useMediaQuery("(min-width: 1000px)");
     const isDarkMode = useColorModeValue(false, true);
+
+    // For showing / hiding flagged questions
+    const [showFlaggedOnly, setShowFlaggedOnly] = useBoolean(false);
+
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -604,7 +610,7 @@ export default function Page() {
                                             </Heading>
                                             {user &&
                                             user.uid === quiz.userUid ? (
-                                                <Flex>
+                                                <Flex alignItems={"center"}>
                                                     <Button
                                                         size="sm"
                                                         colorScheme={"red"}
@@ -621,6 +627,35 @@ export default function Page() {
                                                     >
                                                         <TbTrashX />
                                                     </Button>
+                                                    <Tooltip
+                                                        label={`${
+                                                            showFlaggedOnly
+                                                                ? "Show all questions"
+                                                                : "Show only flagged questions"
+                                                        }`}
+                                                    >
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme={"teal"}
+                                                            variant={
+                                                                showFlaggedOnly
+                                                                    ? "solid"
+                                                                    : "outline"
+                                                            }
+                                                            onClick={
+                                                                setShowFlaggedOnly.toggle
+                                                            }
+                                                            data-testid={`toggle-flagged`}
+                                                            ml={2}
+                                                            w="40px"
+                                                        >
+                                                            {showFlaggedOnly ? (
+                                                                <TbEyeFilled />
+                                                            ) : (
+                                                                <TbEye />
+                                                            )}
+                                                        </Button>
+                                                    </Tooltip>
                                                 </Flex>
                                             ) : (
                                                 <></>
@@ -629,30 +664,86 @@ export default function Page() {
                                         <Stack spacing="10">
                                             {getQuestionsForAttempt(
                                                 submissionIndex
-                                            ).map((question, i) => (
-                                                <Stack
-                                                    key={i}
-                                                    alignItems="stretch"
-                                                    borderWidth="1px"
-                                                    borderRadius="md"
-                                                    padding="4"
-                                                    bgColor={questionBgColor}
-                                                >
-                                                    <Heading
-                                                        fontSize="lg"
-                                                        alignItems={"center"}
-                                                        display="flex"
-                                                        justifyContent={
-                                                            "space-between"
+                                            )
+                                                .filter((qn) =>
+                                                    showFlaggedOnly
+                                                        ? qn.isFlagged
+                                                        : true
+                                                )
+                                                .map((question, i) => (
+                                                    <Stack
+                                                        key={i}
+                                                        alignItems="stretch"
+                                                        borderWidth="1px"
+                                                        borderRadius="md"
+                                                        padding="4"
+                                                        bgColor={
+                                                            questionBgColor
                                                         }
                                                     >
-                                                        <div>
-                                                            {" "}
-                                                            Question {i +
-                                                                1}{" "}
-                                                            <QuestionResultTag
-                                                                quiz={quiz}
-                                                                questionResponse={
+                                                        <Heading
+                                                            fontSize="lg"
+                                                            alignItems={
+                                                                "center"
+                                                            }
+                                                            display="flex"
+                                                            justifyContent={
+                                                                "space-between"
+                                                            }
+                                                        >
+                                                            <div>
+                                                                {" "}
+                                                                Question {i +
+                                                                    1}{" "}
+                                                                <QuestionResultTag
+                                                                    quiz={quiz}
+                                                                    questionResponse={
+                                                                        quiz
+                                                                            .selectedOptions[
+                                                                            submissionIndex
+                                                                        ][
+                                                                            question
+                                                                                .id
+                                                                        ]
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            {user &&
+                                                            user.uid ===
+                                                                quiz.userUid ? (
+                                                                <FlaggingButton
+                                                                    question={
+                                                                        question
+                                                                    }
+                                                                    quiz={quiz}
+                                                                    setQuiz={
+                                                                        setQuiz
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <></>
+                                                            )}
+                                                        </Heading>
+                                                        <div
+                                                            className="question-text"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: question.question_text,
+                                                            }}
+                                                        />
+                                                        <Divider />
+                                                        <Box mt={3}>
+                                                            <AnswerList
+                                                                questionType={
+                                                                    question.question_type
+                                                                }
+                                                                answers={
+                                                                    question.answers
+                                                                }
+                                                                selectedOptions={
+                                                                    quiz
+                                                                        .selectedOptions[
+                                                                        submissionIndex
+                                                                    ] &&
                                                                     quiz
                                                                         .selectedOptions[
                                                                         submissionIndex
@@ -661,62 +752,20 @@ export default function Page() {
                                                                             .id
                                                                     ]
                                                                 }
-                                                            />
-                                                        </div>
-                                                        {user &&
-                                                        user.uid ===
-                                                            quiz.userUid ? (
-                                                            <FlaggingButton
-                                                                question={
-                                                                    question
-                                                                }
-                                                                quiz={quiz}
-                                                                setQuiz={
-                                                                    setQuiz
+                                                                show_correct_answers={
+                                                                    quiz
+                                                                        .quizInfo
+                                                                        .show_correct_answers
                                                                 }
                                                             />
-                                                        ) : (
-                                                            <></>
-                                                        )}
-                                                    </Heading>
-                                                    <div
-                                                        className="question-text"
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: question.question_text,
-                                                        }}
-                                                    />
-                                                    <Divider />
-                                                    <Box mt={3}>
-                                                        <AnswerList
-                                                            questionType={
-                                                                question.question_type
-                                                            }
-                                                            answers={
-                                                                question.answers
-                                                            }
-                                                            selectedOptions={
-                                                                quiz
-                                                                    .selectedOptions[
-                                                                    submissionIndex
-                                                                ] &&
-                                                                quiz
-                                                                    .selectedOptions[
-                                                                    submissionIndex
-                                                                ][question.id]
-                                                            }
-                                                            show_correct_answers={
-                                                                quiz.quizInfo
-                                                                    .show_correct_answers
-                                                            }
+                                                        </Box>
+                                                        <QuestionExtras
+                                                            question={question}
+                                                            quiz={quiz}
+                                                            setQuiz={setQuiz}
                                                         />
-                                                    </Box>
-                                                    <QuestionExtras
-                                                        question={question}
-                                                        quiz={quiz}
-                                                        setQuiz={setQuiz}
-                                                    />
-                                                </Stack>
-                                            ))}
+                                                    </Stack>
+                                                ))}
                                         </Stack>
                                     </Stack>
                                 )}
@@ -1054,8 +1103,18 @@ const AnswerList = ({
                 <CheckboxGroup value={userSelected}>
                     <Stack spacing={4}>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"} key={i}>
-                                <Box width="100px" textAlign={"end"} mr={3}>
+                            <Flex
+                                alignItems={{ base: "unset", sm: "center" }}
+                                key={i}
+                                flexDirection={{ base: "column", sm: "row" }}
+                            >
+                                <Box
+                                    width="100px"
+                                    textAlign={{ base: "unset", sm: "end" }}
+                                    mr={3}
+                                    flexShrink={0}
+                                    // display={{ base: "none", md: "unset" }}
+                                >
                                     <AnswerResultTag
                                         answer={answer}
                                         selectedOptions={selectedOptions}
@@ -1085,7 +1144,12 @@ const AnswerList = ({
                 <Stack spacing={4}>
                     <Flex alignItems={"center"}>
                         {" "}
-                        <Box width="100px" textAlign="end" mr={3}>
+                        <Box
+                            width="100px"
+                            textAlign="end"
+                            mr={3}
+                            flexShrink={0}
+                        >
                             <AnswerResultTag
                                 selectedOptions={selectedOptions}
                                 show_correct_answers={show_correct_answers}
@@ -1106,7 +1170,12 @@ const AnswerList = ({
                     {selectedOptions?.correct_answer_text && (
                         <Flex alignItems={"center"}>
                             {" "}
-                            <Box width="100px" textAlign="end" mr={3}>
+                            <Box
+                                width="100px"
+                                textAlign="end"
+                                mr={3}
+                                flexShrink={0}
+                            >
                                 {/* <Badge colorScheme="green">Correct!</Badge> */}
                             </Box>{" "}
                             <Box>
