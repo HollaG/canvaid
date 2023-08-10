@@ -611,22 +611,6 @@ export default function Page() {
                                             {user &&
                                             user.uid === quiz.userUid ? (
                                                 <Flex alignItems={"center"}>
-                                                    <Button
-                                                        size="sm"
-                                                        colorScheme={"red"}
-                                                        onClick={() => {
-                                                            attemptDeleteDisclosure.onOpen();
-                                                            setAttemptNumberToDelete(
-                                                                quiz
-                                                                    .submissions[
-                                                                    submissionIndex
-                                                                ].attempt
-                                                            );
-                                                        }}
-                                                        data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
-                                                    >
-                                                        <TbTrashX />
-                                                    </Button>
                                                     <Tooltip
                                                         label={`${
                                                             showFlaggedOnly
@@ -654,6 +638,24 @@ export default function Page() {
                                                             ) : (
                                                                 <TbEye />
                                                             )}
+                                                        </Button>
+                                                    </Tooltip>
+                                                    <Tooltip label="Delete this attempt">
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme={"red"}
+                                                            onClick={() => {
+                                                                attemptDeleteDisclosure.onOpen();
+                                                                setAttemptNumberToDelete(
+                                                                    quiz
+                                                                        .submissions[
+                                                                        submissionIndex
+                                                                    ].attempt
+                                                                );
+                                                            }}
+                                                            data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
+                                                        >
+                                                            <TbTrashX />
                                                         </Button>
                                                     </Tooltip>
                                                 </Flex>
