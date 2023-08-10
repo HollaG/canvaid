@@ -1103,8 +1103,18 @@ const AnswerList = ({
                 <CheckboxGroup value={userSelected}>
                     <Stack spacing={4}>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"} key={i}>
-                                <Box width="100px" textAlign={"end"} mr={3}>
+                            <Flex
+                                alignItems={{ base: "unset", sm: "center" }}
+                                key={i}
+                                flexDirection={{ base: "column", sm: "row" }}
+                            >
+                                <Box
+                                    width="100px"
+                                    textAlign={{ base: "unset", sm: "end" }}
+                                    mr={3}
+                                    flexShrink={0}
+                                    // display={{ base: "none", md: "unset" }}
+                                >
                                     <AnswerResultTag
                                         answer={answer}
                                         selectedOptions={selectedOptions}
@@ -1134,7 +1144,12 @@ const AnswerList = ({
                 <Stack spacing={4}>
                     <Flex alignItems={"center"}>
                         {" "}
-                        <Box width="100px" textAlign="end" mr={3}>
+                        <Box
+                            width="100px"
+                            textAlign="end"
+                            mr={3}
+                            flexShrink={0}
+                        >
                             <AnswerResultTag
                                 selectedOptions={selectedOptions}
                                 show_correct_answers={show_correct_answers}
@@ -1155,7 +1170,12 @@ const AnswerList = ({
                     {selectedOptions?.correct_answer_text && (
                         <Flex alignItems={"center"}>
                             {" "}
-                            <Box width="100px" textAlign="end" mr={3}>
+                            <Box
+                                width="100px"
+                                textAlign="end"
+                                mr={3}
+                                flexShrink={0}
+                            >
                                 {/* <Badge colorScheme="green">Correct!</Badge> */}
                             </Box>{" "}
                             <Box>
