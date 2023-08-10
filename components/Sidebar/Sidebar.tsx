@@ -555,10 +555,22 @@ const Sidebar = () => {
                                                                     pl={2}
                                                                     textDecor="none"
                                                                     key={i}
+                                                                    whiteSpace={
+                                                                        "nowrap"
+                                                                    }
+                                                                    overflow={
+                                                                        "hidden"
+                                                                    }
                                                                 >
                                                                     <NextLink
                                                                         href={`/uploads/${quiz.id}`}
                                                                         className="sidebar-link"
+                                                                        style={{
+                                                                            whiteSpace:
+                                                                                "nowrap",
+                                                                            overflow:
+                                                                                "hidden",
+                                                                        }}
                                                                     >
                                                                         {
                                                                             quiz.quizName
