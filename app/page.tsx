@@ -27,6 +27,7 @@ import {
     Text,
     useColorModeValue,
     useDisclosure,
+    useMediaQuery,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
@@ -87,7 +88,7 @@ export default function Page() {
         const newState = quizzes.filter((item) => item.id !== itemId);
         setQuizzes(newState);
     };
-
+    const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
     // get url query params
     const router = useRouter();
     const params = useSearchParams();
@@ -183,6 +184,8 @@ export default function Page() {
             <DrawerContainer onClose={onCloseExam} isOpen={isOpenExam}>
                 <ExamComponent onClose={onCloseExam} />
             </DrawerContainer>
+            {/* Goes to NotAuthedHome page if no user or no token WHICH will add ?login=true to the url WHICH will cause the useEFFECT to change as its
+            dependencies are the params WHICH will open the corresponding DRAWER CONTAINER WHICH contains the component*/}
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
                 <Flex
@@ -222,29 +225,68 @@ export default function Page() {
                                     What will you study today?{" "}
                                 </Heading>
                                 <Center px={6} mt={6}>
-                                    <InputGroup size={"md"} maxWidth="750px">
-                                        <InputLeftElement
-                                            pointerEvents={"none"}
+                                    {isLargerThan768 ? (
+                                        <InputGroup
+                                            maxWidth="750px"
+                                            //size={{ base: "sm", md: "lg" }}
+                                            size={"lg"}
                                         >
-                                            <TbSearch />
-                                        </InputLeftElement>
-                                        <Input
-                                            placeholder="Search for a quiz..."
-                                            variant="filled"
-                                            _hover={{
-                                                bgColor: inputHoverColor,
-                                            }}
-                                            _focusVisible={{
-                                                bgColor: inputHoverColor,
-                                            }}
-                                            type="search"
-                                            bgColor={inputBackgroundColor}
-                                            value={searchString}
-                                            onChange={(e) =>
-                                                setSearchString(e.target.value)
-                                            }
-                                        />
-                                    </InputGroup>
+                                            <InputLeftElement
+                                                pointerEvents={"none"}
+                                            >
+                                                <TbSearch />
+                                            </InputLeftElement>
+                                            <Input
+                                                placeholder="Search for a quiz"
+                                                variant="filled"
+                                                _hover={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                _focusVisible={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                type="search"
+                                                bgColor={inputBackgroundColor}
+                                                value={searchString}
+                                                onChange={(e) =>
+                                                    setSearchString(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </InputGroup>
+                                    ) : (
+                                        <InputGroup
+                                            maxWidth="750px"
+                                            //size={{ base: "sm", md: "lg" }}
+                                            size={"sm"}
+                                        >
+                                            <InputLeftElement
+                                                pointerEvents={"none"}
+                                            >
+                                                <TbSearch />
+                                            </InputLeftElement>
+                                            <Input
+                                                placeholder="Search"
+                                                variant="filled"
+                                                _hover={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                _focusVisible={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                type="search"
+                                                bgColor={inputBackgroundColor}
+                                                value={searchString}
+                                                onChange={(e) =>
+                                                    setSearchString(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </InputGroup>
+                                    )}
+
                                     <LightMode>
                                         <ButtonGroup isAttached ml={3}>
                                             <Button
@@ -254,6 +296,7 @@ export default function Page() {
                                                 borderRightColor={
                                                     borderRightColor
                                                 }
+                                                size={{ base: "sm", md: "lg" }}
                                             >
                                                 Upload
                                             </Button>
@@ -263,6 +306,7 @@ export default function Page() {
                                                     onOpenExam()
                                                 }
                                                 data-testid="exam-mode-btn"
+                                                size={{ base: "sm", md: "lg" }}
                                             >
                                                 Exam
                                             </Button>
