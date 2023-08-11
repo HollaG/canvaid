@@ -1,5 +1,4 @@
 import { create } from "@/firebase/database/repositories/uploads";
-import { getUser } from "@/firebase/database/repositories/users";
 import {
     CanvasQuiz,
     Course,
@@ -10,7 +9,6 @@ import {
     CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
 } from "@/types/canvas";
-import { readFile } from "fs";
 import { NextResponse } from "next/server";
 import parse from "node-html-parser";
 
@@ -291,40 +289,6 @@ export async function POST(request: Request) {
                 }
             }
 
-            // TODO: support this in futures
-            // if (
-            //     question.classList.contains(
-            //         "fill_in_multiple_blanks_question"
-            //     )
-            // ) {
-            //     const inputtedAnswers =
-            //         question.querySelectorAll(".selected_answer");
-
-            //     const answerTextArray = [];
-            //     // https://stackoverflow.com/questions/6520192/how-to-get-the-text-node-of-an-element
-            //     for (const inputtedAnswer of inputtedAnswers) {
-            //         if (inputtedAnswer.childNodes.length < 2) continue;
-            //         answerTextArray.push(
-            //             inputtedAnswer.childNodes[1].textContent
-            //                 .replaceAll("\n", "")
-            //                 .trim()
-            //         );
-            //     }
-            //     qnObj.answer_text = answerTextArray;
-
-            //     const correctAnswers =
-            //         question.querySelectorAll(".correct_answer");
-            //     let correctAnswerArray = [];
-            //     for (const correctAnswer of correctAnswers) {
-            //         if (correctAnswer.childNodes.length < 2) continue;
-            //         correctAnswerArray.push(
-            //             correctAnswer.childNodes[1].textContent
-            //                 .replaceAll("\n", "")
-            //                 .trim()
-            //         );
-            //     }
-            //     qnObj.correct_answer_text = correctAnswerArray;
-            // }
             const pointElement = question.querySelector(".user_points");
 
             if (!pointElement) throw new Error(PARSE_ERROR_MESSAGE);
@@ -361,30 +325,6 @@ export async function POST(request: Request) {
 
         const data = { quizAttempt, quiz };
         return NextResponse.json(data);
-
-        // const formData = await request.formData();
-        // console.log(request.body?.getReader());
-        // const reader = await request.text();
-        // console.log(reader)
-        // console.log(formData.get("file"));
-        // const file = formData.get("file");
-
-        // if (!file) {
-        //     return console.log("error: no file");
-        // }
-
-        // // https://stackoverflow.com/questions/71090990/typescript-property-name-does-not-exist-on-type-formdataentryvalue
-        // if (file instanceof File) {
-        //     const html = await file.text();
-        //     const root = parse(html);
-
-        //     console.log(root.firstChild);
-        // } else {
-        //     console.log("not a file");
-        // }
-
-        // const res = await request.json();
-        // console.log({ request });
     } catch (e: any) {
         console.log(e);
         if (e.message === "You have already submitted this attempt!") {

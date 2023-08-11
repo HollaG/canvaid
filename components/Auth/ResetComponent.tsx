@@ -1,9 +1,6 @@
 "use client";
-
-import { createAccountEmail, signInEmail } from "@/firebase/auth/signup";
-import { signInWithGoogle } from "@/firebase/auth/google";
-import { NAVBAR_HEIGHT, PAGE_CONTAINER_SIZE } from "@/lib/constants";
-import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
+import { PAGE_CONTAINER_SIZE } from "@/lib/constants";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
     Alert,
     AlertDescription,
@@ -23,22 +20,6 @@ import {
     Heading,
     Input,
     Stack,
-    Step,
-    StepDescription,
-    StepIcon,
-    StepIndicator,
-    StepNumber,
-    Stepper,
-    StepSeparator,
-    StepStatus,
-    StepTitle,
-    Tab,
-    TabList,
-    TabPanel,
-    TabPanels,
-    Tabs,
-    Text,
-    useBreakpointValue,
     useColorModeValue,
     useMediaQuery,
     useSteps,
@@ -201,32 +182,6 @@ export default function ResetComponent() {
                                     </Button>
                                 </Box>
                             </Stack>
-
-                            {/* <Divider />
-
-                            <Button
-                                w={"full"}
-                                variant={"outline"}
-                                leftIcon={<FcGoogle />}
-                                onClick={signInWithGoogle}
-                            >
-                                <Center>
-                                    <Text>Sign in with Google</Text>
-                                </Center>
-                            </Button> */}
-                            {/* <Stack spacing={4}>
-                                <Stack spacing={10}>
-                                    <Button
-                                        colorScheme="purple"
-                                        onClick={onCreateAccount}
-                                        isDisabled={!canCreate}
-                                        isLoading={isSubmitting}
-                                        type="submit"
-                                    >
-                                        Sign up
-                                    </Button>
-                                </Stack>
-                            </Stack> */}
                         </Stack>
                     </form>
                 </Flex>

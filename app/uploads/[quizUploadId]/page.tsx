@@ -15,10 +15,7 @@ import {
     Answer,
     QuestionResponse,
     Quiz,
-    QuizResponse,
     QuizSubmissionQuestion,
-    QuizAttempt,
-    CanvasQuizSubmission,
 } from "@/types/canvas";
 import {
     Input,
@@ -50,20 +47,6 @@ import {
     AlertIcon,
     AlertTitle,
     useToast,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    FormControl,
-    FormLabel,
-    NumberInput,
-    NumberInputField,
-    NumberInputStepper,
-    NumberIncrementStepper,
-    NumberDecrementStepper,
     useSteps,
     useBreakpointValue,
     Container,
@@ -81,13 +64,7 @@ import {
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-    useEffect,
-    useState,
-    FormEvent,
-    Dispatch,
-    SetStateAction,
-} from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
 import { TbEye, TbEyeFilled } from "react-icons/tb";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
@@ -97,11 +74,8 @@ import {
     useQuizContainer,
     useSidebarContainer,
 } from "@/app/providers";
-import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
-
-import { create } from "@/firebase/database/repositories/uploads";
 import {
     convertCustomAttemptNumber,
     getExaminableQuestions,
@@ -115,20 +89,6 @@ import Image from "next/image";
 
 import ExamImage from "@/public/assets/exam.svg";
 import ExamDarkImage from "@/public/assets/exam-dark.svg";
-
-// export default async function Page({
-//     params,
-//     searchParams,
-// }: {
-//     params: { quizUploadId: string };
-//     searchParams?: { [key: string]: string | string[] | undefined };
-// }) {
-//     const uploadId = params.quizUploadId;
-
-//     const data = await getQuizUpload(uploadId);
-
-//     return <QuizContainer loadedQuiz={data} />;
-// }
 
 /**
  *
@@ -1468,10 +1428,4 @@ const CombinedQuestionList = ({
             </Stack>
         </Stack>
     );
-
-    //
-
-    // <Stack spacing="10">
-
-    // </Stack>
 };

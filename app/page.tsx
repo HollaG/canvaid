@@ -1,22 +1,10 @@
 "use client";
 import Courses from "@/components/Courses";
-import { updateDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/database/index";
-import { AppUser } from "../types/user";
-import User from "firebase/auth";
-import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
     ButtonGroup,
     Center,
-    Container,
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerHeader,
-    DrawerOverlay,
     Flex,
     Heading,
     Input,
@@ -38,27 +26,14 @@ import {
 } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
-import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
-import {
-    NAVBAR_HEIGHT,
-    PAGE_CONTAINER_SIZE,
-    SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { Quiz } from "@/types/canvas";
 
 import "./globals.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoginComponent from "@/components/Auth/LoginComponent";
-import Sidebar from "@/components/Sidebar/Sidebar";
-
-import HomePageImage from "@/public/assets/homepage.svg";
-import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
-import { SearchIcon } from "@chakra-ui/icons";
-import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
-import { getUploads } from "@/lib/functions";
 import { TbSearch } from "react-icons/tb";
 import ExamComponent from "@/components/Exam/ExamComponent";
 import ResetComponent from "@/components/Auth/ResetComponent";
@@ -69,25 +44,6 @@ export default function Page() {
         useQuizContainer();
     const { isOpenSidebar } = useSidebarContainer();
     const user = authCtx?.user;
-
-    // useEffect(() => {
-    //     if (user) {
-    //         getUploads(user.uid).then((data) => {
-    //             setQuizzes(data.data || []);
-    //         });
-    //     }
-
-    //     // if (user?.canvasApiToken) {
-    //     //   setHasToken(true);
-    //     // } else {
-    //     //   setHasToken(false);
-    //     // }
-    // }, [user]);
-
-    const handleDeleteItem = (itemId: string) => {
-        const newState = quizzes.filter((item) => item.id !== itemId);
-        setQuizzes(newState);
-    };
     const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
     // get url query params
     const router = useRouter();
@@ -121,8 +77,6 @@ export default function Page() {
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
-    // if (!user) return <NotAuthedHomePage />;
-    // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
 
     // For add new quiz
     const {
@@ -258,7 +212,6 @@ export default function Page() {
                                     ) : (
                                         <InputGroup
                                             maxWidth="750px"
-                                            //size={{ base: "sm", md: "lg" }}
                                             size={"sm"}
                                         >
                                             <InputLeftElement
@@ -315,19 +268,6 @@ export default function Page() {
                                 </Center>
                             </Box>
                         </Center>
-
-                        {/* <Heading textAlign={"center"}>
-                            Welcome back, {user.displayName}!
-                        </Heading>
-                        <Link
-                            as={NextLink}
-                            href="/add"
-                            textAlign="center"
-                            data-testid="add-new-btn"
-                        >
-                            Add a new quiz
-                        </Link>
-                        <Input placeholder="Search for a quiz..." /> */}
                         <Courses onAddNew={onOpenAddNewQuiz} />
                     </Stack>
                 </Flex>
