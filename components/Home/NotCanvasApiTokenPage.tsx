@@ -22,7 +22,10 @@ import {
     Input,
     Link,
     Stack,
+    Text,
+    useToast,
 } from "@chakra-ui/react";
+import { SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 const NotCanvasApiTokenPage = () => {
     const [token, setToken] = useState("");
     //const history = useHistory();
@@ -30,6 +33,9 @@ const NotCanvasApiTokenPage = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const router = useRouter();
+    const toast = useToast();
     const handleTokenSubmit = async (event: any) => {
         if (!user) return;
 
@@ -64,6 +70,12 @@ const NotCanvasApiTokenPage = () => {
                     // update the user's state in the auth container
 
                     setUser(updatedUser);
+                    router.push("/");
+                    toast({
+                        ...SUCCESS_TOAST_OPTIONS,
+                        title: "Canvas API Token updated.",
+                        description: "You can now upload quizzes!",
+                    });
                 } else {
                     throw new Error("Invalid token");
                 }
@@ -83,8 +95,16 @@ const NotCanvasApiTokenPage = () => {
                         We need your Canvas API token!
                     </Heading>
                 </Flex>
+                <Flex mt={8}>
+                    <Text fontSize="xl">
+                        {" "}
+                        Your Canvas API Token allows us to collect more
+                        information about your quiz from Canvas. Don't worry, we
+                        will not have access to your personal information.
+                    </Text>
+                </Flex>
                 <form onSubmit={handleTokenSubmit}>
-                    <Stack spacing={8} mt={{ base: 14, md: 28 }}>
+                    <Stack spacing={8} mt={{ base: 8, md: 16 }}>
                         <FormControl
                             id="token"
                             isRequired

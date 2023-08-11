@@ -3,46 +3,62 @@ import { auth } from "@/firebase/config";
 import { updateUserColorChoice } from "@/firebase/database/repositories/users";
 import { AppUser } from "@/types/user";
 import { Flex, useColorModeValue, Text, Box, Input } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import React, {
+    MouseEvent,
+    MouseEventHandler,
+    useEffect,
+    useState,
+} from "react";
 
 const CourseInfo = ({
     courseCode,
     courseName,
+    uploadId,
     Button,
 }: {
     courseCode: string;
     courseName: string;
+    uploadId?: string;
     Button?: JSX.Element;
 }) => {
     const { user, setUser } = useAuthContainer();
 
     const [selectedColor, setSelectedColor] = useState<string>(
-        user ? user.courseColors[courseCode] || "gray.500" : "gray.500"
+        user ? user.courseColors[courseCode] || "#718096" : "#718096"
     );
 
+    const [scrollPosBeforeClick, setScrollPosBeforeClick] = useState(
+        window.scrollY
+    );
     useEffect(() => {
         if (!user || selectedColor === user.courseColors[courseCode]) return;
-        const timeout = setTimeout(async () => {
+
+        // set document height to scrollPosBeforeClick + 100vh
+        // document.body.style.height = `${scrollPosBeforeClick + 100}vh`;
+        const timeout = setTimeout(() => {
             // update the selected color for this course
             try {
-                await updateUserColorChoice(
-                    user.uid,
-                    courseCode,
-                    selectedColor
-                );
+                updateUserColorChoice(user.uid, courseCode, selectedColor).then(
+                    () => {
+                        // auth.currentUser?.reload();
+                        // update locally
+                        setUser((prev) =>
+                            prev
+                                ? ({
+                                      ...prev,
+                                      courseColors: {
+                                          ...prev.courseColors,
+                                          [courseCode]: selectedColor,
+                                      },
+                                  } as AppUser)
+                                : false
+                        );
+                        // reset scroll pos
 
-                // auth.currentUser?.reload();
-                // update locally
-                setUser((prev) =>
-                    prev
-                        ? ({
-                              ...prev,
-                              courseColors: {
-                                  ...prev.courseColors,
-                                  [courseCode]: selectedColor,
-                              },
-                          } as AppUser)
-                        : false
+                        setTimeout(() => {
+                            window.scrollTo(0, scrollPosBeforeClick);
+                        }, 150);
+                    }
                 );
             } catch (e) {
                 console.log(e);
@@ -54,6 +70,13 @@ const CourseInfo = ({
         // Note: including the user in the dependency array will cause an infinite loop
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedColor, courseCode]);
+
+    const handleColorIconClick = (
+        e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>
+    ) => {
+        e.stopPropagation();
+        setScrollPosBeforeClick(window.scrollY);
+    };
 
     return (
         <Flex
@@ -70,14 +93,14 @@ const CourseInfo = ({
                 <Box
                     bgColor={
                         user
-                            ? user.courseColors[courseCode] || "gray.500"
-                            : "gray.500"
+                            ? user.courseColors[courseCode] || "#718096"
+                            : "#718096"
                     }
                     borderRadius={"lg"}
                     height="28px"
                     width="28px"
                     mr={3}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => handleColorIconClick(e)}
                 >
                     <Input
                         type="color"
@@ -87,13 +110,37 @@ const CourseInfo = ({
                     />
                 </Box>
                 <Box>
-                    <Text fontWeight="bold">{courseCode}</Text>
-                    <Text>{courseName}</Text>
+                    <Text
+                        fontWeight="bold"
+                        overflow={"hidden"}
+                        display="-webkit-box"
+                        style={{
+                            WebkitLineClamp: 2,
+                            lineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                        }}
+                        wordBreak="break-word"
+                    >
+                        {courseCode}
+                    </Text>
+                    <Text
+                        overflow={"hidden"}
+                        display="-webkit-box"
+                        style={{
+                            WebkitLineClamp: 2,
+                            lineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                        }}
+                        wordBreak="break-word"
+                    >
+                        {" "}
+                        {courseName}
+                    </Text>
                 </Box>
             </Flex>
-            {Button}
+            <Box flexShrink={0}>{Button}</Box>
         </Flex>
     );
 };
 
-export default CourseInfo;
+export default React.memo(CourseInfo, () => true);

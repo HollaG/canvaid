@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import QuizUploadCard from "./Home/QuizUploadCard";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteButton from "./DeleteButton";
 import { CorePluginList } from "tailwindcss/types/generated/corePluginList";
 
@@ -36,18 +36,17 @@ type CourseProps = {
 const Courses = ({ onAddNew }: CourseProps) => {
     const { quizzes, searchString } = useQuizContainer();
     const pinnedQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isPinned);
+
+    const filterFunction = (quiz: Quiz) =>
+        quiz.quizName.toLowerCase().includes(searchString.toLowerCase()) ||
+        quiz.course.toLowerCase().includes(searchString.toLowerCase());
+
     const filteredQuizzes = quizzes
-        .filter((quiz) => {
-            return (
-                quiz.quizName
-                    .toLowerCase()
-                    .includes(searchString.toLowerCase()) ||
-                quiz.course.toLowerCase().includes(searchString.toLowerCase())
-            );
-        })
+        .filter(filterFunction)
         .filter((quiz) => !quiz.quizSettings.isCustom);
 
     const customQuizzes = quizzes.filter((quiz) => quiz.quizSettings.isCustom);
+    const filteredCustomQuizzes = customQuizzes.filter(filterFunction);
 
     const helperColor = useColorModeValue("gray.600", "gray.400");
 
@@ -143,7 +142,7 @@ const Courses = ({ onAddNew }: CourseProps) => {
                     <TbSettings /> Custom
                 </Text>
                 <Flex flexWrap="wrap">
-                    {customQuizzes.map((item, key) => (
+                    {filteredCustomQuizzes.map((item, key) => (
                         <QuizUploadCard key={key} quiz={item} />
                     ))}
                 </Flex>
@@ -158,4 +157,4 @@ const Courses = ({ onAddNew }: CourseProps) => {
     );
 };
 
-export default Courses;
+export default React.memo(Courses);

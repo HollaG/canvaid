@@ -26,29 +26,4 @@ export async function POST(request: Request) {
             statusText: "Invalid Canvas API Token!",
         });
     }
-    // fetch(`${CANVAS_URL}users/self`, {
-    //     method: "GET",
-    //     headers: {
-    //         Authorization: `Bearer ${token}`,
-    //     },
-    // })
-    //     .then((response) => {
-    //         NextResponse.json({ success: true });
-    //         if (response.ok) {
-    //             console.log("Token is OK");
-    //             NextResponse.json({ success: true });
-    //         } else {
-    //             console.log("Invalid token!");
-    //             NextResponse.json({ success: true });
-    //         }
-    //     })
-
-    //     .catch((error) => {
-    //         // Handle any errors
-    //         console.error(error);
-    //         NextResponse.json(null, {
-    //             status: 401,
-    //             statusText: "Invalid Canvas API Token!",
-    //         });
-    //     });
 }

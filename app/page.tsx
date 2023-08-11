@@ -1,22 +1,10 @@
 "use client";
 import Courses from "@/components/Courses";
-import { updateDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/database/index";
-import { AppUser } from "../types/user";
-import User from "firebase/auth";
-import { signInWithGoogle } from "@/firebase/auth/google";
 import {
     Box,
     Button,
     ButtonGroup,
     Center,
-    Container,
-    Drawer,
-    DrawerBody,
-    DrawerCloseButton,
-    DrawerContent,
-    DrawerHeader,
-    DrawerOverlay,
     Flex,
     Heading,
     Input,
@@ -27,6 +15,7 @@ import {
     Text,
     useColorModeValue,
     useDisclosure,
+    useMediaQuery,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
@@ -37,29 +26,17 @@ import {
 } from "./providers";
 import NotAuthedHomePage from "@/components/PageWrappers/Home";
 //import NotCanvasApiTokenPage from "@/app/token/page";
-import NotCanvasApiTokenPage from "@/components/Home/NotCanvasApiTokenPage";
-import {
-    NAVBAR_HEIGHT,
-    PAGE_CONTAINER_SIZE,
-    SIDEBAR_WIDTH,
-} from "@/lib/constants";
+import { NAVBAR_HEIGHT, SIDEBAR_WIDTH } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { Quiz } from "@/types/canvas";
 
 import "./globals.css";
 import { useRouter, useSearchParams } from "next/navigation";
 import LoginComponent from "@/components/Auth/LoginComponent";
-import Sidebar from "@/components/Sidebar/Sidebar";
-
-import HomePageImage from "@/public/assets/homepage.svg";
-import HomePageDarkImage from "@/public/assets/homepage-dark.svg";
-import { SearchIcon } from "@chakra-ui/icons";
-import useSidebar from "@/hooks/useSidebar";
 import DrawerContainer from "@/components/Drawer/DrawerContainer";
 import AddComponent from "@/components/Add/AddComponent";
-import { getUploads } from "@/lib/functions";
 import { TbSearch } from "react-icons/tb";
 import ExamComponent from "@/components/Exam/ExamComponent";
+import ResetComponent from "@/components/Auth/ResetComponent";
 
 export default function Page() {
     const authCtx = useAuthContainer();
@@ -67,52 +44,39 @@ export default function Page() {
         useQuizContainer();
     const { isOpenSidebar } = useSidebarContainer();
     const user = authCtx?.user;
-
-    // useEffect(() => {
-    //     if (user) {
-    //         getUploads(user.uid).then((data) => {
-    //             setQuizzes(data.data || []);
-    //         });
-    //     }
-
-    //     // if (user?.canvasApiToken) {
-    //     //   setHasToken(true);
-    //     // } else {
-    //     //   setHasToken(false);
-    //     // }
-    // }, [user]);
-
-    const handleDeleteItem = (itemId: string) => {
-        const newState = quizzes.filter((item) => item.id !== itemId);
-        setQuizzes(newState);
-    };
-
+    const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
     // get url query params
     const router = useRouter();
     const params = useSearchParams();
     const showLogIn = params && params.get("login") === "true";
+    const updateToken = params && params.get("updateToken") === "true";
+    const isResetting = params && params.get("reset") === "true";
 
     // for login modal
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     useEffect(() => {
-        // if showLogIn, always show the login model if the user is not logged in or they don't have a canvasApiToken
+        // if showLogIn or updateToken, always show the login model if the user is not logged in or they don't have a canvasApiToken
 
-        if (showLogIn && (!user || !user.canvasApiToken)) {
+        if (
+            (updateToken && user) ||
+            (showLogIn && (!user || !user.canvasApiToken))
+        ) {
             onOpen();
+        } else if (isResetting) {
+            onOpenChangePassword();
         } else {
             onClose();
+            onCloseChangePassword();
             router.replace("/");
         }
 
         // cannot have router as dependency
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [showLogIn, user, onClose, onOpen]);
+    }, [showLogIn, user, onClose, onOpen, updateToken]);
 
     const inputHoverColor = useColorModeValue("gray.50", "gray.700");
     const inputBackgroundColor = useColorModeValue("gray.100", "gray.800");
-    // if (!user) return <NotAuthedHomePage />;
-    // if (!user.canvasApiToken) return <NotCanvasApiTokenPage />;
 
     // For add new quiz
     const {
@@ -128,6 +92,13 @@ export default function Page() {
         isOpen: isOpenExam,
         onOpen: onOpenExam,
         onClose: onCloseExam,
+    } = useDisclosure();
+
+    // for change password
+    const {
+        isOpen: isOpenChangePassword,
+        onOpen: onOpenChangePassword,
+        onClose: onCloseChangePassword,
     } = useDisclosure();
 
     const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -152,6 +123,13 @@ export default function Page() {
                 <LoginComponent />
             </DrawerContainer>
             <DrawerContainer
+                onClose={onCloseChangePassword}
+                isOpen={isOpenChangePassword}
+                showNavbar
+            >
+                <ResetComponent />
+            </DrawerContainer>
+            <DrawerContainer
                 onClose={onCloseAddNewQuiz}
                 isOpen={isOpenAddNewQuiz}
             >
@@ -160,6 +138,8 @@ export default function Page() {
             <DrawerContainer onClose={onCloseExam} isOpen={isOpenExam}>
                 <ExamComponent onClose={onCloseExam} />
             </DrawerContainer>
+            {/* Goes to NotAuthedHome page if no user or no token WHICH will add ?login=true to the url WHICH will cause the useEFFECT to change as its
+            dependencies are the params WHICH will open the corresponding DRAWER CONTAINER WHICH contains the component*/}
             {(!user || !user.canvasApiToken) && <NotAuthedHomePage />}
             {user && user.canvasApiToken && (
                 <Flex
@@ -199,29 +179,67 @@ export default function Page() {
                                     What will you study today?{" "}
                                 </Heading>
                                 <Center px={6} mt={6}>
-                                    <InputGroup size={"md"} maxWidth="750px">
-                                        <InputLeftElement
-                                            pointerEvents={"none"}
+                                    {isLargerThan768 ? (
+                                        <InputGroup
+                                            maxWidth="750px"
+                                            //size={{ base: "sm", md: "lg" }}
+                                            size={"lg"}
                                         >
-                                            <TbSearch />
-                                        </InputLeftElement>
-                                        <Input
-                                            placeholder="Search for a quiz..."
-                                            variant="filled"
-                                            _hover={{
-                                                bgColor: inputHoverColor,
-                                            }}
-                                            _focusVisible={{
-                                                bgColor: inputHoverColor,
-                                            }}
-                                            type="search"
-                                            bgColor={inputBackgroundColor}
-                                            value={searchString}
-                                            onChange={(e) =>
-                                                setSearchString(e.target.value)
-                                            }
-                                        />
-                                    </InputGroup>
+                                            <InputLeftElement
+                                                pointerEvents={"none"}
+                                            >
+                                                <TbSearch />
+                                            </InputLeftElement>
+                                            <Input
+                                                placeholder="Search for a quiz"
+                                                variant="filled"
+                                                _hover={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                _focusVisible={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                type="search"
+                                                bgColor={inputBackgroundColor}
+                                                value={searchString}
+                                                onChange={(e) =>
+                                                    setSearchString(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </InputGroup>
+                                    ) : (
+                                        <InputGroup
+                                            maxWidth="750px"
+                                            size={"sm"}
+                                        >
+                                            <InputLeftElement
+                                                pointerEvents={"none"}
+                                            >
+                                                <TbSearch />
+                                            </InputLeftElement>
+                                            <Input
+                                                placeholder="Search"
+                                                variant="filled"
+                                                _hover={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                _focusVisible={{
+                                                    bgColor: inputHoverColor,
+                                                }}
+                                                type="search"
+                                                bgColor={inputBackgroundColor}
+                                                value={searchString}
+                                                onChange={(e) =>
+                                                    setSearchString(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </InputGroup>
+                                    )}
+
                                     <LightMode>
                                         <ButtonGroup isAttached ml={3}>
                                             <Button
@@ -231,6 +249,7 @@ export default function Page() {
                                                 borderRightColor={
                                                     borderRightColor
                                                 }
+                                                size={{ base: "sm", md: "lg" }}
                                             >
                                                 Upload
                                             </Button>
@@ -240,6 +259,7 @@ export default function Page() {
                                                     onOpenExam()
                                                 }
                                                 data-testid="exam-mode-btn"
+                                                size={{ base: "sm", md: "lg" }}
                                             >
                                                 Exam
                                             </Button>
@@ -248,19 +268,6 @@ export default function Page() {
                                 </Center>
                             </Box>
                         </Center>
-
-                        {/* <Heading textAlign={"center"}>
-                            Welcome back, {user.displayName}!
-                        </Heading>
-                        <Link
-                            as={NextLink}
-                            href="/add"
-                            textAlign="center"
-                            data-testid="add-new-btn"
-                        >
-                            Add a new quiz
-                        </Link>
-                        <Input placeholder="Search for a quiz..." /> */}
                         <Courses onAddNew={onOpenAddNewQuiz} />
                     </Stack>
                 </Flex>

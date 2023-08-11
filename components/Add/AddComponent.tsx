@@ -33,6 +33,8 @@ import {
     AlertDescription,
     AlertIcon,
     AlertTitle,
+    Code,
+    Kbd,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
@@ -129,6 +131,10 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                             if (e.status === 400) {
                                 setErrorMessage(
                                     "Invalid HTML File! Please ensure you have the correct HTML file of the quiz."
+                                );
+                            } else if (e.status === 401) {
+                                setErrorMessage(
+                                    "Error accessing Canvas! Please ensure you have the correct Canvas API token. Change it by clicking the Change Canvas API Token button."
                                 );
                             } else {
                                 setErrorMessage(
@@ -243,6 +249,31 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 </Heading>
                             </Flex>
 
+                            <Flex mt={8} flexDir={"column"}>
+                                <Text fontSize={"xl"}>
+                                    {" "}
+                                    Go to the page where you can see your quiz
+                                    results (your URL should look like{" "}
+                                    <Code
+                                        colorScheme="gray"
+                                        wordBreak={"break-all"}
+                                    >
+                                        https://canvas.nus.edu.sg/courses/[courseNumber]/quizzes/[quizNumber]
+                                    </Code>
+                                    ){" "}
+                                </Text>
+                                <Text mt={4} fontSize="xl">
+                                    {" "}
+                                    Press <Kbd>ctrl</Kbd> + <Kbd>S</Kbd>, then
+                                    save the page as{" "}
+                                    <Code colorScheme="gray">
+                                        {" "}
+                                        Webpage, HTML Only
+                                    </Code>
+                                    .
+                                </Text>
+                            </Flex>
+
                             <Flex
                                 w="100%"
                                 h="250px"
@@ -253,7 +284,7 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 justifyContent="center"
                                 alignItems={"center"}
                                 borderRadius="3xl"
-                                mt={{ base: 14, md: 28 }}
+                                mt={{ base: 8, md: 16 }}
                                 border="2px dashed"
                                 borderColor={useColorModeValue(
                                     "gray.400",
