@@ -274,6 +274,10 @@ export default function Page() {
         setNumQns(getExaminableQuestions(quiz).length);
     }, [quiz]);
 
+    const noFlaggedQuestions =
+        getQuestionsForAttempt(submissionIndex).filter((qn) => qn.isFlagged)
+            .length === 0;
+
     // for exam mode
     const steps = [
         {
@@ -300,7 +304,12 @@ export default function Page() {
 
     // For showing / hiding flagged questions
     const [showFlaggedOnly, setShowFlaggedOnly] = useBoolean(false);
-
+    console.log("flag" + showFlaggedOnly);
+    useEffect(() => {
+        if (noFlaggedQuestions && showFlaggedOnly == true) {
+            setShowFlaggedOnly.toggle();
+        }
+    }, [noFlaggedQuestions, setShowFlaggedOnly]);
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -611,35 +620,40 @@ export default function Page() {
                                             {user &&
                                             user.uid === quiz.userUid ? (
                                                 <Flex alignItems={"center"}>
-                                                    <Tooltip
-                                                        label={`${
-                                                            showFlaggedOnly
-                                                                ? "Show all questions"
-                                                                : "Show only flagged questions"
-                                                        }`}
-                                                    >
-                                                        <Button
-                                                            size="sm"
-                                                            colorScheme={"teal"}
-                                                            variant={
+                                                    {!noFlaggedQuestions && (
+                                                        <Tooltip
+                                                            label={`${
                                                                 showFlaggedOnly
-                                                                    ? "solid"
-                                                                    : "outline"
-                                                            }
-                                                            onClick={
-                                                                setShowFlaggedOnly.toggle
-                                                            }
-                                                            data-testid={`toggle-flagged`}
-                                                            ml={2}
-                                                            w="40px"
+                                                                    ? "Show all questions"
+                                                                    : "Show only flagged questions"
+                                                            }`}
                                                         >
-                                                            {showFlaggedOnly ? (
-                                                                <TbEyeFilled />
-                                                            ) : (
-                                                                <TbEye />
-                                                            )}
-                                                        </Button>
-                                                    </Tooltip>
+                                                            <Button
+                                                                size="sm"
+                                                                colorScheme={
+                                                                    "teal"
+                                                                }
+                                                                variant={
+                                                                    showFlaggedOnly
+                                                                        ? "solid"
+                                                                        : "outline"
+                                                                }
+                                                                onClick={
+                                                                    setShowFlaggedOnly.toggle
+                                                                }
+                                                                data-testid={`toggle-flagged`}
+                                                                ml={2}
+                                                                w="40px"
+                                                            >
+                                                                {showFlaggedOnly ? (
+                                                                    <TbEyeFilled />
+                                                                ) : (
+                                                                    <TbEye />
+                                                                )}
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )}
+
                                                     <Tooltip label="Delete this attempt">
                                                         <Button
                                                             size="sm"
@@ -1363,11 +1377,11 @@ const CombinedQuestionList = ({
                                     questionResponse={question.best_attempt}
                                 />
                             </div>
-                            <FlaggingButton
+                            {/* <FlaggingButton
                                 question={question}
                                 setQuiz={setQuiz}
                                 quiz={quiz}
-                            />
+                            /> */}
                         </Heading>
                         {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
                         <div
