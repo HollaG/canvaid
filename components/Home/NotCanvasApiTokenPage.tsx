@@ -99,7 +99,7 @@ const NotCanvasApiTokenPage = () => {
                     <Text fontSize="xl">
                         {" "}
                         Your Canvas API Token allows us to collect more
-                        information about your quiz from Canvas. Don't worry, we
+                        information about your quiz from Canvas. Don&apos;t worry, we
                         will not have access to your personal information.
                     </Text>
                 </Flex>
