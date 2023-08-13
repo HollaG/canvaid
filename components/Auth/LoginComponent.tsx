@@ -277,7 +277,7 @@ export default function LoginComponent() {
                             {emailToReset === "" || resetEmailIsValid ? (
                                 <FormHelperText>
                                     Enter the email you want to reset the
-                                    password for. We'll send you an email with
+                                    password for. We&apos;ll send you an email with
                                     password reset instructions.
                                 </FormHelperText>
                             ) : (
@@ -312,7 +312,7 @@ export default function LoginComponent() {
                                 <AlertIcon />
                                 <AlertTitle mr={2}>Email sent!</AlertTitle>
                                 <AlertDescription>
-                                    If you still don't see the email, please
+                                    If you still don&apos;t see the email, please
                                     check your spam folder.
                                 </AlertDescription>
                             </Alert>
