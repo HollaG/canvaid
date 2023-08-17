@@ -55,8 +55,8 @@ export async function POST(request: Request) {
         let { courseId, quizId } = body;
         // console.log({ data });
 
-        console.log("Missing HTML");
         if (!html) {
+            console.log("Missing HTML");
             throw new Error(PARSE_ERROR_MESSAGE);
         }
 
