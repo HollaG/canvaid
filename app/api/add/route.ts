@@ -29,6 +29,8 @@ export interface IAddBody {
     course: string;
     uid: string;
     canvasApiToken: string;
+    courseId?: string;
+    quizId?: string;
 }
 
 const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL;
@@ -42,15 +44,18 @@ const API_ERROR_MESSAGE =
 export async function POST(request: Request) {
     // todo: error handling
     try {
+        const body: IAddBody = await request.json();
         const {
             html,
             quizName: _quizName,
             course: _courseName,
             uid,
             canvasApiToken,
-        }: IAddBody = await request.json();
+        } = body;
+        let { courseId, quizId } = body;
         // console.log({ data });
 
+        console.log("Missing HTML");
         if (!html) {
             throw new Error(PARSE_ERROR_MESSAGE);
         }
@@ -59,6 +64,7 @@ export async function POST(request: Request) {
 
         const obj: QuizResponse = {};
         if (!root) {
+            console.log("Malformed root");
             throw new Error(PARSE_ERROR_MESSAGE);
         }
 
@@ -66,6 +72,7 @@ export async function POST(request: Request) {
         // get the user
         const API_TOKEN = canvasApiToken;
         if (!API_TOKEN) {
+            console.log("Incorrect API Token");
             throw new Error("No API token was present!");
         }
 
@@ -94,9 +101,12 @@ export async function POST(request: Request) {
         // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
         // courseId is the first number, quizId is the second number
 
-        const [courseId, quizId] = URL.match(/\d+/g) || [];
+        if (!courseId || !quizId) [courseId, quizId] = URL.match(/\d+/g) || [];
 
-        if (!courseId || !quizId) throw new Error(PARSE_ERROR_MESSAGE);
+        if (!courseId || !quizId) {
+            console.log("Missing Course ID and Quiz ID");
+            throw new Error(PARSE_ERROR_MESSAGE);
+        }
 
         const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
 
