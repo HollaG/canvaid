@@ -61,6 +61,7 @@ import {
     StepTitle,
     useMediaQuery,
     useBoolean,
+    AlertDescription,
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -112,18 +113,25 @@ export default function Page() {
     const submissionIndexToShow = searchParams.get("submission");
 
     // fetch quiz incase this is not this user's quiz
+    const [isUserQuiz, setIsUserQuiz] = useState(true);
     useEffect(() => {
         if (!quiz) {
             getQuizUpload(dataId)
                 .then((data) => {
                     setQuiz(data);
                     setPageQuiz(data);
+                    setIsUserQuiz(false);
                 })
                 .catch(() => {
                     router.push("/");
                 });
         }
     }, [dataId, quiz, setQuiz, router]);
+
+    // import quiz
+    const onImport = () => {
+        setIsUserQuiz(true);
+    };
 
     const [submissionIndex, setSubmissionIndex] = useState(
         submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
@@ -421,6 +429,16 @@ export default function Page() {
                     </Text>
                     <Heading>{quiz.quizName}</Heading>
                 </Box> */}
+                    {isUserQuiz && (
+                        <Alert status="warning">
+                            <AlertIcon />
+                            <AlertTitle>Viewing external quiz!</AlertTitle>
+                            <AlertDescription>
+                                {" "}
+                                Click to import.{" "}
+                            </AlertDescription>
+                        </Alert>
+                    )}
                     {deleteErrorMessage && (
                         <Alert status="error">
                             <AlertIcon />
