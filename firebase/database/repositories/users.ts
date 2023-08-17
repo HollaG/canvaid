@@ -1,6 +1,15 @@
 import { AppUser } from "@/types/user";
 import { User } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    setDoc,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 import { db } from "..";
 
 const COLLECTION_NAME = "users";
@@ -80,6 +89,42 @@ export const updateUserAccessibility = async (
         });
 
         return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const updateUserExtensionToken = async (
+    uid: string,
+    extensionToken: string
+) => {
+    const dbRef = doc(db, "users", uid);
+    try {
+        await updateDoc(dbRef, {
+            extensionToken,
+        });
+
+        return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const findByExtensionToken = async (
+    extensionToken: string
+): Promise<AppUser | null> => {
+    const dbRef = collection(db, "users");
+    try {
+        const querySnapshot = query(
+            dbRef,
+            where("extensionToken", "==", extensionToken)
+        );
+        const existingSnapshot = await getDocs(querySnapshot);
+        const latestDoc = existingSnapshot.docs[0];
+        const existingData = latestDoc.data() as AppUser;
+        return existingData;
     } catch (e) {
         console.log(e);
         throw e;
