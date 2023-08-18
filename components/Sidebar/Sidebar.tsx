@@ -367,6 +367,15 @@ const Sidebar = () => {
                             <Heading fontSize="xl" textAlign={"center"}>
                                 {user?.displayName}!
                             </Heading>
+                            <Center mt={3}>
+                                <NextLink href="/extension">
+                                    <Link>
+                                        <Button size="sm" variant="ghost">
+                                            Get Extension
+                                        </Button>
+                                    </Link>
+                                </NextLink>
+                            </Center>
                             <Divider my={6} />
                         </>
                     ) : (
