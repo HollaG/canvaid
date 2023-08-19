@@ -443,6 +443,7 @@ export default function Page() {
                     bgColor={bgColor}
                     borderRadius={{ base: 0, md: "xl" }}
                     mt={{ base: 0, md: 6 }}
+                    pt={!user ? NAVBAR_HEIGHT : 0}
                 >
                     {/* <Box>
                     <Text
