@@ -143,7 +143,11 @@ export default function Page() {
                 </Center>
                 <Flex alignItems={"center"} justifyContent="center">
                     <Heading textAlign={"center"}>Canvaid Extension</Heading>
-                    <Link isExternal href="#" ml={3}>
+                    <Link
+                        isExternal
+                        href="https://chrome.google.com/webstore/detail/canvaid-extension/ciamcfkchbkcgdpgdbnjnoaidhmjclpj"
+                        ml={3}
+                    >
                         <Button leftIcon={<TbExternalLink />} size="sm">
                             Get Extension
                         </Button>
