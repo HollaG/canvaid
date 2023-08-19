@@ -12,6 +12,7 @@ import {
     InputGroup,
     InputLeftElement,
     InputRightElement,
+    Link,
     Stack,
     Text,
     useColorModeValue,
@@ -26,7 +27,8 @@ import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import Image from "next/image";
 import ExtensionImage from "@/public/logos/extensionLogo.png";
 import { CheckIcon } from "@chakra-ui/icons";
-import { TbCopy } from "react-icons/tb";
+import { TbCopy, TbExternalLink, TbLink } from "react-icons/tb";
+import { useRouter } from "next/navigation";
 /**
  *
  * @returns The page for each user's quiz that they uploaded.
@@ -104,33 +106,8 @@ export default function Page() {
         "url(/assets/background.svg)",
         "url(/assets/background-dark.svg)"
     );
-    if (!user)
-        return (
-            <Flex
-                minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
-                // mt={NAVBAR_HEIGHT}
-                px={{ base: 0, md: 6 }}
-            >
-                <Stack
-                    spacing={6}
-                    flexGrow={1}
-                    ml={
-                        user
-                            ? isOpenSidebar
-                                ? { base: 0, md: SIDEBAR_WIDTH }
-                                : { base: 0, md: "60px" }
-                            : 0
-                    }
-                    p={4}
-                    bgColor={bgColor}
-                    borderRadius={{ base: 0, md: "xl" }}
-                    mt={{ base: 0, md: 6 }}
-                >
-                    <Heading>Canvaid Extension</Heading>
-                    <Text> Blah blah</Text>
-                </Stack>
-            </Flex>
-        );
+    const router = useRouter();
+    if (!user) router.push("/?login=true");
     return (
         <Flex
             minH={`calc(100vh - ${NAVBAR_HEIGHT})`}
@@ -164,7 +141,14 @@ export default function Page() {
                         />
                     </Box>
                 </Center>
-                <Heading textAlign={"center"}>Canvaid Extension</Heading>
+                <Flex alignItems={"center"} justifyContent="center">
+                    <Heading textAlign={"center"}>Canvaid Extension</Heading>
+                    <Link isExternal href="#" ml={3}>
+                        <Button leftIcon={<TbExternalLink />} size="sm">
+                            Get Extension
+                        </Button>
+                    </Link>
+                </Flex>
                 <Text textAlign={"center"} fontSize={"xl"}>
                     {" "}
                     Copy your unique code for the Extension here!{" "}
