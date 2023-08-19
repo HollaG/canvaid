@@ -8,4 +8,5 @@ export interface AppUser {
 
     courseColors: { [courseCode: string]: string };
     accessibility?: boolean;
+    extensionToken?: string;
 }

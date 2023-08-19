@@ -1,4 +1,5 @@
 import { create } from "@/firebase/database/repositories/uploads";
+import { findByExtensionToken } from "@/firebase/database/repositories/users";
 import {
     CanvasQuiz,
     Course,
@@ -31,6 +32,7 @@ export interface IAddBody {
     canvasApiToken: string;
     courseId?: string;
     quizId?: string;
+    extensionToken?: string; // provided in place of uid
 }
 
 const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL;
@@ -51,12 +53,21 @@ export async function POST(request: Request) {
             course: _courseName,
             uid,
             canvasApiToken,
+            extensionToken,
         } = body;
         let { courseId, quizId } = body;
         // console.log({ data });
 
-        console.log("Missing HTML");
+        let userUid: string = uid;
+        if (uid === "" && extensionToken) {
+            // if uid is empty, use extension token to get the user
+            const user = await findByExtensionToken(extensionToken);
+            if (!user) throw new Error("User not found!");
+            userUid = user.uid;
+        }
+
         if (!html) {
+            console.log("Missing HTML");
             throw new Error(PARSE_ERROR_MESSAGE);
         }
 
@@ -328,7 +339,7 @@ export async function POST(request: Request) {
                 quizData[attemptNumber] || quizData.at(-1) || quizData[0], // note: take the latest attempt. todo: get the attempt number instead
             quizName,
             course,
-            userUid: uid,
+            userUid: userUid,
         };
 
         const quiz = await create(quizAttempt, quizInformation);
