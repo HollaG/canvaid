@@ -5,6 +5,7 @@ import {
     updateQuizQuestionFlag,
     deleteAttempt,
     deleteQuiz,
+    importToSelf,
 } from "@/firebase/database/repositories/uploads";
 import {
     NAVBAR_HEIGHT,
@@ -90,6 +91,7 @@ import Image from "next/image";
 
 import ExamImage from "@/public/assets/exam.svg";
 import ExamDarkImage from "@/public/assets/exam-dark.svg";
+import Navbar from "@/components/Navbar/Navbar";
 
 /**
  *
@@ -113,24 +115,45 @@ export default function Page() {
     const submissionIndexToShow = searchParams.get("submission");
 
     // fetch quiz incase this is not this user's quiz
-    const [isUserQuiz, setIsUserQuiz] = useState(true);
+    const isUserQuiz = user && quiz?.userUid === user.uid;
     useEffect(() => {
         if (!quiz) {
             getQuizUpload(dataId)
                 .then((data) => {
                     setQuiz(data);
                     setPageQuiz(data);
-                    setIsUserQuiz(false);
                 })
                 .catch(() => {
                     router.push("/");
                 });
+        } else {
         }
     }, [dataId, quiz, setQuiz, router]);
 
     // import quiz
+    const [isImporting, setIsImporting] = useState(false);
     const onImport = () => {
-        setIsUserQuiz(true);
+        // import the quiz and redirect to that specific quiz page
+        if (!user) return;
+        setIsImporting(true);
+        importToSelf(quiz, user.uid)
+            .then((newQuiz) => {
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: "Quiz imported!",
+                });
+                router.push(`/uploads/${newQuiz.id}`);
+            })
+            .catch((e) => {
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error importing quiz",
+                    description: e.message,
+                });
+            })
+            .finally(() => {
+                setIsImporting(false);
+            });
     };
 
     const [submissionIndex, setSubmissionIndex] = useState(
@@ -285,6 +308,7 @@ export default function Page() {
             // mt={NAVBAR_HEIGHT}
             px={{ base: 0, md: 6 }}
         >
+            {!user && <Navbar />}
             <CustomAlertDialog
                 {...alertDeleteDisclosure}
                 bodyText={`Are you sure you want to delete this quiz? All attempts will be deleted. 
@@ -429,13 +453,19 @@ export default function Page() {
                     </Text>
                     <Heading>{quiz.quizName}</Heading>
                 </Box> */}
-                    {isUserQuiz && (
-                        <Alert status="warning">
+                    {!isUserQuiz && user && (
+                        <Alert
+                            status="warning"
+                            onClick={onImport}
+                            cursor="pointer"
+                        >
                             <AlertIcon />
                             <AlertTitle>Viewing external quiz!</AlertTitle>
                             <AlertDescription>
                                 {" "}
-                                Click to import.{" "}
+                                {isImporting
+                                    ? "Importing..."
+                                    : "Click here to import to your collection."}{" "}
                             </AlertDescription>
                         </Alert>
                     )}
