@@ -602,8 +602,9 @@ export default function Page() {
                                                   Math.round(
                                                       submission.score * 100
                                                   ) / 100
-                                              }
-                                        / ${submission.quiz_points_possible}`
+                                              }/${
+                                                  submission.quiz_points_possible
+                                              }`
                                             : "Ungraded"}
                                         )
                                     </Button>
