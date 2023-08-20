@@ -56,7 +56,10 @@ export const hydrateSelectedOptions = (
 
         // try to find the answer
         const answer = quizAnswers[qnId];
-        if (!answer) continue;
+        if (!answer) {
+            console.log("Couldn't find an answer for question", qnId);
+            continue;
+        }
 
         questionResponse.correct_answer_ids = answer.correct_answer_ids;
         questionResponse.correct_answer_text = answer.correct_answer_text;
@@ -74,12 +77,13 @@ export const hydrateSelectedOptions = (
         }
 
         // selection input
-
-        questionResponse.your_score = calculateScore(
-            questionResponse.selected_answer_ids,
-            questionResponse.correct_answer_ids,
-            questionResponse.total_score
-        );
+        if (questionResponse.selected_answer_ids) {
+            questionResponse.your_score = calculateScore(
+                questionResponse.selected_answer_ids,
+                questionResponse.correct_answer_ids,
+                questionResponse.total_score
+            );
+        }
     }
 
     return calculated;
