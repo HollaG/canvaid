@@ -1094,7 +1094,7 @@ const AnswerList = ({
                         "0"
                     }
                 >
-                    <Stack>
+                    <Stack divider={<Divider />}>
                         {answers.map((answer, i) => (
                             <Flex alignItems={"center"} key={i}>
                                 <Box width="100px" textAlign={"end"} mr={3}>
@@ -1111,8 +1111,15 @@ const AnswerList = ({
                                     value={answer.id.toString()}
                                     isReadOnly
                                 >
-                                    {" "}
-                                    {answer.text ?? answer.html}{" "}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Radio>
                             </Flex>
                         ))}
@@ -1126,7 +1133,7 @@ const AnswerList = ({
             ) || [""];
             return (
                 <CheckboxGroup value={userSelected}>
-                    <Stack spacing={4}>
+                    <Stack spacing={4} divider={<Divider />}>
                         {answers.map((answer, i) => (
                             <Flex
                                 alignItems={{ base: "unset", sm: "center" }}
@@ -1154,7 +1161,15 @@ const AnswerList = ({
                                     isReadOnly
                                 >
                                     {" "}
-                                    {answer.text ?? answer.html}{" "}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Checkbox>
                             </Flex>
                         ))}
