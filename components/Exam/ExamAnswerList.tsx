@@ -69,12 +69,20 @@ export const ExamAnswerList = ({
                         });
                     }}
                 >
-                    <Stack>
+                    <Stack divider={<Divider />} spacing={4}>
                         {answers.map((answer, i) => (
                             <Flex alignItems="center" key={i}>
-                                <Box width="100px" textAlign="end" mr={3}></Box>
+                                {/* <Box width="100px" textAlign="end" mr={3}></Box> */}
                                 <Radio key={i} value={answer.id.toString()}>
-                                    {answer.text ?? answer.html}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Radio>
                             </Flex>
                         ))}
@@ -109,12 +117,20 @@ export const ExamAnswerList = ({
                             }));
                     }}
                 >
-                    <Stack spacing={4}>
+                    <Stack spacing={4} divider={<Divider />}>
                         {answers.map((answer, i) => (
                             <Flex alignItems="center" key={i}>
-                                <Box width="100px" textAlign="end" mr={3}></Box>
+                                {/* <Box width="100px" textAlign="end" mr={3}></Box> */}
                                 <Checkbox key={i} value={answer.id.toString()}>
-                                    {answer.text ?? answer.html}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Checkbox>
                             </Flex>
                         ))}
@@ -128,7 +144,7 @@ export const ExamAnswerList = ({
             return (
                 <Stack spacing={4}>
                     <Flex alignItems="center">
-                        <Box width="100px" textAlign="end" mr={3}></Box>
+                        {/* <Box width="100px" textAlign="end" mr={3}></Box> */}
                         <Box>
                             <Stack spacing={1}>
                                 <Text
