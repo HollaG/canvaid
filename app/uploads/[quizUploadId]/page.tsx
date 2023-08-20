@@ -597,9 +597,16 @@ export default function Page() {
                                             submission.attempt
                                         )}{" "}
                                         (
-                                        {Math.round(submission.score * 100) /
-                                            100}
-                                        /{submission.quiz_points_possible})
+                                        {submission.score !== undefined
+                                            ? `${
+                                                  Math.round(
+                                                      submission.score * 100
+                                                  ) / 100
+                                              }/${
+                                                  submission.quiz_points_possible
+                                              }`
+                                            : "Ungraded"}
+                                        )
                                     </Button>
                                 ))}
                             </Stack>

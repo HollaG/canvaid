@@ -288,13 +288,16 @@ export default function QuizUploadCard({
                                                 }}
                                             >
                                                 <StepTitle>
-                                                    {" "}
-                                                    {Math.round(
-                                                        submission.score * 100
-                                                    ) / 100 ?? 0}{" "}
-                                                    /{" "}
-                                                    {submission.quiz_points_possible ??
-                                                        0}{" "}
+                                                    {submission.score !==
+                                                    undefined
+                                                        ? `${
+                                                              Math.round(
+                                                                  submission.score *
+                                                                      100
+                                                              ) / 100
+                                                          } 
+                                        / ${submission.quiz_points_possible}`
+                                                        : "Ungraded"}
                                                 </StepTitle>
                                                 <StepDescription>
                                                     {" "}
