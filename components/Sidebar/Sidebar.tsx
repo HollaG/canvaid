@@ -404,7 +404,7 @@ const Sidebar = () => {
                             />
                         </Flex>
                     ) : (
-                        <>
+                        <Box overflowY={"scroll"} flexGrow={1}>
                             {" "}
                             <Text
                                 textColor={helperColor}
@@ -675,7 +675,7 @@ const Sidebar = () => {
                                     }
                                 )}
                             </Accordion>
-                        </>
+                        </Box>
                     )}
                     <Flex alignItems={"center"} justifyContent="space-between">
                         <Menu>
