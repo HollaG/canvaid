@@ -14,6 +14,7 @@ import { getUploads } from "@/lib/functions";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/database";
 import { COLLECTION_NAME } from "@/lib/constants";
+import { MotionConfig } from "framer-motion";
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
@@ -238,7 +239,11 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
     return (
         <UserContext.Provider value={AuthContainer}>
-            {user === undefined ? <></> : children}
+            <MotionConfig
+                reducedMotion={user && user.accessibility ? "always" : "user"}
+            >
+                {user === undefined ? <></> : children}
+            </MotionConfig>
         </UserContext.Provider>
     );
 };

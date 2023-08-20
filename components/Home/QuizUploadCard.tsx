@@ -204,10 +204,23 @@ export default function QuizUploadCard({
                                     .split(" ")
                                     .slice(1)
                                     .join(" ")}
+                                uploadId={quiz.id}
+                                key={quiz.id}
                             />
                         </CardHeader>
                         <CardBody pt={0}>
-                            <Heading fontSize="lg" mb={3}>
+                            <Heading
+                                fontSize="lg"
+                                mb={3}
+                                overflow={"hidden"}
+                                display="-webkit-box"
+                                style={{
+                                    WebkitLineClamp: 2,
+                                    lineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                }}
+                                wordBreak="break-word"
+                            >
                                 {" "}
                                 {quiz.quizName}
                             </Heading>

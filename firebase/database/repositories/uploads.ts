@@ -489,9 +489,44 @@ export const togglePinQuiz = async (quizId: string) => {
     }
 };
 
+/**
+ * Uploads the exam template to the database for Exam Mode.
+ *
+ * @param quiz The quiz that an exam will be done
+ * @returns
+ */
 export const uploadExamTemplate = async (quiz: Quiz) => {
     try {
         const docRef = await addDoc(collection(db, COLLECTION_NAME), quiz);
+
+        return {
+            ...quiz,
+            id: docRef.id,
+        } as Quiz & { id: string };
+    } catch (e) {
+        console.log("ERROR:", e);
+        throw e;
+    }
+};
+
+/**
+ * Imports an external quiz (someone elses') to the user's account.
+ *
+ * @param quiz The quiz to import
+ * @param uid The user uid who is importing
+ */
+export const importToSelf = async (
+    quiz: Quiz & { id?: string },
+    uid: string
+) => {
+    try {
+        // the old quiz id needs to be deleted
+        const copiedQuiz = { ...quiz };
+        delete copiedQuiz.id;
+        const docRef = await addDoc(
+            collection(db, COLLECTION_NAME),
+            copiedQuiz as Quiz
+        );
 
         return {
             ...quiz,

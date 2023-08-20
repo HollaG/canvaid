@@ -1,5 +1,5 @@
 import { create } from "@/firebase/database/repositories/uploads";
-import { getUser } from "@/firebase/database/repositories/users";
+import { findByExtensionToken } from "@/firebase/database/repositories/users";
 import {
     CanvasQuiz,
     Course,
@@ -10,7 +10,6 @@ import {
     CanvasQuizSubmissionQuestion,
     QuizSubmissionQuestion,
 } from "@/types/canvas";
-import { readFile } from "fs";
 import { NextResponse } from "next/server";
 import parse from "node-html-parser";
 
@@ -31,6 +30,9 @@ export interface IAddBody {
     course: string;
     uid: string;
     canvasApiToken: string;
+    courseId?: string;
+    quizId?: string;
+    extensionToken?: string; // provided in place of uid
 }
 
 const CANVAS_URL = process.env.NEXT_PUBLIC_CANVAS_URL;
@@ -44,16 +46,28 @@ const API_ERROR_MESSAGE =
 export async function POST(request: Request) {
     // todo: error handling
     try {
+        const body: IAddBody = await request.json();
         const {
             html,
             quizName: _quizName,
             course: _courseName,
             uid,
             canvasApiToken,
-        }: IAddBody = await request.json();
+            extensionToken,
+        } = body;
+        let { courseId, quizId } = body;
         // console.log({ data });
 
+        let userUid: string = uid;
+        if (uid === "" && extensionToken) {
+            // if uid is empty, use extension token to get the user
+            const user = await findByExtensionToken(extensionToken);
+            if (!user) throw new Error("User not found!");
+            userUid = user.uid;
+        }
+
         if (!html) {
+            console.log("Missing HTML");
             throw new Error(PARSE_ERROR_MESSAGE);
         }
 
@@ -61,6 +75,7 @@ export async function POST(request: Request) {
 
         const obj: QuizResponse = {};
         if (!root) {
+            console.log("Malformed root");
             throw new Error(PARSE_ERROR_MESSAGE);
         }
 
@@ -68,6 +83,7 @@ export async function POST(request: Request) {
         // get the user
         const API_TOKEN = canvasApiToken;
         if (!API_TOKEN) {
+            console.log("Incorrect API Token");
             throw new Error("No API token was present!");
         }
 
@@ -96,9 +112,12 @@ export async function POST(request: Request) {
         // URL format: https://canvas.nus.edu.sg/courses/36856/quizzes/10053#content
         // courseId is the first number, quizId is the second number
 
-        const [courseId, quizId] = URL.match(/\d+/g) || [];
+        if (!courseId || !quizId) [courseId, quizId] = URL.match(/\d+/g) || [];
 
-        if (!courseId || !quizId) throw new Error(PARSE_ERROR_MESSAGE);
+        if (!courseId || !quizId) {
+            console.log("Missing Course ID and Quiz ID");
+            throw new Error(PARSE_ERROR_MESSAGE);
+        }
 
         const fetchQuizDataUrl = `${CANVAS_URL}courses/${courseId}/quizzes/${quizId}/submissions`;
 
@@ -291,40 +310,6 @@ export async function POST(request: Request) {
                 }
             }
 
-            // TODO: support this in futures
-            // if (
-            //     question.classList.contains(
-            //         "fill_in_multiple_blanks_question"
-            //     )
-            // ) {
-            //     const inputtedAnswers =
-            //         question.querySelectorAll(".selected_answer");
-
-            //     const answerTextArray = [];
-            //     // https://stackoverflow.com/questions/6520192/how-to-get-the-text-node-of-an-element
-            //     for (const inputtedAnswer of inputtedAnswers) {
-            //         if (inputtedAnswer.childNodes.length < 2) continue;
-            //         answerTextArray.push(
-            //             inputtedAnswer.childNodes[1].textContent
-            //                 .replaceAll("\n", "")
-            //                 .trim()
-            //         );
-            //     }
-            //     qnObj.answer_text = answerTextArray;
-
-            //     const correctAnswers =
-            //         question.querySelectorAll(".correct_answer");
-            //     let correctAnswerArray = [];
-            //     for (const correctAnswer of correctAnswers) {
-            //         if (correctAnswer.childNodes.length < 2) continue;
-            //         correctAnswerArray.push(
-            //             correctAnswer.childNodes[1].textContent
-            //                 .replaceAll("\n", "")
-            //                 .trim()
-            //         );
-            //     }
-            //     qnObj.correct_answer_text = correctAnswerArray;
-            // }
             const pointElement = question.querySelector(".user_points");
 
             if (!pointElement) throw new Error(PARSE_ERROR_MESSAGE);
@@ -354,43 +339,26 @@ export async function POST(request: Request) {
                 quizData[attemptNumber] || quizData.at(-1) || quizData[0], // note: take the latest attempt. todo: get the attempt number instead
             quizName,
             course,
-            userUid: uid,
+            userUid: userUid,
         };
 
         const quiz = await create(quizAttempt, quizInformation);
 
         const data = { quizAttempt, quiz };
         return NextResponse.json(data);
-
-        // const formData = await request.formData();
-        // console.log(request.body?.getReader());
-        // const reader = await request.text();
-        // console.log(reader)
-        // console.log(formData.get("file"));
-        // const file = formData.get("file");
-
-        // if (!file) {
-        //     return console.log("error: no file");
-        // }
-
-        // // https://stackoverflow.com/questions/71090990/typescript-property-name-does-not-exist-on-type-formdataentryvalue
-        // if (file instanceof File) {
-        //     const html = await file.text();
-        //     const root = parse(html);
-
-        //     console.log(root.firstChild);
-        // } else {
-        //     console.log("not a file");
-        // }
-
-        // const res = await request.json();
-        // console.log({ request });
     } catch (e: any) {
         console.log(e);
         if (e.message === "You have already submitted this attempt!") {
             return NextResponse.json(null, {
                 status: 409,
                 statusText: e,
+            });
+        }
+
+        if (e.message === API_ERROR_MESSAGE) {
+            return NextResponse.json(null, {
+                status: 401,
+                statusText: e.message,
             });
         }
 

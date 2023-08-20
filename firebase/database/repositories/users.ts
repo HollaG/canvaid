@@ -1,6 +1,15 @@
 import { AppUser } from "@/types/user";
 import { User } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    setDoc,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 import { db } from "..";
 
 const COLLECTION_NAME = "users";
@@ -14,6 +23,11 @@ export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
 
             return {
                 ...dbUser.data(),
+                // add the animation
+                accessibility:
+                    dbUser.data()?.accessibility === undefined
+                        ? false
+                        : dbUser.data()?.accessibility,
             } as AppUser;
         } else {
             const docRef = await setDoc(dbRef, user);
@@ -23,6 +37,7 @@ export const createUserIfNotExists = async (user: User): Promise<AppUser> => {
                 canvasApiToken: "",
                 uploadedIds: [],
                 courseColors: {},
+                accessibility: true,
             } as AppUser;
         }
     } catch (e) {
@@ -57,6 +72,59 @@ export const updateUserColorChoice = async (
         });
 
         return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const updateUserAccessibility = async (
+    uid: string,
+    accessibility: boolean
+) => {
+    const dbRef = doc(db, "users", uid);
+    try {
+        await updateDoc(dbRef, {
+            accessibility,
+        });
+
+        return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const updateUserExtensionToken = async (
+    uid: string,
+    extensionToken: string
+) => {
+    const dbRef = doc(db, "users", uid);
+    try {
+        await updateDoc(dbRef, {
+            extensionToken,
+        });
+
+        return true;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+};
+
+export const findByExtensionToken = async (
+    extensionToken: string
+): Promise<AppUser | null> => {
+    const dbRef = collection(db, "users");
+    try {
+        const querySnapshot = query(
+            dbRef,
+            where("extensionToken", "==", extensionToken)
+        );
+        const existingSnapshot = await getDocs(querySnapshot);
+        const latestDoc = existingSnapshot.docs[0];
+        const existingData = latestDoc.data() as AppUser;
+        return existingData;
     } catch (e) {
         console.log(e);
         throw e;

@@ -2,7 +2,6 @@
 import { useQuizContainer, useSidebarContainer } from "@/app/providers";
 import CourseInfo from "@/components/Display/CourseInfo";
 import { ExamAnswerList } from "@/components/Exam/ExamAnswerList";
-import { ExamSidebar } from "@/components/Sidebar/ExamSidebar";
 import {
     create,
     getQuizUpload,
@@ -17,10 +16,8 @@ import {
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
 import {
     CanvasQuizSubmission,
-    QuestionResponse,
     Quiz,
     QuizAttempt,
-    QuizResponse,
     QuizSubmissionQuestion,
 } from "@/types/canvas";
 import {
@@ -37,7 +34,6 @@ import {
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import router from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
 /**
@@ -283,19 +279,6 @@ export default function Page() {
                                     selectedOptions={selectedOptions}
                                     setSelectedOptions={setSelectedOptions}
                                 />
-                                {/* <Box mt={3}>
-                                         <AnswerList
-                                            questionType={
-                                                question.question_type
-                                            }
-                                            answers={question.answers}
-                                            selectedOptions={quizResponse}
-                                            show_correct_answers={
-                                                quiz.quizInfo
-                                                    .show_correct_answers
-                                            }
-                                        /> *
-                                    </Box> */}
                             </Stack>
                         ))}
                     </Stack>
@@ -322,11 +305,6 @@ export default function Page() {
                 {/* </GridItem>
             </Grid> */}
             </Stack>{" "}
-            {/* <ExamSidebar
-                questions={qns}
-                selectedOption={selectedOptions}
-                examLength={examLength}
-            /> */}
         </Flex>
     );
 }

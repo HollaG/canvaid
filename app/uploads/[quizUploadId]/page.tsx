@@ -5,6 +5,7 @@ import {
     updateQuizQuestionFlag,
     deleteAttempt,
     deleteQuiz,
+    importToSelf,
 } from "@/firebase/database/repositories/uploads";
 import {
     NAVBAR_HEIGHT,
@@ -15,10 +16,7 @@ import {
     Answer,
     QuestionResponse,
     Quiz,
-    QuizResponse,
     QuizSubmissionQuestion,
-    QuizAttempt,
-    CanvasQuizSubmission,
 } from "@/types/canvas";
 import {
     Input,
@@ -50,20 +48,6 @@ import {
     AlertIcon,
     AlertTitle,
     useToast,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    FormControl,
-    FormLabel,
-    NumberInput,
-    NumberInputField,
-    NumberInputStepper,
-    NumberIncrementStepper,
-    NumberDecrementStepper,
     useSteps,
     useBreakpointValue,
     Container,
@@ -77,17 +61,14 @@ import {
     StepStatus,
     StepTitle,
     useMediaQuery,
+    useBoolean,
+    AlertDescription,
 } from "@chakra-ui/react";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-    useEffect,
-    useState,
-    FormEvent,
-    Dispatch,
-    SetStateAction,
-} from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { FaRegFlag, FaFlag } from "react-icons/fa";
+import { TbEye, TbEyeFilled } from "react-icons/tb";
 import { DeleteAnnotationButton } from "@/components/DeleteButton";
 import CourseInfo from "@/components/Display/CourseInfo";
 import {
@@ -95,11 +76,8 @@ import {
     useQuizContainer,
     useSidebarContainer,
 } from "@/app/providers";
-import { DeleteIcon } from "@chakra-ui/icons";
 import CustomAlertDialog from "@/components/Alert/CustomAlertDialog";
 import { ERROR_TOAST_OPTIONS, SUCCESS_TOAST_OPTIONS } from "@/lib/toasts";
-
-import { create } from "@/firebase/database/repositories/uploads";
 import {
     convertCustomAttemptNumber,
     getExaminableQuestions,
@@ -113,20 +91,7 @@ import Image from "next/image";
 
 import ExamImage from "@/public/assets/exam.svg";
 import ExamDarkImage from "@/public/assets/exam-dark.svg";
-
-// export default async function Page({
-//     params,
-//     searchParams,
-// }: {
-//     params: { quizUploadId: string };
-//     searchParams?: { [key: string]: string | string[] | undefined };
-// }) {
-//     const uploadId = params.quizUploadId;
-
-//     const data = await getQuizUpload(uploadId);
-
-//     return <QuizContainer loadedQuiz={data} />;
-// }
+import Navbar from "@/components/Navbar/Navbar";
 
 /**
  *
@@ -150,6 +115,7 @@ export default function Page() {
     const submissionIndexToShow = searchParams.get("submission");
 
     // fetch quiz incase this is not this user's quiz
+    const isUserQuiz = user && quiz?.userUid === user.uid;
     useEffect(() => {
         if (!quiz) {
             getQuizUpload(dataId)
@@ -160,8 +126,35 @@ export default function Page() {
                 .catch(() => {
                     router.push("/");
                 });
+        } else {
         }
     }, [dataId, quiz, setQuiz, router]);
+
+    // import quiz
+    const [isImporting, setIsImporting] = useState(false);
+    const onImport = () => {
+        // import the quiz and redirect to that specific quiz page
+        if (!user) return;
+        setIsImporting(true);
+        importToSelf(quiz, user.uid)
+            .then((newQuiz) => {
+                toast({
+                    ...SUCCESS_TOAST_OPTIONS,
+                    title: "Quiz imported!",
+                });
+                router.push(`/uploads/${newQuiz.id}`);
+            })
+            .catch((e) => {
+                toast({
+                    ...ERROR_TOAST_OPTIONS,
+                    title: "Error importing quiz",
+                    description: e.message,
+                });
+            })
+            .finally(() => {
+                setIsImporting(false);
+            });
+    };
 
     const [submissionIndex, setSubmissionIndex] = useState(
         submissionIndexToShow ? parseInt(submissionIndexToShow) : 0
@@ -272,6 +265,10 @@ export default function Page() {
         setNumQns(getExaminableQuestions(quiz).length);
     }, [quiz]);
 
+    const noFlaggedQuestions =
+        getQuestionsForAttempt(submissionIndex).filter((qn) => qn.isFlagged)
+            .length === 0;
+
     // for exam mode
     const steps = [
         {
@@ -295,6 +292,15 @@ export default function Page() {
 
     const [showIllustration] = useMediaQuery("(min-width: 1000px)");
     const isDarkMode = useColorModeValue(false, true);
+
+    // For showing / hiding flagged questions
+    const [showFlaggedOnly, setShowFlaggedOnly] = useBoolean(false);
+    console.log("flag" + showFlaggedOnly);
+    useEffect(() => {
+        if (noFlaggedQuestions && showFlaggedOnly == true) {
+            setShowFlaggedOnly.toggle();
+        }
+    }, [noFlaggedQuestions, setShowFlaggedOnly]);
     return (
         // <Container maxW={PAGE_CONTAINER_SIZE} mt={NAVBAR_HEIGHT} pt={3}>
         <Flex
@@ -302,6 +308,7 @@ export default function Page() {
             // mt={NAVBAR_HEIGHT}
             px={{ base: 0, md: 6 }}
         >
+            {!user && <Navbar />}
             <CustomAlertDialog
                 {...alertDeleteDisclosure}
                 bodyText={`Are you sure you want to delete this quiz? All attempts will be deleted. 
@@ -436,6 +443,7 @@ export default function Page() {
                     bgColor={bgColor}
                     borderRadius={{ base: 0, md: "xl" }}
                     mt={{ base: 0, md: 6 }}
+                    pt={!user ? NAVBAR_HEIGHT : 0}
                 >
                     {/* <Box>
                     <Text
@@ -446,6 +454,22 @@ export default function Page() {
                     </Text>
                     <Heading>{quiz.quizName}</Heading>
                 </Box> */}
+                    {!isUserQuiz && user && (
+                        <Alert
+                            status="warning"
+                            onClick={onImport}
+                            cursor="pointer"
+                        >
+                            <AlertIcon />
+                            <AlertTitle>Viewing external quiz!</AlertTitle>
+                            <AlertDescription>
+                                {" "}
+                                {isImporting
+                                    ? "Importing..."
+                                    : "Click here to import to your collection."}{" "}
+                            </AlertDescription>
+                        </Alert>
+                    )}
                     {deleteErrorMessage && (
                         <Alert status="error">
                             <AlertIcon />
@@ -604,23 +628,59 @@ export default function Page() {
                                             </Heading>
                                             {user &&
                                             user.uid === quiz.userUid ? (
-                                                <Flex>
-                                                    <Button
-                                                        size="sm"
-                                                        colorScheme={"red"}
-                                                        onClick={() => {
-                                                            attemptDeleteDisclosure.onOpen();
-                                                            setAttemptNumberToDelete(
-                                                                quiz
-                                                                    .submissions[
-                                                                    submissionIndex
-                                                                ].attempt
-                                                            );
-                                                        }}
-                                                        data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
-                                                    >
-                                                        <TbTrashX />
-                                                    </Button>
+                                                <Flex alignItems={"center"}>
+                                                    {!noFlaggedQuestions && (
+                                                        <Tooltip
+                                                            label={`${
+                                                                showFlaggedOnly
+                                                                    ? "Show all questions"
+                                                                    : "Show only flagged questions"
+                                                            }`}
+                                                        >
+                                                            <Button
+                                                                size="sm"
+                                                                colorScheme={
+                                                                    "teal"
+                                                                }
+                                                                variant={
+                                                                    showFlaggedOnly
+                                                                        ? "solid"
+                                                                        : "outline"
+                                                                }
+                                                                onClick={
+                                                                    setShowFlaggedOnly.toggle
+                                                                }
+                                                                data-testid={`toggle-flagged`}
+                                                                ml={2}
+                                                                w="40px"
+                                                            >
+                                                                {showFlaggedOnly ? (
+                                                                    <TbEyeFilled />
+                                                                ) : (
+                                                                    <TbEye />
+                                                                )}
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )}
+
+                                                    <Tooltip label="Delete this attempt">
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme={"red"}
+                                                            onClick={() => {
+                                                                attemptDeleteDisclosure.onOpen();
+                                                                setAttemptNumberToDelete(
+                                                                    quiz
+                                                                        .submissions[
+                                                                        submissionIndex
+                                                                    ].attempt
+                                                                );
+                                                            }}
+                                                            data-testid={`delete-attempt-${quiz.submissions[submissionIndex].attempt}`}
+                                                        >
+                                                            <TbTrashX />
+                                                        </Button>
+                                                    </Tooltip>
                                                 </Flex>
                                             ) : (
                                                 <></>
@@ -629,30 +689,86 @@ export default function Page() {
                                         <Stack spacing="10">
                                             {getQuestionsForAttempt(
                                                 submissionIndex
-                                            ).map((question, i) => (
-                                                <Stack
-                                                    key={i}
-                                                    alignItems="stretch"
-                                                    borderWidth="1px"
-                                                    borderRadius="md"
-                                                    padding="4"
-                                                    bgColor={questionBgColor}
-                                                >
-                                                    <Heading
-                                                        fontSize="lg"
-                                                        alignItems={"center"}
-                                                        display="flex"
-                                                        justifyContent={
-                                                            "space-between"
+                                            )
+                                                .filter((qn) =>
+                                                    showFlaggedOnly
+                                                        ? qn.isFlagged
+                                                        : true
+                                                )
+                                                .map((question, i) => (
+                                                    <Stack
+                                                        key={i}
+                                                        alignItems="stretch"
+                                                        borderWidth="1px"
+                                                        borderRadius="md"
+                                                        padding="4"
+                                                        bgColor={
+                                                            questionBgColor
                                                         }
                                                     >
-                                                        <div>
-                                                            {" "}
-                                                            Question {i +
-                                                                1}{" "}
-                                                            <QuestionResultTag
-                                                                quiz={quiz}
-                                                                questionResponse={
+                                                        <Heading
+                                                            fontSize="lg"
+                                                            alignItems={
+                                                                "center"
+                                                            }
+                                                            display="flex"
+                                                            justifyContent={
+                                                                "space-between"
+                                                            }
+                                                        >
+                                                            <div>
+                                                                {" "}
+                                                                Question {i +
+                                                                    1}{" "}
+                                                                <QuestionResultTag
+                                                                    quiz={quiz}
+                                                                    questionResponse={
+                                                                        quiz
+                                                                            .selectedOptions[
+                                                                            submissionIndex
+                                                                        ][
+                                                                            question
+                                                                                .id
+                                                                        ]
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            {user &&
+                                                            user.uid ===
+                                                                quiz.userUid ? (
+                                                                <FlaggingButton
+                                                                    question={
+                                                                        question
+                                                                    }
+                                                                    quiz={quiz}
+                                                                    setQuiz={
+                                                                        setQuiz
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <></>
+                                                            )}
+                                                        </Heading>
+                                                        <div
+                                                            className="question-text"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: question.question_text,
+                                                            }}
+                                                        />
+                                                        <Divider />
+                                                        <Box mt={3}>
+                                                            <AnswerList
+                                                                questionType={
+                                                                    question.question_type
+                                                                }
+                                                                answers={
+                                                                    question.answers
+                                                                }
+                                                                selectedOptions={
+                                                                    quiz
+                                                                        .selectedOptions[
+                                                                        submissionIndex
+                                                                    ] &&
                                                                     quiz
                                                                         .selectedOptions[
                                                                         submissionIndex
@@ -661,62 +777,20 @@ export default function Page() {
                                                                             .id
                                                                     ]
                                                                 }
-                                                            />
-                                                        </div>
-                                                        {user &&
-                                                        user.uid ===
-                                                            quiz.userUid ? (
-                                                            <FlaggingButton
-                                                                question={
-                                                                    question
-                                                                }
-                                                                quiz={quiz}
-                                                                setQuiz={
-                                                                    setQuiz
+                                                                show_correct_answers={
+                                                                    quiz
+                                                                        .quizInfo
+                                                                        .show_correct_answers
                                                                 }
                                                             />
-                                                        ) : (
-                                                            <></>
-                                                        )}
-                                                    </Heading>
-                                                    <div
-                                                        className="question-text"
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: question.question_text,
-                                                        }}
-                                                    />
-                                                    <Divider />
-                                                    <Box mt={3}>
-                                                        <AnswerList
-                                                            questionType={
-                                                                question.question_type
-                                                            }
-                                                            answers={
-                                                                question.answers
-                                                            }
-                                                            selectedOptions={
-                                                                quiz
-                                                                    .selectedOptions[
-                                                                    submissionIndex
-                                                                ] &&
-                                                                quiz
-                                                                    .selectedOptions[
-                                                                    submissionIndex
-                                                                ][question.id]
-                                                            }
-                                                            show_correct_answers={
-                                                                quiz.quizInfo
-                                                                    .show_correct_answers
-                                                            }
+                                                        </Box>
+                                                        <QuestionExtras
+                                                            question={question}
+                                                            quiz={quiz}
+                                                            setQuiz={setQuiz}
                                                         />
-                                                    </Box>
-                                                    <QuestionExtras
-                                                        question={question}
-                                                        quiz={quiz}
-                                                        setQuiz={setQuiz}
-                                                    />
-                                                </Stack>
-                                            ))}
+                                                    </Stack>
+                                                ))}
                                         </Stack>
                                     </Stack>
                                 )}
@@ -1020,7 +1094,7 @@ const AnswerList = ({
                         "0"
                     }
                 >
-                    <Stack>
+                    <Stack divider={<Divider />}>
                         {answers.map((answer, i) => (
                             <Flex alignItems={"center"} key={i}>
                                 <Box width="100px" textAlign={"end"} mr={3}>
@@ -1037,8 +1111,15 @@ const AnswerList = ({
                                     value={answer.id.toString()}
                                     isReadOnly
                                 >
-                                    {" "}
-                                    {answer.text ?? answer.html}{" "}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Radio>
                             </Flex>
                         ))}
@@ -1052,10 +1133,20 @@ const AnswerList = ({
             ) || [""];
             return (
                 <CheckboxGroup value={userSelected}>
-                    <Stack spacing={4}>
+                    <Stack spacing={4} divider={<Divider />}>
                         {answers.map((answer, i) => (
-                            <Flex alignItems={"center"} key={i}>
-                                <Box width="100px" textAlign={"end"} mr={3}>
+                            <Flex
+                                alignItems={{ base: "unset", sm: "center" }}
+                                key={i}
+                                flexDirection={{ base: "column", sm: "row" }}
+                            >
+                                <Box
+                                    width="100px"
+                                    textAlign={{ base: "unset", sm: "end" }}
+                                    mr={3}
+                                    flexShrink={0}
+                                    // display={{ base: "none", md: "unset" }}
+                                >
                                     <AnswerResultTag
                                         answer={answer}
                                         selectedOptions={selectedOptions}
@@ -1070,7 +1161,15 @@ const AnswerList = ({
                                     isReadOnly
                                 >
                                     {" "}
-                                    {answer.text ?? answer.html}{" "}
+                                    {answer.html ? (
+                                        <div
+                                            dangerouslySetInnerHTML={{
+                                                __html: answer.html,
+                                            }}
+                                        />
+                                    ) : (
+                                        answer.text
+                                    )}
                                 </Checkbox>
                             </Flex>
                         ))}
@@ -1085,7 +1184,12 @@ const AnswerList = ({
                 <Stack spacing={4}>
                     <Flex alignItems={"center"}>
                         {" "}
-                        <Box width="100px" textAlign="end" mr={3}>
+                        <Box
+                            width="100px"
+                            textAlign="end"
+                            mr={3}
+                            flexShrink={0}
+                        >
                             <AnswerResultTag
                                 selectedOptions={selectedOptions}
                                 show_correct_answers={show_correct_answers}
@@ -1106,7 +1210,12 @@ const AnswerList = ({
                     {selectedOptions?.correct_answer_text && (
                         <Flex alignItems={"center"}>
                             {" "}
-                            <Box width="100px" textAlign="end" mr={3}>
+                            <Box
+                                width="100px"
+                                textAlign="end"
+                                mr={3}
+                                flexShrink={0}
+                            >
                                 {/* <Badge colorScheme="green">Correct!</Badge> */}
                             </Box>{" "}
                             <Box>
@@ -1292,11 +1401,11 @@ const CombinedQuestionList = ({
                                     questionResponse={question.best_attempt}
                                 />
                             </div>
-                            <FlaggingButton
+                            {/* <FlaggingButton
                                 question={question}
                                 setQuiz={setQuiz}
                                 quiz={quiz}
-                            />
+                            /> */}
                         </Heading>
                         {/* https://stackoverflow.com/questions/23616226/insert-html-with-react-variable-statements-jsx */}
                         <div
@@ -1383,10 +1492,4 @@ const CombinedQuestionList = ({
             </Stack>
         </Stack>
     );
-
-    //
-
-    // <Stack spacing="10">
-
-    // </Stack>
 };
