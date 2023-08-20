@@ -11,13 +11,7 @@ import { auth } from "@/firebase/config";
 import { customTheme } from "@/theme/theme";
 import { Quiz, QuizResponse, QuizSubmissionQuestion } from "@/types/canvas";
 import { getUploads } from "@/lib/functions";
-import {
-    collection,
-    onSnapshot,
-    orderBy,
-    query,
-    where,
-} from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/database";
 import { COLLECTION_NAME } from "@/lib/constants";
 import { MotionConfig } from "framer-motion";
@@ -79,16 +73,15 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
     const [searchString, setSearchString] = useState<string>("");
 
     // initial fetch
-    // useEffect(() => {
-    //     if (user) {
-    //         getUploads(user.uid).then((data) => {
-    //             setQuizzes(data.data || []);
-    //             setSelectedOptions({});
-    //             setExamQuestionList([]);
-    //             console.log(data.data);
-    //         });
-    //     }
-    // }, [user]);
+    useEffect(() => {
+        if (user) {
+            getUploads(user.uid).then((data) => {
+                setQuizzes(data.data || []);
+                setSelectedOptions({});
+                setExamQuestionList([]);
+            });
+        }
+    }, [user]);
 
     const QuizStorageContainer: IQuizStorageContext = {
         selectedOptions,
@@ -116,15 +109,11 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
         setExamQuestionList,
     };
 
-    console.log({ quizzes });
-
-    // subscribe to changes
     useEffect(() => {
         if (user) {
             const docsRef = query(
                 collection(db, COLLECTION_NAME),
-                where("userUid", "==", user.uid),
-                orderBy("lastUpdated", "desc")
+                where("userUid", "==", user.uid)
             );
             const unsubscribe = onSnapshot(docsRef, {
                 next: (querySnapshot) => {
@@ -137,9 +126,9 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
                                     id: string;
                                 };
                                 quiz.id = change.doc.id;
-
                                 newQuizzes.push(quiz);
-                            } else if (change.type === "modified") {
+                            }
+                            if (change.type === "modified") {
                                 const quiz = change.doc.data() as Quiz & {
                                     id: string;
                                 };
@@ -158,22 +147,7 @@ const QuizStorageProvider = ({ children }: { children: React.ReactNode }) => {
                                 if (index !== -1) newQuizzes.splice(index, 1);
                             }
                         });
-
-                        // make sure no duplicates based on quiz.id
-                        const uniqueQuizzes = newQuizzes.filter(
-                            (quiz, index, self) =>
-                                index ===
-                                self.findIndex((t) => t.id === quiz.id)
-                        );
-
-                        // sort by last updated
-                        uniqueQuizzes.sort((a, b) => {
-                            if (a.lastUpdated < b.lastUpdated) return 1;
-                            else if (a.lastUpdated > b.lastUpdated) return -1;
-                            else return 0;
-                        });
-
-                        return uniqueQuizzes;
+                        return newQuizzes;
                     });
                 },
             });
