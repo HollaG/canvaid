@@ -35,6 +35,8 @@ import {
     AlertTitle,
     Code,
     Kbd,
+    Link,
+    Badge,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
@@ -253,7 +255,8 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                 <Text fontSize={"xl"}>
                                     {" "}
                                     Go to the page where you can see your quiz
-                                    results (your URL should look like{" "}
+                                    results and quiz questions (your URL should
+                                    look like{" "}
                                     <Code
                                         colorScheme="gray"
                                         wordBreak={"break-all"}
@@ -268,9 +271,23 @@ export default function AddComponent({ onClose }: { onClose: () => void }) {
                                     save the page as{" "}
                                     <Code colorScheme="gray">
                                         {" "}
-                                        Webpage, HTML Only
+                                        Webpage, Complete
                                     </Code>
                                     .
+                                </Text>
+                                <Text mt={4} fontSize="xl">
+                                    {" "}
+                                    <Badge>NEW feature</Badge> Download the
+                                    accompanying{" "}
+                                    <Link
+                                        href="https://chrome.google.com/webstore/detail/canvaid-extension/ciamcfkchbkcgdpgdbnjnoaidhmjclpj"
+                                        isExternal
+                                        color={"blue.500"}
+                                    >
+                                        Chrome Extension here
+                                    </Link>{" "}
+                                    to upload the quiz directly by clicking on
+                                    the Extension.
                                 </Text>
                             </Flex>
 
